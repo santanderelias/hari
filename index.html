@@ -48,7 +48,7 @@
 
         .hiragana-display {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            /* Responsive font size: minimum 60px, ideal 25vw, maximum 120px */
+            /* Responsive font size: minimum 60px, ideal 25vw, maximum 120px. This will be an initial max-size.*/
             font-size: clamp(60px, 25vw, 120px); 
             font-weight: 700;
             color: #2c3e50; /* Dark slate blue */
@@ -60,9 +60,9 @@
             align-items: center;
             justify-content: center;
             min-height: 180px; /* Ensure a minimum height for the display area */
-            white-space: nowrap; /* Prevent words from wrapping to the next line */
-            overflow-x: auto; /* Allow horizontal scrolling if content overflows due to nowrap */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Removed white-space: nowrap; and overflow-x: auto; to allow scaling */
+            text-align: center; /* Ensure multi-line text is centered */
+            word-break: break-word; /* Allow words to break if necessary to fit */
         }
 
         .card-body {
@@ -420,6 +420,34 @@
             }
 
             /**
+             * Adjusts the font size of the Hiragana display to ensure the text fits within its container.
+             * It iteratively reduces the font size until the text no longer overflows horizontally.
+             */
+            function adjustFontSizeToFit() {
+                const displayElement = elements.display;
+                const originalFontSize = parseFloat(getComputedStyle(displayElement).fontSize); // Get current computed font size
+
+                // Reset to a large base font size initially for adjustment
+                let currentFontSize = 120; // Start with the maximum desired font size
+                displayElement.style.fontSize = `${currentFontSize}px`;
+
+                // Check if content overflows and reduce font size if it does
+                while (displayElement.scrollWidth > displayElement.clientWidth && currentFontSize > 10) {
+                    currentFontSize -= 5; // Reduce font size by 5px
+                    displayElement.style.fontSize = `${currentFontSize}px`;
+                }
+
+                // If after shrinking, it still overflows and currentFontSize is at minimum, allow text wrapping
+                if (displayElement.scrollWidth > displayElement.clientWidth && currentFontSize <= 10) {
+                    displayElement.style.whiteSpace = 'normal'; // Allow wrapping
+                    displayElement.style.wordBreak = 'break-word'; // Ensure words break if needed
+                } else {
+                    displayElement.style.whiteSpace = 'nowrap'; // Keep on one line if it fits
+                }
+            }
+
+
+            /**
              * Selects and displays a new random Hiragana item (character or word) from the appropriate list
              * based on the current `practiceType`. It ensures the new item is different from the previous one.
              * Also updates instruction text and toggle button text.
@@ -467,6 +495,9 @@
                 elements.input.focus(); // Focus the input field for immediate typing
                 elements.feedback.textContent = ''; // Clear any previous feedback
                 elements.feedback.classList.remove('correct', 'incorrect'); // Remove feedback styling
+
+                // Adjust font size after setting text content
+                adjustFontSizeToFit();
             }
 
             /**
@@ -560,6 +591,9 @@
                 updateStatsDisplay(); // Update display with new mode's stats
                 showNextItem(); // Show the first item of the new mode
             });
+
+            // Listen for window resize to re-adjust font size if needed
+            window.addEventListener('resize', adjustFontSizeToFit);
 
             // --- INITIALIZATION ---
             // Determine initial practice type from localStorage or default
