@@ -23,51 +23,90 @@
             align-items: flex-start; /* Aligns items to the start of the cross axis (top) */
             min-height: 100vh;
             color: #333;
-            /* Ensure the body doesn't overflow horizontally on smaller screens */
             overflow-x: hidden;
-            /* Remove all padding-top */
             padding-top: 0; 
         }
 
+        /* Navbar Styling */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 15px; /* Rounded corners for the bottom of the nav */
+            border-bottom-right-radius: 15px;
+        }
+
+        .navbar-brand {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .navbar-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .navbar-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        .navbar-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Adjust main content positioning to account for fixed navbar */
         .main-container {
-            /* Adjusted max-width to allow more space for content */
-            max-width: 700px; /* Increased maximum width */
-            width: 90vw; /* Use 90% of viewport width, making it more responsive */
+            max-width: 700px; 
+            width: 90vw; 
             padding: 20px;
-            box-sizing: border-box; /* Include padding in element's total width and height */
-            /* Remove all margin-top */
-            margin-top: 0; 
-            /* Removed text-align: center; from here to allow title to left-align */
+            box-sizing: border-box; 
+            margin-top: 80px; /* Added margin to push content below the fixed navbar */
+            position: relative; /* For the mnemonic button to be relative to this, if ever needed (though fixed is fine) */
         }
 
         .card {
             border: none;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden; /* Ensures child elements conform to border-radius */
+            overflow: hidden; 
         }
 
         .hiragana-display {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            /* Responsive font size: minimum 60px, ideal 25vw, maximum 120px. This will be an initial max-size.*/
             font-size: clamp(60px, 25vw, 120px); 
             font-weight: 700;
-            color: #2c3e50; /* Dark slate blue */
+            color: #2c3e50; 
             background-color: #ffffff;
             padding: 40px 20px;
             margin-bottom: 0;
             line-height: 1;
-            display: flex; /* Use flexbox to center content vertically/horizontally */
+            display: flex; 
             align-items: center;
             justify-content: center;
-            min-height: 180px; /* Ensure a minimum height for the display area */
-            /* Removed white-space: nowrap; and overflow-x: auto; to allow scaling */
-            text-align: center; /* Ensure multi-line text is centered */
-            word-break: break-word; /* Allow words to break if necessary to fit */
+            min-height: 180px; 
+            text-align: center; 
+            word-break: break-word; 
         }
 
         .card-body {
-            background-color: #f8f9fa; /* Light gray for the input area */
+            background-color: #f8f9fa; 
             padding: 30px;
         }
 
@@ -108,17 +147,17 @@
             font-weight: bold;
             font-size: 1.1rem;
             transition: opacity 0.3s ease;
-            display: flex; /* Use flexbox to center feedback text */
+            display: flex; 
             align-items: center;
             justify-content: center;
         }
         
         .feedback.correct {
-            color: #28a745; /* Green for correct */
+            color: #28a745; 
         }
         
         .feedback.incorrect {
-            color: #dc3545; /* Red for incorrect */
+            color: #dc3545; 
         }
         
         /* Animation for incorrect answer */
@@ -131,7 +170,7 @@
             animation: shake 0.3s;
         }
 
-        /* Styles for the new score and level display */
+        /* Styles for the new score and level display (now inside modal) */
         .stats-container {
             display: flex;
             justify-content: space-around;
@@ -139,30 +178,28 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: #555;
-            background-color: #e2e8f0; /* Slightly darker background for stats */
+            background-color: #e2e8f0; 
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-left: auto; /* Push to center/right within main-container */
-            margin-right: auto; /* Push to center/left within main-container */
-            max-width: 300px; /* Optional: limit width of stats container */
+            margin-left: auto; 
+            margin-right: auto; 
+            max-width: 300px; 
         }
 
-        /* Mode Switch Styling */
+        /* Mode Switch Styling (adjusted for navbar) */
         .mode-switch-area {
-            position: fixed; 
-            top: 0; 
-            right: 20px; 
+            position: static; /* No longer fixed/absolute, part of navbar flow */
             display: flex;
             align-items: center;
             gap: 10px; 
             font-size: 0.9rem; 
             color: #555;
             z-index: 10; 
-            background-color: #f0f4f8; 
-            padding: 5px 10px; 
-            border-radius: 0 0 10px 10px; 
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
+            background-color: transparent; /* No background as it's within navbar */
+            padding: 0; /* No padding as it's within navbar */
+            border-radius: 0; 
+            box-shadow: none; 
         }
 
         /* The switch - the box around the slider */
@@ -229,7 +266,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #28a745; /* Green color for positive action */
+            background-color: #28a745; 
             color: white;
             font-size: 24px;
             font-weight: bold;
@@ -238,18 +275,19 @@
             align-items: center;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 100; /* Ensure it's above other elements */
+            z-index: 100; 
             transition: background-color 0.3s ease, transform 0.2s ease;
-            border: none; /* Remove default button border */
+            border: none; 
         }
 
         #mnemonic-toggle-btn:hover {
-            background-color: #218838; /* Darker green on hover */
+            background-color: #218838; 
             transform: translateY(-2px);
         }
 
         /* Mnemonic Overlay */
-        #mnemonic-overlay {
+        #mnemonic-overlay,
+        .modal-custom-overlay { /* Generic overlay for all custom modals */
             position: fixed;
             top: 0;
             left: 0;
@@ -259,24 +297,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Ensure it's on top of everything */
+            z-index: 1000; 
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        #mnemonic-overlay.active {
+        #mnemonic-overlay.active,
+        .modal-custom-overlay.active {
             opacity: 1;
             visibility: visible;
         }
 
-        #mnemonic-content {
+        #mnemonic-content,
+        .modal-custom-content {
             background-color: white;
             padding: 25px;
             border-radius: 15px;
             max-width: 90%;
             max-height: 90%;
-            overflow-y: auto; /* Allow scrolling for large mnemonics */
+            overflow-y: auto; 
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -284,14 +324,15 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
+            position: relative; /* For close button positioning */
         }
 
         #mnemonic-content img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
-            display: block; /* Remove extra space below image */
-            margin: 0 auto; /* Center image within its container */
+            display: block; 
+            margin: 0 auto; 
         }
 
         #mnemonic-content p {
@@ -300,8 +341,9 @@
             color: #333;
         }
 
-        /* Close button for mnemonic overlay */
-        #mnemonic-close-btn {
+        /* Close button for mnemonic overlay and other modals */
+        #mnemonic-close-btn,
+        .modal-close-btn {
             position: absolute;
             top: 10px;
             right: 15px;
@@ -313,23 +355,71 @@
             line-height: 1;
             padding: 5px;
         }
-        #mnemonic-close-btn:hover {
+        #mnemonic-close-btn:hover,
+        .modal-close-btn:hover {
             color: #000;
+        }
+
+        /* Styles for review mistakes section in Stats modal */
+        #review-mistakes-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        #mistake-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        #mistake-list span {
+            display: inline-block;
+            background-color: #fce8e8;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 5px 8px;
+            margin: 3px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        #start-review-btn {
+            background-color: #ffc107;
+            color: #333;
+            border-color: #ffc107;
+        }
+        #start-review-btn:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
         }
 
         /* Responsive adjustments for smaller screens */
         @media (max-width: 576px) {
+            .navbar {
+                padding: 8px 15px;
+            }
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .navbar-buttons {
+                gap: 10px;
+            }
+            .navbar-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
             .main-container {
                 padding: 10px; 
-                margin-top: 0; 
+                margin-top: 70px; /* Adjust margin for smaller navbar */
                 width: 95vw; 
             }
             .mode-switch-area {
-                top: 0; 
-                right: 10px;
                 font-size: 0.8rem;
                 gap: 5px;
-                padding: 3px 8px;
             }
             .hiragana-display {
                 padding: 15px 5px; 
@@ -344,9 +434,6 @@
             .btn {
                 padding: 10px 15px;
             }
-            body {
-                padding-top: 0; 
-            }
             #mnemonic-toggle-btn {
                 width: 35px;
                 height: 35px;
@@ -354,7 +441,7 @@
                 bottom: 15px;
                 right: 15px;
             }
-            #mnemonic-content {
+            #mnemonic-content, .modal-custom-content {
                 padding: 15px;
             }
         }
@@ -362,25 +449,29 @@
 </head>
 <body>
 
-    <div class="main-container">
-        <!-- Mode Switch: Fixed to top-right -->
-        <div class="mode-switch-area">
-            <span>Mode:</span>
-            <label class="switch">
-                <input type="checkbox" id="mode-toggle-switch">
-                <span class="slider"></span>
-            </label>
-            <span id="mode-label-text">Character</span> <!-- Text to indicate current mode -->
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <span class="navbar-brand">Hiragana Practice</span>
+        <div class="navbar-buttons">
+            <button class="navbar-btn" id="stats-btn">Stats</button>
+            <!-- Mode Switch integrated directly into navbar -->
+            <div class="mode-switch-area">
+                <span>Mode:</span>
+                <label class="switch">
+                    <input type="checkbox" id="mode-toggle-switch">
+                    <span class="slider"></span>
+                </label>
+                <span id="mode-label-text">Character</span>
+            </div>
+            <button class="navbar-btn" id="settings-btn">Settings</button>
         </div>
+    </nav>
 
-        <h1 class="mb-3 h2 text-left">Hiragana Reading</h1> <!-- Added text-left for specific alignment -->
+    <div class="main-container text-center">
+        <h1 class="mb-3 h2 text-left">Hiragana Reading</h1>
         <p class="text-muted mb-4 text-center" id="instruction-text">Type the Romaji for the character below.</p>
 
-        <!-- Stats Display: Shows current score and level -->
-        <div class="stats-container">
-            <div>Score: <span id="score-display">0</span></div>
-            <div>Level: <span id="level-display">1</span></div>
-        </div>
+        <!-- Stats Display is now inside the modal -->
 
         <div class="card">
             <!-- Hiragana character/word is displayed here -->
@@ -401,16 +492,54 @@
     </div>
 
     <!-- Mnemonic Toggle Button -->
-    <button id="mnemonic-toggle-btn" style="display: none;">?</button> <!-- Initially hidden -->
+    <button id="mnemonic-toggle-btn" style="display: none;">?</button> 
 
     <!-- Mnemonic Overlay (hidden by default) -->
-    <div id="mnemonic-overlay">
-        <div id="mnemonic-content">
-            <button id="mnemonic-close-btn">&times;</button>
+    <div id="mnemonic-overlay" class="modal-custom-overlay">
+        <div id="mnemonic-content" class="modal-custom-content">
+            <button id="mnemonic-close-btn" class="modal-close-btn">&times;</button>
             <h3 id="mnemonic-title">Mnemonic for [Character]</h3>
-            <img id="mnemonic-image" src="" alt="Mnemonic Image" style="display: none;">
+            <img id="mnemonic-image" src="" alt="Mnemonic Image" onerror="this.style.display='none'; this.alt='Image not available';" style="display: none;">
             <p id="mnemonic-text"></p>
             <p class="text-muted">You can replace these placeholder images/texts with your own mnemonics!</p>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal-custom-overlay">
+        <div class="modal-custom-content">
+            <button class="modal-close-btn" data-modal-id="stats-modal">&times;</button>
+            <h2>Your Progress</h2>
+            <div class="stats-container">
+                <div>Score: <span id="score-display">0</span></div>
+                <div>Level: <span id="level-display">1</span></div>
+            </div>
+
+            <div id="review-mistakes-section" class="text-center">
+                <h4>Review Mistakes</h4>
+                <div id="mistake-list" class="mb-3">
+                    <!-- Failed items will be displayed here dynamically -->
+                    <p class="text-muted">No mistakes to review yet!</p>
+                </div>
+                <button class="btn btn-warning" id="start-review-btn">Start Review Session</button>
+                <button class="btn btn-secondary mt-2" id="clear-mistakes-btn" style="display: none;">Clear Mistakes</button>
+            </div>
+
+            <div id="progress-visualizations-section" class="text-center mt-4">
+                <h4>Progress Visualizations</h4>
+                <p class="text-muted">This section could show your mastery of characters/words over time (e.g., a heatmap or a list of mastered items).</p>
+                <p class="text-muted">To be implemented in future iterations.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Placeholder) -->
+    <div id="settings-modal" class="modal-custom-overlay">
+        <div class="modal-custom-content">
+            <button class="modal-close-btn" data-modal-id="settings-modal">&times;</button>
+            <h2>Settings</h2>
+            <p class="text-muted">Settings options will go here (e.g., reset progress, sound options).</p>
+            <p class="text-muted">To be implemented in future iterations.</p>
         </div>
     </div>
 
@@ -521,6 +650,10 @@
             let currentState = { ...defaultCharacterState }; // Start with default character state
             const rePresentDelay = 1; // Number of correct answers to show before re-presenting incorrect
 
+            // Variables for Review Session
+            let reviewSessionActive = false; // Flag to indicate if a review session is active
+            let currentReviewQueue = []; // Queue for items specifically in the active review session
+
             // --- LOCAL STORAGE FUNCTIONS ---
 
             /**
@@ -573,22 +706,69 @@
                 instructionText: document.getElementById('instruction-text'),
                 modeToggleSwitch: document.getElementById('mode-toggle-switch'),
                 modeLabelText: document.getElementById('mode-label-text'),
-                mnemonicToggleButton: document.getElementById('mnemonic-toggle-btn'), // New
-                mnemonicOverlay: document.getElementById('mnemonic-overlay'),       // New
-                mnemonicCloseBtn: document.getElementById('mnemonic-close-btn'),     // New
-                mnemonicTitle: document.getElementById('mnemonic-title'),           // New
-                mnemonicImage: document.getElementById('mnemonic-image'),           // New
-                mnemonicText: document.getElementById('mnemonic-text')              // New
+                mnemonicToggleButton: document.getElementById('mnemonic-toggle-btn'),
+                mnemonicOverlay: document.getElementById('mnemonic-overlay'),
+                mnemonicCloseBtn: document.getElementById('mnemonic-close-btn'),
+                mnemonicTitle: document.getElementById('mnemonic-title'),
+                mnemonicImage: document.getElementById('mnemonic-image'),
+                mnemonicText: document.getElementById('mnemonic-text'),
+                statsBtn: document.getElementById('stats-btn'),         // New
+                settingsBtn: document.getElementById('settings-btn'),   // New
+                statsModal: document.getElementById('stats-modal'),     // New
+                settingsModal: document.getElementById('settings-modal'), // New
+                modalCloseBtns: document.querySelectorAll('.modal-close-btn'), // New
+                mistakeList: document.getElementById('mistake-list'), // New
+                startReviewBtn: document.getElementById('start-review-btn'), // New
+                clearMistakesBtn: document.getElementById('clear-mistakes-btn') // New
             };
+
+            // --- UI CONTROL FUNCTIONS ---
+
+            /**
+             * Displays a custom modal.
+             * @param {HTMLElement} modalElement - The modal overlay element to display.
+             */
+            function showModal(modalElement) {
+                modalElement.classList.add('active');
+            }
+
+            /**
+             * Hides a custom modal.
+             * @param {HTMLElement} modalElement - The modal overlay element to hide.
+             */
+            function hideModal(modalElement) {
+                modalElement.classList.remove('active');
+            }
+
+            /**
+             * Populates the mistake list in the stats modal.
+             */
+            function populateMistakeList() {
+                elements.mistakeList.innerHTML = ''; // Clear previous list
+                if (currentState.failedItemsQueue.length === 0) {
+                    elements.mistakeList.innerHTML = '<p class="text-muted">No mistakes to review yet!</p>';
+                    elements.startReviewBtn.disabled = true;
+                    elements.clearMistakesBtn.style.display = 'none';
+                } else {
+                    currentState.failedItemsQueue.forEach(item => {
+                        const span = document.createElement('span');
+                        span.textContent = `${item.hiragana} (${item.romaji})`;
+                        elements.mistakeList.appendChild(span);
+                    });
+                    elements.startReviewBtn.disabled = false;
+                    elements.clearMistakesBtn.style.display = 'inline-block';
+                }
+            }
 
             // --- GAME LOGIC FUNCTIONS ---
 
             /**
-             * Updates the score and level displays on the page based on the current state.
+             * Updates the score and level displays in the stats modal.
              */
             function updateStatsDisplay() {
                 elements.scoreDisplay.textContent = currentState.score;
                 elements.levelDisplay.textContent = currentState.level;
+                populateMistakeList(); // Always update mistake list when stats are updated
             }
 
             /**
@@ -626,28 +806,36 @@
             function showNextItem() {
                 let dataList = [];
                 let instruction = '';
-                let modeLabel = ''; // Text for the mode label next to the switch
+                let modeLabel = ''; 
 
                 // Determine which data list to use and update UI text accordingly
                 if (currentState.practiceType === 'characters') {
                     dataList = hiraganaChart;
                     instruction = 'Type the Romaji for the character below.';
                     modeLabel = 'Character';
-                    elements.modeToggleSwitch.checked = false; // Ensure switch is 'off' for character mode
+                    elements.modeToggleSwitch.checked = false; 
                 } else { // currentState.practiceType === 'words'
                     dataList = hiraganaWords;
                     instruction = 'Type the Romaji for the word below.';
                     modeLabel = 'Word';
-                    elements.modeToggleSwitch.checked = true; // Ensure switch is 'on' for word mode
+                    elements.modeToggleSwitch.checked = true; 
                 }
                 elements.instructionText.textContent = instruction;
-                elements.modeLabelText.textContent = modeLabel; // Update the mode label text
+                elements.modeLabelText.textContent = modeLabel; 
 
                 let itemToDisplay = null;
 
-                // Spaced repetition logic: Re-present last incorrect item if conditions are met
-                if (currentState.failedItemsQueue.length > 0 && currentState.correctAnswersInCurrentLevel >= rePresentDelay) {
-                    itemToDisplay = currentState.failedItemsQueue.shift(); // Get the oldest failed item
+                // Spaced repetition logic: Prioritize items from currentReviewQueue if active,
+                // then from failedItemsQueue if available and delay met, otherwise random.
+                if (reviewSessionActive && currentReviewQueue.length > 0) {
+                    itemToDisplay = currentReviewQueue.shift(); // Get item from active review session
+                    // If review queue is exhausted, end review session
+                    if (currentReviewQueue.length === 0) {
+                        reviewSessionActive = false;
+                        alert('Review session complete! Returning to regular practice.');
+                    }
+                } else if (currentState.failedItemsQueue.length > 0 && currentState.correctAnswersInCurrentLevel >= rePresentDelay) {
+                    itemToDisplay = currentState.failedItemsQueue.shift(); // Get the oldest failed item from main queue
                     currentState.correctAnswersInCurrentLevel = 0; // Reset counter after re-presenting
                 } else {
                     let newIndex;
@@ -655,8 +843,11 @@
                     // Also ensure it's not one of the items currently in the failedItemsQueue to avoid immediate re-repetition
                     do {
                         newIndex = Math.floor(Math.random() * dataList.length);
+                        // Prevent picking an item if it's currently in the failed queue for regular practice
                     } while (dataList.length > 1 && newIndex === currentState.currentIndex || 
-                             (dataList[newIndex] && currentState.failedItemsQueue.includes(dataList[newIndex]))); 
+                             (dataList[newIndex] && currentState.failedItemsQueue.some(failed => 
+                                failed.hiragana === dataList[newIndex].hiragana && failed.romaji === dataList[newIndex].romaji
+                            ))); 
                     
                     if (dataList.length === 0) {
                         elements.display.textContent = 'No items to practice!';
@@ -672,17 +863,17 @@
                 
                 // Show/hide mnemonic button based on if mnemonic data exists
                 if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
-                    elements.mnemonicToggleButton.style.display = 'flex'; // Show button
+                    elements.mnemonicToggleButton.style.display = 'flex'; 
                 } else {
-                    elements.mnemonicToggleButton.style.display = 'none'; // Hide button
+                    elements.mnemonicToggleButton.style.display = 'none'; 
                 }
 
                 // Update the display with the new Hiragana item
                 elements.display.textContent = currentState.currentItem.hiragana;
-                elements.input.value = ''; // Clear the input field for the new question
-                elements.input.focus(); // Focus the input field for immediate typing
-                elements.feedback.textContent = ''; // Clear any previous feedback
-                elements.feedback.classList.remove('correct', 'incorrect'); // Remove feedback styling
+                elements.input.value = ''; 
+                elements.input.focus(); 
+                elements.feedback.textContent = ''; 
+                elements.feedback.classList.remove('correct', 'incorrect'); 
 
                 // Adjust font size after setting text content
                 adjustFontSizeToFit();
@@ -693,25 +884,21 @@
              * Provides visual feedback (correct/incorrect) and updates game state (score, level).
              */
             function checkAnswer() {
-                // Get and normalize the user's answer
                 const userAnswer = elements.input.value.trim().toLowerCase();
                 
-                if (!userAnswer) return; // Do nothing if the input field is empty
+                if (!userAnswer) return; 
 
-                // Clear previous feedback and animations
                 elements.feedback.textContent = '';
                 elements.feedback.classList.remove('correct', 'incorrect');
                 elements.input.classList.remove('shake');
 
-                // Compare user's answer with the correct Romaji
                 if (userAnswer === currentState.currentItem.romaji) {
-                    // Correct answer logic
                     elements.feedback.textContent = 'Correct!';
                     elements.feedback.classList.add('correct');
-                    currentState.score++; // Increase score
-                    currentState.correctAnswersInCurrentLevel++; // Track for level up
+                    currentState.score++; 
+                    currentState.correctAnswersInCurrentLevel++; 
                     
-                    // If the item was previously failed, remove it from the queue
+                    // If the item was previously failed (either in main queue or review queue), remove it
                     const failedIndex = currentState.failedItemsQueue.findIndex(item => 
                         item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
                     );
@@ -719,28 +906,24 @@
                         currentState.failedItemsQueue.splice(failedIndex, 1);
                     }
                     
-                    // Check if the user has met the criteria to level up
                     if (currentState.correctAnswersInCurrentLevel >= currentState.levelUpThreshold) {
-                        currentState.level++; // Increment level
-                        currentState.correctAnswersInCurrentLevel = 0; // Reset counter for the new level
-                        // Using a simple alert for level up for now. This could be a custom modal later.
-                        setTimeout(() => { // Delay alert slightly to allow 'Correct!' feedback to show
+                        currentState.level++; 
+                        currentState.correctAnswersInCurrentLevel = 0; 
+                        setTimeout(() => { 
                             alert(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`);
                         }, 200);
                     }
-                    updateStatsDisplay(); // Refresh score and level display
-                    saveState(currentState.practiceType); // Save state after a correct answer and potential level up
+                    updateStatsDisplay(); 
+                    saveState(currentState.practiceType); 
                     
-                    // After a short delay, clear the input and show the next item
                     setTimeout(() => {
                         showNextItem();
                     }, 800);
 
                 } else {
-                    // Incorrect answer logic
                     elements.feedback.textContent = `Not quite! The correct answer was "${currentState.currentItem.romaji}". Try again!`;
                     elements.feedback.classList.add('incorrect');
-                    elements.input.classList.add('shake'); // Apply shake animation for incorrect answer
+                    elements.input.classList.add('shake'); 
                     
                     // Add the current item to the failed items queue if it's not already there
                     const isAlreadyFailed = currentState.failedItemsQueue.some(item => 
@@ -749,10 +932,13 @@
                     if (!isAlreadyFailed) {
                         currentState.failedItemsQueue.push(currentState.currentItem);
                     }
+                    // If in a review session and wrong, re-add to currentReviewQueue (e.g., at the end)
+                    if (reviewSessionActive) {
+                        currentReviewQueue.push(currentState.currentItem);
+                    }
                     currentState.correctAnswersInCurrentLevel = 0; // Reset correct streak if wrong
-                    saveState(currentState.practiceType); // Save state after an incorrect answer
+                    saveState(currentState.practiceType); 
 
-                    // Remove the shake animation after it completes
                     setTimeout(() => {
                         elements.input.classList.remove('shake');
                     }, 300);
@@ -761,73 +947,106 @@
 
             // --- EVENT LISTENERS ---
 
-            // Event listener for the form submission (when user presses Enter or clicks 'Check Answer')
+            // Event listener for the form submission
             elements.form.addEventListener('submit', (event) => {
-                event.preventDefault(); // Prevent default form submission (page reload)
-                checkAnswer(); // Call the function to check the answer
+                event.preventDefault(); 
+                checkAnswer(); 
             });
 
-            // Event listener for the mode toggle switch (checkbox 'change' event)
+            // Event listener for the mode toggle switch
             elements.modeToggleSwitch.addEventListener('change', () => {
-                // Save the current mode's state before switching
                 saveState(currentState.practiceType);
 
-                // Determine the new practice type based on the switch's checked state
                 const newPracticeType = elements.modeToggleSwitch.checked ? 'words' : 'characters';
 
                 if (newPracticeType === 'words') {
-                    // Allow switching to words only if the user has reached Level 3 in character practice,
-                    // and there are words available to practice. This adds a sense of progression.
                     if (currentState.level >= 3 && hiraganaWords.length > 0) {
-                         currentState = loadState('words'); // Load word practice state
+                         currentState = loadState('words'); 
                     } else {
-                        // Inform the user if they haven't met the criteria for word practice.
                         alert("Great job! Reach at least Level 3 in character practice to unlock word practice!");
-                        elements.modeToggleSwitch.checked = false; // Revert the switch if condition not met
-                        return; // Do not switch mode if condition not met
+                        elements.modeToggleSwitch.checked = false; 
+                        return; 
                     }
                 } else {
-                    // If currently in word practice, switch back to character practice
-                    currentState = loadState('characters'); // Load character practice state
+                    currentState = loadState('characters'); 
                 }
                 
-                // Update the current practice type in the state
                 currentState.practiceType = newPracticeType;
+                // Reset review session state when changing modes
+                reviewSessionActive = false;
+                currentReviewQueue = [];
 
-                updateStatsDisplay(); // Update display with new mode's stats
-                showNextItem(); // Show the first item of the new mode
+                updateStatsDisplay(); 
+                showNextItem(); 
             });
 
             // Event listener for the mnemonic toggle button
             elements.mnemonicToggleButton.addEventListener('click', () => {
                 if (currentState.currentItem) {
                     elements.mnemonicTitle.textContent = `Mnemonic for "${currentState.currentItem.hiragana}"`;
-                    // Show image if available
                     if (currentState.currentItem.mnemonicImage) {
                         elements.mnemonicImage.src = currentState.currentItem.mnemonicImage;
                         elements.mnemonicImage.style.display = 'block';
                     } else {
                         elements.mnemonicImage.style.display = 'none';
                     }
-                    // Show text if available
                     if (currentState.currentItem.mnemonicText) {
                         elements.mnemonicText.textContent = currentState.currentItem.mnemonicText;
                     } else {
                         elements.mnemonicText.textContent = 'No mnemonic text available for this item.';
                     }
-                    elements.mnemonicOverlay.classList.add('active'); // Show overlay
+                    showModal(elements.mnemonicOverlay);
                 }
             });
 
-            // Event listener for the mnemonic overlay close button
-            elements.mnemonicCloseBtn.addEventListener('click', () => {
-                elements.mnemonicOverlay.classList.remove('active'); // Hide overlay
+            // Event listeners for opening modals
+            elements.statsBtn.addEventListener('click', () => {
+                updateStatsDisplay(); // Ensure stats are fresh when modal opens
+                showModal(elements.statsModal);
             });
 
-            // Close mnemonic overlay if clicking outside the content (optional, but good UX)
-            elements.mnemonicOverlay.addEventListener('click', (event) => {
-                if (event.target === elements.mnemonicOverlay) {
-                    elements.mnemonicOverlay.classList.remove('active');
+            elements.settingsBtn.addEventListener('click', () => {
+                showModal(elements.settingsModal);
+            });
+
+            // Event listeners for closing modals (generic for all custom modals)
+            elements.modalCloseBtns.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const modalId = event.target.dataset.modalId || event.target.closest('.modal-custom-overlay').id;
+                    hideModal(document.getElementById(modalId));
+                });
+            });
+
+            // Close modal if clicking outside the content (for all custom modals)
+            document.querySelectorAll('.modal-custom-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (event) => {
+                    if (event.target === overlay) {
+                        hideModal(overlay);
+                    }
+                });
+            });
+
+            // Event listener for starting review session
+            elements.startReviewBtn.addEventListener('click', () => {
+                if (currentState.failedItemsQueue.length > 0) {
+                    // Start a review session with a copy of the failed queue
+                    currentReviewQueue = [...currentState.failedItemsQueue];
+                    reviewSessionActive = true;
+                    hideModal(elements.statsModal); // Close stats modal
+                    showNextItem(); // Immediately show the first item from the review queue
+                    alert('Starting review session for your missed items!');
+                } else {
+                    alert('No mistakes to review!');
+                }
+            });
+
+            // Event listener for clearing mistakes
+            elements.clearMistakesBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all recorded mistakes? This cannot be undone.')) {
+                    currentState.failedItemsQueue = [];
+                    saveState(currentState.practiceType);
+                    updateStatsDisplay(); // Refresh the list
+                    alert('All mistakes cleared!');
                 }
             });
 
@@ -843,7 +1062,7 @@
             // Set the initial state of the toggle switch based on the loaded practice type
             elements.modeToggleSwitch.checked = (initialPracticeType === 'words');
 
-            updateStatsDisplay(); // Set initial score and level on display
+            updateStatsDisplay(); // Set initial score and level on display and populate mistake list
             showNextItem(); // Display the first Hiragana item to start the practice
         });
     </script>
