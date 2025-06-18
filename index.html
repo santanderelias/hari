@@ -221,6 +221,102 @@
             transform: translateX(20px);
         }
 
+        /* Mnemonic Toggle Button */
+        #mnemonic-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #28a745; /* Green color for positive action */
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100; /* Ensure it's above other elements */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none; /* Remove default button border */
+        }
+
+        #mnemonic-toggle-btn:hover {
+            background-color: #218838; /* Darker green on hover */
+            transform: translateY(-2px);
+        }
+
+        /* Mnemonic Overlay */
+        #mnemonic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top of everything */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #mnemonic-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #mnemonic-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto; /* Allow scrolling for large mnemonics */
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #mnemonic-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block; /* Remove extra space below image */
+            margin: 0 auto; /* Center image within its container */
+        }
+
+        #mnemonic-content p {
+            margin-bottom: 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        /* Close button for mnemonic overlay */
+        #mnemonic-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #555;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+        }
+        #mnemonic-close-btn:hover {
+            color: #000;
+        }
+
         /* Responsive adjustments for smaller screens */
         @media (max-width: 576px) {
             .main-container {
@@ -251,13 +347,23 @@
             body {
                 padding-top: 0; 
             }
+            #mnemonic-toggle-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+                bottom: 15px;
+                right: 15px;
+            }
+            #mnemonic-content {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <!-- Mode Switch: Moved to top-right with fixed positioning -->
+        <!-- Mode Switch: Fixed to top-right -->
         <div class="mode-switch-area">
             <span>Mode:</span>
             <label class="switch">
@@ -294,46 +400,97 @@
         </div>
     </div>
 
+    <!-- Mnemonic Toggle Button -->
+    <button id="mnemonic-toggle-btn" style="display: none;">?</button> <!-- Initially hidden -->
+
+    <!-- Mnemonic Overlay (hidden by default) -->
+    <div id="mnemonic-overlay">
+        <div id="mnemonic-content">
+            <button id="mnemonic-close-btn">&times;</button>
+            <h3 id="mnemonic-title">Mnemonic for [Character]</h3>
+            <img id="mnemonic-image" src="" alt="Mnemonic Image" style="display: none;">
+            <p id="mnemonic-text"></p>
+            <p class="text-muted">You can replace these placeholder images/texts with your own mnemonics!</p>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             // The basic set of Hiragana characters (Gojuon) with 'type' for categorization
+            // Added placeholder mnemonicImage and mnemonicText for demonstration
             const hiraganaChart = [
-                { type: 'character', hiragana: 'あ', romaji: 'a' }, { type: 'character', hiragana: 'い', romaji: 'i' }, { type: 'character', hiragana: 'う', romaji: 'u' }, { type: 'character', hiragana: 'え', romaji: 'e' }, { type: 'character', hiragana: 'お', romaji: 'o' },
-                { type: 'character', hiragana: 'か', romaji: 'ka' }, { type: 'character', hiragana: 'き', romaji: 'ki' }, { type: 'character', hiragana: 'く', romaji: 'ku' }, { type: 'character', hiragana: 'け', romaji: 'ke' }, { type: 'character', hiragana: 'こ', romaji: 'ko' },
-                { type: 'character', hiragana: 'さ', romaji: 'sa' }, { type: 'character', hiragana: 'し', romaji: 'shi' }, { type: 'character', hiragana: 'す', romaji: 'su' }, { type: 'character', hiragana: 'せ', romaji: 'se' }, { type: 'character', hiragana: 'そ', romaji: 'so' },
-                { type: 'character', hiragana: 'た', romaji: 'ta' }, { type: 'character', hiragana: 'ち', romaji: 'chi' }, { type: 'character', hiragana: 'つ', romaji: 'tsu' }, { type: 'character', hiragana: 'て', romaji: 'te' }, { type: 'character', hiragana: 'と', romaji: 'to' },
-                { type: 'character', hiragana: 'な', romaji: 'na' }, { type: 'character', hiragana: 'に', romaji: 'ni' }, { type: 'character', hiragana: 'ぬ', romaji: 'nu' }, { type: 'character', hiragana: 'ね', romaji: 'ne' }, { type: 'character', hiragana: 'の', romaji: 'no' },
-                { type: 'character', hiragana: 'は', romaji: 'ha' }, { type: 'character', hiragana: 'ひ', romaji: 'hi' }, { type: 'character', hiragana: 'ふ', romaji: 'fu' }, { type: 'character', hiragana: 'へ', romaji: 'he' }, { type: 'character', hiragana: 'ほ', romaji: 'ho' },
-                { type: 'character', hiragana: 'ま', romaji: 'ma' }, { type: 'character', hiragana: 'み', romaji: 'mi' }, { type: 'character', hiragana: 'む', romaji: 'mu' }, { type: 'character', hiragana: 'め', romaji: 'me' }, { type: 'character', hiragana: 'も', romaji: 'mo' },
-                { type: 'character', hiragana: 'や', romaji: 'ya' }, { type: 'character', hiragana: 'ゆ', romaji: 'yu' }, { type: 'character', hiragana: 'よ', romaji: 'yo' },
-                { type: 'character', hiragana: 'ら', romaji: 'ra' }, { type: 'character', hiragana: 'り', romaji: 'ri' }, { type: 'character', hiragana: 'る', romaji: 'ru' }, { type: 'character', hiragana: 'れ', romaji: 're' }, { type: 'character', hiragana: 'ろ', romaji: 'ro' },
-                { type: 'character', hiragana: 'わ', romaji: 'wa' }, { type: 'character', hiragana: 'を', romaji: 'wo' },
-                { type: 'character', hiragana: 'ん', romaji: 'n' }
+                { type: 'character', hiragana: 'あ', romaji: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=A_Mnemonic', mnemonicText: 'Imagine "a" as an apple with a stem.' }, 
+                { type: 'character', hiragana: 'い', romaji: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=I_Mnemonic', mnemonicText: 'Two eels "i"n a river.' }, 
+                { type: 'character', hiragana: 'う', romaji: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=U_Mnemonic', mnemonicText: 'A "u"FO flying.' }, 
+                { type: 'character', hiragana: 'え', romaji: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=E_Mnemonic', mnemonicText: 'A "e"lephant\'s trunk.' }, 
+                { type: 'character', hiragana: 'お', romaji: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=O_Mnemonic', mnemonicText: 'A person saying "oh!"' },
+                { type: 'character', hiragana: 'か', romaji: 'ka', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KA_Mnemonic', mnemonicText: 'The "ka"te that broke a "ka"ble.' }, 
+                { type: 'character', hiragana: 'き', romaji: 'ki', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KI_Mnemonic', mnemonicText: 'A "ki"te string.' }, 
+                { type: 'character', hiragana: 'く', romaji: 'ku', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KU_Mnemonic', mnemonicText: 'A "ku"ckoo bird beak.' }, 
+                { type: 'character', hiragana: 'け', romaji: 'ke', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KE_Mnemonic', mnemonicText: 'A "ke"ttle with steam.' }, 
+                { type: 'character', hiragana: 'こ', romaji: 'ko', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KO_Mnemonic', mnemonicText: 'Two "ko"ns lying down.' },
+                { type: 'character', hiragana: 'さ', romaji: 'sa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SA_Mnemonic', mnemonicText: 'A "sa"mple of rice.' }, 
+                { type: 'character', hiragana: 'し', romaji: 'shi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SHI_Mnemonic', mnemonicText: 'A "shi"ngle fishhook.' }, 
+                { type: 'character', hiragana: 'す', romaji: 'su', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SU_Mnemonic', mnemonicText: 'A "su"gar cube.' }, 
+                { type: 'character', hiragana: 'せ', romaji: 'se', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SE_Mnemonic', mnemonicText: 'A "se"ahorse.' }, 
+                { type: 'character', hiragana: 'そ', romaji: 'so', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SO_Mnemonic', mnemonicText: 'A "so"wing needle.' },
+                { type: 'character', hiragana: 'た', romaji: 'ta', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TA_Mnemonic', mnemonicText: 'A "ta"ble.' }, 
+                { type: 'character', hiragana: 'ち', romaji: 'chi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=CHI_Mnemonic', mnemonicText: 'A "chi"cken\'s foot.' }, 
+                { type: 'character', hiragana: 'つ', romaji: 'tsu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TSU_Mnemonic', mnemonicText: 'A "tsu"nami wave.' }, 
+                { type: 'character', hiragana: 'て', romaji: 'te', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TE_Mnemonic', mnemonicText: 'A "te"mple gate.' }, 
+                { type: 'character', hiragana: 'と', romaji: 'to', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TO_Mnemonic', mnemonicText: 'A "to"rtise shell.' },
+                { type: 'character', hiragana: 'な', romaji: 'na', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NA_Mnemonic', mnemonicText: 'A "na"ked man kneeling.' }, 
+                { type: 'character', hiragana: 'に', romaji: 'ni', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NI_Mnemonic', mnemonicText: 'Two "ni"dget wrestlers.' }, 
+                { type: 'character', hiragana: 'ぬ', romaji: 'nu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NU_Mnemonic', mnemonicText: 'A "nu"dle with a loop.' }, 
+                { type: 'character', hiragana: 'ね', romaji: 'ne', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NE_Mnemonic', mnemonicText: 'A "ne"st for birds.' }, 
+                { type: 'character', hiragana: 'の', romaji: 'no', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NO_Mnemonic', mnemonicText: 'A "no" sign.' },
+                { type: 'character', hiragana: 'は', romaji: 'ha', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HA_Mnemonic', mnemonicText: 'A "ha"t on a hook.' }, 
+                { type: 'character', hiragana: 'ひ', romaji: 'hi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HI_Mnemonic', mnemonicText: 'A "hi"ll with a cliff.' }, 
+                { type: 'character', hiragana: 'ふ', romaji: 'fu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=FU_Mnemonic', mnemonicText: 'Mount "Fu"ji.' }, 
+                { type: 'character', hiragana: 'へ', romaji: 'he', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HE_Mnemonic', mnemonicText: 'A "he"avenly gate.' }, 
+                { type: 'character', hiragana: 'ほ', romaji: 'ho', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HO_Mnemonic', mnemonicText: 'A "ho"use with a chimney.' },
+                { type: 'character', hiragana: 'ま', romaji: 'ma', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MA_Mnemonic', mnemonicText: 'A "ma"gician\'s wand.' }, 
+                { type: 'character', hiragana: 'み', romaji: 'mi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MI_Mnemonic', mnemonicText: 'Three "mi"crobes.' }, 
+                { type: 'character', hiragana: 'む', romaji: 'mu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MU_Mnemonic', mnemonicText: 'A "mu"shroom with a curly stem.' }, 
+                { type: 'character', hiragana: 'め', romaji: 'me', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ME_Mnemonic', mnemonicText: 'A "me"rry-go-round.' }, 
+                { type: 'character', hiragana: 'も', romaji: 'mo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MO_Mnemonic', mnemonicText: 'A "mo"ose head.' },
+                { type: 'character', hiragana: 'や', romaji: 'ya', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YA_Mnemonic', mnemonicText: 'A "ya"cht sail.' }, 
+                { type: 'character', hiragana: 'ゆ', romaji: 'yu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YU_Mnemonic', mnemonicText: 'A "yu"rt from above.' }, 
+                { type: 'character', hiragana: 'よ', romaji: 'yo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YO_Mnemonic', mnemonicText: 'A "yo"-yo string.' },
+                { type: 'character', hiragana: 'ら', romaji: 'ra', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RA_Mnemonic', mnemonicText: 'A "ra"bbit ear.' }, 
+                { type: 'character', hiragana: 'り', romaji: 'ri', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RI_Mnemonic', mnemonicText: 'A "ri"ver flowing.' }, 
+                { type: 'character', hiragana: 'る', romaji: 'ru', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RU_Mnemonic', mnemonicText: 'A "ru"ler.' }, 
+                { type: 'character', hiragana: 'れ', romaji: 're', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RE_Mnemonic', mnemonicText: 'A "re"d arrow.' }, 
+                { type: 'character', hiragana: 'ろ', romaji: 'ro', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RO_Mnemonic', mnemonicText: 'A "ro"ad sign.' },
+                { type: 'character', hiragana: 'わ', romaji: 'wa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WA_Mnemonic', mnemonicText: 'A "wa"ve.' }, 
+                { type: 'character', hiragana: 'を', romaji: 'wo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WO_Mnemonic', mnemonicText: 'A "wo"lfe howling.' },
+                { type: 'character', hiragana: 'ん', romaji: 'n', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=N_Mnemonic', mnemonicText: 'A "n"oodle.' }
             ];
 
             // Hiragana words data with 'type' for categorization
+            // Added placeholder mnemonicImage and mnemonicText for demonstration
             const hiraganaWords = [
-                { type: 'word', hiragana: 'ねこ', romaji: 'neko' },      // cat
-                { type: 'word', hiragana: 'いぬ', romaji: 'inu' },      // dog
-                { type: 'word', hiragana: 'みず', romaji: 'mizu' },      // water
-                { type: 'word', hiragana: 'たべる', romaji: 'taberu' },  // to eat
-                { type: 'word', hiragana: 'がっこう', romaji: 'gakkou' }, // school
-                { type: 'word', hiragana: 'くるま', romaji: 'kuruma' },  // car
-                { type: 'word', hiragana: 'ほん', romaji: 'hon' },      // book
-                { type: 'word', hiragana: 'えき', romaji: 'eki' },      // station
-                { type: 'word', hiragana: 'でんわ', romaji: 'denwa' },  // telephone
-                { type: 'word', hiragana: 'おきる', romaji: 'okiru' },   // to wake up
-                { type: 'word', hiragana: 'こんにちは', romaji: 'konnichiwa' }, // hello
-                { type: 'word', hiragana: 'ありがとう', romaji: 'arigatou' },   // thank you
-                { type: 'word', hiragana: 'さようなら', romaji: 'sayounara' },   // goodbye
-                { type: 'word', hiragana: 'おやすみ', romaji: 'oyasumi' },      // good night
-                { type: 'word', hiragana: 'すし', romaji: 'sushi' },
-                { type: 'word', hiragana: 'てんぷら', romaji: 'tempura' },
-                { type: 'word', hiragana: 'せんせい', romaji: 'sensei' }, // teacher
-                { type: 'word', hiragana: 'がくせい', romaji: 'gakusei' }, // student
-                { type: 'word', hiragana: 'にほん', romaji: 'nihon' },    // Japan
-                { type: 'word', hiragana: 'おはよう', romaji: 'ohayou' }  // good morning
+                { type: 'word', hiragana: 'ねこ', romaji: 'neko', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NEKO_Mnemonic', mnemonicText: 'Neko means cat. Think of a cat named "Neko".' },      // cat
+                { type: 'word', hiragana: 'いぬ', romaji: 'inu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=INU_Mnemonic', mnemonicText: 'Inu means dog. Imagine an "inu" running.' },      // dog
+                { type: 'word', hiragana: 'みず', romaji: 'mizu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MIZU_Mnemonic', mnemonicText: 'Mizu means water. A bottle of "mizu".' },      // water
+                { type: 'word', hiragana: 'たべる', romaji: 'taberu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TABERU_Mnemonic', mnemonicText: 'Taberu means to eat. Think of "tab"le and "beru"y.' },  // to eat
+                { type: 'word', hiragana: 'がっこう', romaji: 'gakkou', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GAKKOU_Mnemonic', mnemonicText: 'Gakkou means school. "Gak" as in "gag", "kou" as in "cow".' }, // school
+                { type: 'word', hiragana: 'くるま', romaji: 'kuruma', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KURUMA_Mnemonic', mnemonicText: 'Kuruma means car. A car with a "kuru" sound.' },  // car
+                { type: 'word', hiragana: 'ほん', romaji: 'hon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HON_Mnemonic', mnemonicText: 'Hon means book. A "hon"est book.' },      // book
+                { type: 'word', hiragana: 'えき', romaji: 'eki', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=EKI_Mnemonic', mnemonicText: 'Eki means station. The "eki"t from the station.' },      // station
+                { type: 'word', hiragana: 'でんわ', romaji: 'denwa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DENWA_Mnemonic', mnemonicText: 'Denwa means telephone. "Den" and "wa" sounds.' },  // telephone
+                { type: 'word', hiragana: 'おきる', romaji: 'okiru', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=OKIRU_Mnemonic', mnemonicText: 'Okiru means to wake up. "Ok, I\'ll ru"n now.' },   // to wake up
+                { type: 'word', hiragana: 'こんにちは', romaji: 'konnichiwa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KONNICHIWA_Mnemonic', mnemonicText: 'Konnichiwa means hello. Common greeting.' }, // hello
+                { type: 'word', hiragana: 'ありがとう', romaji: 'arigatou', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ARIGATOU_Mnemonic', mnemonicText: 'Arigatou means thank you. A very common phrase.' },   // thank you
+                { type: 'word', hiragana: 'さようなら', romaji: 'sayounara', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SAYOUNARA_Mnemonic', mnemonicText: 'Sayounara means goodbye. Saying "sayou" to a "nara".' },   // goodbye
+                { type: 'word', hiragana: 'おやすみ', romaji: 'oyasumi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=OYASUMI_Mnemonic', mnemonicText: 'Oyasumi means good night. "Oya" from "oh yeah", "sumi" from "sleepy".' },      // good night
+                { type: 'word', hiragana: 'すし', romaji: 'sushi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SUSHI_Mnemonic', mnemonicText: 'Sushi, the food.' },
+                { type: 'word', hiragana: 'てんぷら', romaji: 'tempura', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TEMPURA_Mnemonic', mnemonicText: 'Tempura, the dish.' },
+                { type: 'word', hiragana: 'せんせい', romaji: 'sensei', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SENSEI_Mnemonic', mnemonicText: 'Sensei means teacher. A "sensei" has a good "sense".' }, // teacher
+                { type: 'word', hiragana: 'がくせい', romaji: 'gakusei', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GAKUSEI_Mnemonic', mnemonicText: 'Gakusei means student. "Gaku" like "school", "sei" like "say".' }, // student
+                { type: 'word', hiragana: 'にほん', romaji: 'nihon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NIHON_Mnemonic', mnemonicText: 'Nihon means Japan. "Ni" from "knee", "hon" from "home".' },    // Japan
+                { type: 'word', hiragana: 'おはよう', romaji: 'ohayou', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=OHAYOU_Mnemonic', mnemonicText: 'Ohayou means good morning. "Oh hi you!".' }  // good morning
             ];
 
             // --- STATE MANAGEMENT ---
@@ -345,7 +502,8 @@
                 level: 1,
                 practiceType: 'characters',
                 correctAnswersInCurrentLevel: 0,
-                levelUpThreshold: 5
+                levelUpThreshold: 5,
+                failedItemsQueue: [] // Queue for character mistakes
             };
 
             const defaultWordState = {
@@ -355,11 +513,13 @@
                 level: 1,
                 practiceType: 'words',
                 correctAnswersInCurrentLevel: 0,
-                levelUpThreshold: 3 // Words might be harder, so lower threshold or adjust as needed
+                levelUpThreshold: 3, // Words might be harder, so lower threshold or adjust as needed
+                failedItemsQueue: [] // Queue for word mistakes
             };
 
             // Global state object, will be loaded from localStorage
             let currentState = { ...defaultCharacterState }; // Start with default character state
+            const rePresentDelay = 1; // Number of correct answers to show before re-presenting incorrect
 
             // --- LOCAL STORAGE FUNCTIONS ---
 
@@ -390,7 +550,10 @@
                 try {
                     const savedState = localStorage.getItem(type === 'characters' ? 'hiraganaCharacterState' : 'hiraganaWordState');
                     if (savedState) {
-                        return JSON.parse(savedState);
+                        const parsedState = JSON.parse(savedState);
+                        // Ensure failedItemsQueue is always an array, even if loaded as null/undefined
+                        parsedState.failedItemsQueue = parsedState.failedItemsQueue || [];
+                        return parsedState;
                     }
                 } catch (e) {
                     console.error("Error loading from localStorage:", e);
@@ -408,9 +571,14 @@
                 scoreDisplay: document.getElementById('score-display'),
                 levelDisplay: document.getElementById('level-display'),
                 instructionText: document.getElementById('instruction-text'),
-                // Updated reference for the new toggle switch
                 modeToggleSwitch: document.getElementById('mode-toggle-switch'),
-                modeLabelText: document.getElementById('mode-label-text') // New element for mode text
+                modeLabelText: document.getElementById('mode-label-text'),
+                mnemonicToggleButton: document.getElementById('mnemonic-toggle-btn'), // New
+                mnemonicOverlay: document.getElementById('mnemonic-overlay'),       // New
+                mnemonicCloseBtn: document.getElementById('mnemonic-close-btn'),     // New
+                mnemonicTitle: document.getElementById('mnemonic-title'),           // New
+                mnemonicImage: document.getElementById('mnemonic-image'),           // New
+                mnemonicText: document.getElementById('mnemonic-text')              // New
             };
 
             // --- GAME LOGIC FUNCTIONS ---
@@ -453,6 +621,7 @@
              * Selects and displays a new random Hiragana item (character or word) from the appropriate list
              * based on the current `practiceType`. It ensures the new item is different from the previous one.
              * Also updates instruction text and toggle button text.
+             * Implements spaced repetition by re-presenting `failedItemsQueue` items.
              */
             function showNextItem() {
                 let dataList = [];
@@ -474,23 +643,40 @@
                 elements.instructionText.textContent = instruction;
                 elements.modeLabelText.textContent = modeLabel; // Update the mode label text
 
-                let newIndex;
-                // Loop to ensure the next item is not the same as the current one
-                do {
-                    newIndex = Math.floor(Math.random() * dataList.length);
-                } while (dataList.length > 1 && newIndex === currentState.currentIndex); // Added check for dataList.length > 1 to prevent infinite loop with single item
-                
-                // If the dataList is empty or has only one item, handle gracefully.
-                if (dataList.length === 0) {
-                    elements.display.textContent = 'No items to practice!';
-                    elements.input.disabled = true;
-                    elements.form.querySelector('button').disabled = true;
-                    return;
+                let itemToDisplay = null;
+
+                // Spaced repetition logic: Re-present last incorrect item if conditions are met
+                if (currentState.failedItemsQueue.length > 0 && currentState.correctAnswersInCurrentLevel >= rePresentDelay) {
+                    itemToDisplay = currentState.failedItemsQueue.shift(); // Get the oldest failed item
+                    currentState.correctAnswersInCurrentLevel = 0; // Reset counter after re-presenting
+                } else {
+                    let newIndex;
+                    // Loop to ensure the new random item is not the same as the current one
+                    // Also ensure it's not one of the items currently in the failedItemsQueue to avoid immediate re-repetition
+                    do {
+                        newIndex = Math.floor(Math.random() * dataList.length);
+                    } while (dataList.length > 1 && newIndex === currentState.currentIndex || 
+                             (dataList[newIndex] && currentState.failedItemsQueue.includes(dataList[newIndex]))); 
+                    
+                    if (dataList.length === 0) {
+                        elements.display.textContent = 'No items to practice!';
+                        elements.input.disabled = true;
+                        elements.form.querySelector('button').disabled = true;
+                        return;
+                    }
+                    currentState.currentIndex = newIndex;
+                    itemToDisplay = dataList[newIndex];
                 }
 
-                currentState.currentIndex = newIndex;
-                currentState.currentItem = dataList[newIndex];
+                currentState.currentItem = itemToDisplay; // Set the item to be displayed
                 
+                // Show/hide mnemonic button based on if mnemonic data exists
+                if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
+                    elements.mnemonicToggleButton.style.display = 'flex'; // Show button
+                } else {
+                    elements.mnemonicToggleButton.style.display = 'none'; // Hide button
+                }
+
                 // Update the display with the new Hiragana item
                 elements.display.textContent = currentState.currentItem.hiragana;
                 elements.input.value = ''; // Clear the input field for the new question
@@ -525,6 +711,14 @@
                     currentState.score++; // Increase score
                     currentState.correctAnswersInCurrentLevel++; // Track for level up
                     
+                    // If the item was previously failed, remove it from the queue
+                    const failedIndex = currentState.failedItemsQueue.findIndex(item => 
+                        item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
+                    );
+                    if (failedIndex > -1) {
+                        currentState.failedItemsQueue.splice(failedIndex, 1);
+                    }
+                    
                     // Check if the user has met the criteria to level up
                     if (currentState.correctAnswersInCurrentLevel >= currentState.levelUpThreshold) {
                         currentState.level++; // Increment level
@@ -548,6 +742,16 @@
                     elements.feedback.classList.add('incorrect');
                     elements.input.classList.add('shake'); // Apply shake animation for incorrect answer
                     
+                    // Add the current item to the failed items queue if it's not already there
+                    const isAlreadyFailed = currentState.failedItemsQueue.some(item => 
+                        item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
+                    );
+                    if (!isAlreadyFailed) {
+                        currentState.failedItemsQueue.push(currentState.currentItem);
+                    }
+                    currentState.correctAnswersInCurrentLevel = 0; // Reset correct streak if wrong
+                    saveState(currentState.practiceType); // Save state after an incorrect answer
+
                     // Remove the shake animation after it completes
                     setTimeout(() => {
                         elements.input.classList.remove('shake');
@@ -593,6 +797,40 @@
                 updateStatsDisplay(); // Update display with new mode's stats
                 showNextItem(); // Show the first item of the new mode
             });
+
+            // Event listener for the mnemonic toggle button
+            elements.mnemonicToggleButton.addEventListener('click', () => {
+                if (currentState.currentItem) {
+                    elements.mnemonicTitle.textContent = `Mnemonic for "${currentState.currentItem.hiragana}"`;
+                    // Show image if available
+                    if (currentState.currentItem.mnemonicImage) {
+                        elements.mnemonicImage.src = currentState.currentItem.mnemonicImage;
+                        elements.mnemonicImage.style.display = 'block';
+                    } else {
+                        elements.mnemonicImage.style.display = 'none';
+                    }
+                    // Show text if available
+                    if (currentState.currentItem.mnemonicText) {
+                        elements.mnemonicText.textContent = currentState.currentItem.mnemonicText;
+                    } else {
+                        elements.mnemonicText.textContent = 'No mnemonic text available for this item.';
+                    }
+                    elements.mnemonicOverlay.classList.add('active'); // Show overlay
+                }
+            });
+
+            // Event listener for the mnemonic overlay close button
+            elements.mnemonicCloseBtn.addEventListener('click', () => {
+                elements.mnemonicOverlay.classList.remove('active'); // Hide overlay
+            });
+
+            // Close mnemonic overlay if clicking outside the content (optional, but good UX)
+            elements.mnemonicOverlay.addEventListener('click', (event) => {
+                if (event.target === elements.mnemonicOverlay) {
+                    elements.mnemonicOverlay.classList.remove('active');
+                }
+            });
+
 
             // Listen for window resize to re-adjust font size if needed
             window.addEventListener('resize', adjustFontSizeToFit);
