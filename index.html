@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiragana Reading Practice</title>
+    
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts for Hiragana and general text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles for a more pleasant look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Aligns items to the start of the cross axis (top) */
+            min-height: 100vh;
+            color: #333;
+            /* Ensure the body doesn't overflow horizontally on smaller screens */
+            overflow-x: hidden;
+            /* Remove all padding-top */
+            padding-top: 0; 
+        }
+
+        .main-container {
+            /* Adjusted max-width to allow more space for content */
+            max-width: 700px; /* Increased maximum width */
+            width: 90vw; /* Use 90% of viewport width, making it more responsive */
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+            /* Remove all margin-top */
+            margin-top: 0; 
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Ensures child elements conform to border-radius */
+        }
+
+        .hiragana-display {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            /* Responsive font size: minimum 60px, ideal 25vw, maximum 120px */
+            font-size: clamp(60px, 25vw, 120px); 
+            font-weight: 700;
+            color: #2c3e50; /* Dark slate blue */
+            background-color: #ffffff;
+            padding: 40px 20px;
+            margin-bottom: 0;
+            line-height: 1;
+            display: flex; /* Use flexbox to center content vertically/horizontally */
+            align-items: center;
+            justify-content: center;
+            min-height: 180px; /* Ensure a minimum height for the display area */
+            white-space: nowrap; /* Prevent words from wrapping to the next line */
+            overflow-x: auto; /* Allow horizontal scrolling if content overflows due to nowrap */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .card-body {
+            background-color: #f8f9fa; /* Light gray for the input area */
+            padding: 30px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: 2px solid #ced4da;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .feedback {
+            height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: opacity 0.3s ease;
+            display: flex; /* Use flexbox to center feedback text */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .feedback.correct {
+            color: #28a745; /* Green for correct */
+        }
+        
+        .feedback.incorrect {
+            color: #dc3545; /* Red for incorrect */
+        }
+        
+        /* Animation for incorrect answer */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.3s;
+        }
+
+        /* Styles for the new score and level display */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #555;
+            background-color: #e2e8f0; /* Slightly darker background for stats */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Mode Switch Styling */
+        .mode-switch-area {
+            position: fixed; 
+            top: 0; /* Changed to 0 to be at the very top */
+            right: 20px; 
+            display: flex;
+            align-items: center;
+            gap: 10px; 
+            font-size: 0.9rem; 
+            color: #555;
+            z-index: 10; 
+            background-color: #f0f4f8; /* Match body background or slightly different */
+            padding: 5px 10px; 
+            border-radius: 0 0 10px 10px; /* Rounded bottom corners only */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
+        }
+
+        /* The switch - the box around the slider */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px; 
+            height: 25px; 
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc; 
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 25px; 
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 19px; 
+            width: 19px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: white; 
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%; 
+        }
+
+        input:checked + .slider {
+            background-color: #007bff; 
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #007bff;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(20px); 
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px; 
+                margin-top: 0; 
+                width: 95vw; /* Make it even wider on small screens */
+            }
+            .mode-switch-area {
+                top: 0; 
+                right: 10px;
+                font-size: 0.8rem;
+                gap: 5px;
+                padding: 3px 8px;
+            }
+            .hiragana-display {
+                padding: 15px 5px; /* Reduced padding for smaller screens */
+                min-height: 120px; /* Smaller min-height */
+            }
+            .card-body {
+                padding: 20px;
+            }
+            .form-control {
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 10px 15px;
+            }
+            body {
+                padding-top: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container text-center">
+        <!-- Mode Switch: Moved to top-right with fixed positioning -->
+        <div class="mode-switch-area">
+            <span>Mode:</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle-switch">
+                <span class="slider"></span>
+            </label>
+            <span id="mode-label-text">Character</span> <!-- Text to indicate current mode -->
+        </div>
+
+        <h1 class="mb-3 h2">Hiragana Reading</h1>
+        <p class="text-muted mb-4" id="instruction-text">Type the Romaji for the character below.</p>
+
+        <!-- Stats Display: Shows current score and level -->
+        <div class="stats-container">
+            <div>Score: <span id="score-display">0</span></div>
+            <div>Level: <span id="level-display">1</span></div>
+        </div>
+
+        <div class="card">
+            <!-- Hiragana character/word is displayed here -->
+            <div id="hiragana-display" class="hiragana-display">
+                あ
+            </div>
+
+            <div class="card-body">
+                <form id="answer-form">
+                    <div class="mb-3">
+                        <input type="text" id="romaji-input" class="form-control form-control-lg" placeholder="e.g., 'ka'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Check Answer</button>
+                </form>
+                <div id="feedback" class="feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            // The basic set of Hiragana characters (Gojuon) with 'type' for categorization
+            const hiraganaChart = [
+                { type: 'character', hiragana: 'あ', romaji: 'a' }, { type: 'character', hiragana: 'い', romaji: 'i' }, { type: 'character', hiragana: 'う', romaji: 'u' }, { type: 'character', hiragana: 'え', romaji: 'e' }, { type: 'character', hiragana: 'お', romaji: 'o' },
+                { type: 'character', hiragana: 'か', romaji: 'ka' }, { type: 'character', hiragana: 'き', romaji: 'ki' }, { type: 'character', hiragana: 'く', romaji: 'ku' }, { type: 'character', hiragana: 'け', romaji: 'ke' }, { type: 'character', hiragana: 'こ', romaji: 'ko' },
+                { type: 'character', hiragana: 'さ', romaji: 'sa' }, { type: 'character', hiragana: 'し', romaji: 'shi' }, { type: 'character', hiragana: 'す', romaji: 'su' }, { type: 'character', hiragana: 'せ', romaji: 'se' }, { type: 'character', hiragana: 'そ', romaji: 'so' },
+                { type: 'character', hiragana: 'た', romaji: 'ta' }, { type: 'character', hiragana: 'ち', romaji: 'chi' }, { type: 'character', hiragana: 'つ', romaji: 'tsu' }, { type: 'character', hiragana: 'て', romaji: 'te' }, { type: 'character', hiragana: 'と', romaji: 'to' },
+                { type: 'character', hiragana: 'な', romaji: 'na' }, { type: 'character', hiragana: 'に', romaji: 'ni' }, { type: 'character', hiragana: 'ぬ', romaji: 'nu' }, { type: 'character', hiragana: 'ね', romaji: 'ne' }, { type: 'character', hiragana: 'の', romaji: 'no' },
+                { type: 'character', hiragana: 'は', romaji: 'ha' }, { type: 'character', hiragana: 'ひ', romaji: 'hi' }, { type: 'character', hiragana: 'ふ', romaji: 'fu' }, { type: 'character', hiragana: 'へ', romaji: 'he' }, { type: 'character', hiragana: 'ほ', romaji: 'ho' },
+                { type: 'character', hiragana: 'ま', romaji: 'ma' }, { type: 'character', hiragana: 'み', romaji: 'mi' }, { type: 'character', hiragana: 'む', romaji: 'mu' }, { type: 'character', hiragana: 'め', romaji: 'me' }, { type: 'character', hiragana: 'も', romaji: 'mo' },
+                { type: 'character', hiragana: 'や', romaji: 'ya' }, { type: 'character', hiragana: 'ゆ', romaji: 'yu' }, { type: 'character', hiragana: 'よ', romaji: 'yo' },
+                { type: 'character', hiragana: 'ら', romaji: 'ra' }, { type: 'character', hiragana: 'り', romaji: 'ri' }, { type: 'character', hiragana: 'る', romaji: 'ru' }, { type: 'character', hiragana: 'れ', romaji: 're' }, { type: 'character', hiragana: 'ろ', romaji: 'ro' },
+                { type: 'character', hiragana: 'わ', romaji: 'wa' }, { type: 'character', hiragana: 'を', romaji: 'wo' },
+                { type: 'character', hiragana: 'ん', romaji: 'n' }
+            ];
+
+            // Hiragana words data with 'type' for categorization
+            const hiraganaWords = [
+                { type: 'word', hiragana: 'ねこ', romaji: 'neko' },      // cat
+                { type: 'word', hiragana: 'いぬ', romaji: 'inu' },      // dog
+                { type: 'word', hiragana: 'みず', romaji: 'mizu' },      // water
+                { type: 'word', hiragana: 'たべる', romaji: 'taberu' },  // to eat
+                { type: 'word', hiragana: 'がっこう', romaji: 'gakkou' }, // school
+                { type: 'word', hiragana: 'くるま', romaji: 'kuruma' },  // car
+                { type: 'word', hiragana: 'ほん', romaji: 'hon' },      // book
+                { type: 'word', hiragana: 'えき', romaji: 'eki' },      // station
+                { type: 'word', hiragana: 'でんわ', romaji: 'denwa' },  // telephone
+                { type: 'word', hiragana: 'おきる', romaji: 'okiru' },   // to wake up
+                { type: 'word', hiragana: 'こんにちは', romaji: 'konnichiwa' }, // hello
+                { type: 'word', hiragana: 'ありがとう', romaji: 'arigatou' },   // thank you
+                { type: 'word', hiragana: 'さようなら', romaji: 'sayounara' },   // goodbye
+                { type: 'word', hiragana: 'おやすみ', romaji: 'oyasumi' },      // good night
+                { type: 'word', hiragana: 'すし', romaji: 'sushi' },
+                { type: 'word', hiragana: 'てんぷら', romaji: 'tempura' },
+                { type: 'word', hiragana: 'せんせい', romaji: 'sensei' }, // teacher
+                { type: 'word', hiragana: 'がくせい', romaji: 'gakusei' }, // student
+                { type: 'word', hiragana: 'にほん', romaji: 'nihon' },    // Japan
+                { type: 'word', hiragana: 'おはよう', romaji: 'ohayou' }  // good morning
+            ];
+
+            // --- STATE MANAGEMENT ---
+            // Define default state for both practice types
+            const defaultCharacterState = {
+                currentItem: null,
+                currentIndex: -1,
+                score: 0,
+                level: 1,
+                practiceType: 'characters',
+                correctAnswersInCurrentLevel: 0,
+                levelUpThreshold: 5
+            };
+
+            const defaultWordState = {
+                currentItem: null,
+                currentIndex: -1,
+                score: 0,
+                level: 1,
+                practiceType: 'words',
+                correctAnswersInCurrentLevel: 0,
+                levelUpThreshold: 3 // Words might be harder, so lower threshold or adjust as needed
+            };
+
+            // Global state object, will be loaded from localStorage
+            let currentState = { ...defaultCharacterState }; // Start with default character state
+
+            // --- LOCAL STORAGE FUNCTIONS ---
+
+            /**
+             * Saves the current game state (score, level, etc.) to localStorage for the given practice type.
+             * @param {string} type - 'characters' or 'words'
+             */
+            function saveState(type) {
+                try {
+                    if (type === 'characters') {
+                        localStorage.setItem('hiraganaCharacterState', JSON.stringify(currentState));
+                    } else if (type === 'words') {
+                        localStorage.setItem('hiraganaWordState', JSON.stringify(currentState));
+                    }
+                    localStorage.setItem('lastPracticeType', currentState.practiceType); // Save last active mode
+                } catch (e) {
+                    console.error("Error saving to localStorage:", e);
+                }
+            }
+
+            /**
+             * Loads the game state from localStorage for the given practice type.
+             * If no saved state is found, returns the default state for that type.
+             * @param {string} type - 'characters' or 'words'
+             * @returns {object} The loaded or default state.
+             */
+            function loadState(type) {
+                try {
+                    const savedState = localStorage.getItem(type === 'characters' ? 'hiraganaCharacterState' : 'hiraganaWordState');
+                    if (savedState) {
+                        return JSON.parse(savedState);
+                    }
+                } catch (e) {
+                    console.error("Error loading from localStorage:", e);
+                }
+                return type === 'characters' ? { ...defaultCharacterState } : { ...defaultWordState };
+            }
+
+            // --- DOM ELEMENTS ---
+            // Storing references to the HTML elements for easier manipulation
+            const elements = {
+                display: document.getElementById('hiragana-display'),
+                input: document.getElementById('romaji-input'),
+                form: document.getElementById('answer-form'),
+                feedback: document.getElementById('feedback'),
+                scoreDisplay: document.getElementById('score-display'),
+                levelDisplay: document.getElementById('level-display'),
+                instructionText: document.getElementById('instruction-text'),
+                // Updated reference for the new toggle switch
+                modeToggleSwitch: document.getElementById('mode-toggle-switch'),
+                modeLabelText: document.getElementById('mode-label-text') // New element for mode text
+            };
+
+            // --- GAME LOGIC FUNCTIONS ---
+
+            /**
+             * Updates the score and level displays on the page based on the current state.
+             */
+            function updateStatsDisplay() {
+                elements.scoreDisplay.textContent = currentState.score;
+                elements.levelDisplay.textContent = currentState.level;
+            }
+
+            /**
+             * Selects and displays a new random Hiragana item (character or word) from the appropriate list
+             * based on the current `practiceType`. It ensures the new item is different from the previous one.
+             * Also updates instruction text and toggle button text.
+             */
+            function showNextItem() {
+                let dataList = [];
+                let instruction = '';
+                let modeLabel = ''; // Text for the mode label next to the switch
+
+                // Determine which data list to use and update UI text accordingly
+                if (currentState.practiceType === 'characters') {
+                    dataList = hiraganaChart;
+                    instruction = 'Type the Romaji for the character below.';
+                    modeLabel = 'Character';
+                    elements.modeToggleSwitch.checked = false; // Ensure switch is 'off' for character mode
+                } else { // currentState.practiceType === 'words'
+                    dataList = hiraganaWords;
+                    instruction = 'Type the Romaji for the word below.';
+                    modeLabel = 'Word';
+                    elements.modeToggleSwitch.checked = true; // Ensure switch is 'on' for word mode
+                }
+                elements.instructionText.textContent = instruction;
+                elements.modeLabelText.textContent = modeLabel; // Update the mode label text
+
+                let newIndex;
+                // Loop to ensure the next item is not the same as the current one
+                do {
+                    newIndex = Math.floor(Math.random() * dataList.length);
+                } while (dataList.length > 1 && newIndex === currentState.currentIndex); // Added check for dataList.length > 1 to prevent infinite loop with single item
+                
+                // If the dataList is empty or has only one item, handle gracefully.
+                if (dataList.length === 0) {
+                    elements.display.textContent = 'No items to practice!';
+                    elements.input.disabled = true;
+                    elements.form.querySelector('button').disabled = true;
+                    return;
+                }
+
+                currentState.currentIndex = newIndex;
+                currentState.currentItem = dataList[newIndex];
+                
+                // Update the display with the new Hiragana item
+                elements.display.textContent = currentState.currentItem.hiragana;
+                elements.input.value = ''; // Clear the input field for the new question
+                elements.input.focus(); // Focus the input field for immediate typing
+                elements.feedback.textContent = ''; // Clear any previous feedback
+                elements.feedback.classList.remove('correct', 'incorrect'); // Remove feedback styling
+            }
+
+            /**
+             * Checks the user's input against the correct Romaji for the current item.
+             * Provides visual feedback (correct/incorrect) and updates game state (score, level).
+             */
+            function checkAnswer() {
+                // Get and normalize the user's answer
+                const userAnswer = elements.input.value.trim().toLowerCase();
+                
+                if (!userAnswer) return; // Do nothing if the input field is empty
+
+                // Clear previous feedback and animations
+                elements.feedback.textContent = '';
+                elements.feedback.classList.remove('correct', 'incorrect');
+                elements.input.classList.remove('shake');
+
+                // Compare user's answer with the correct Romaji
+                if (userAnswer === currentState.currentItem.romaji) {
+                    // Correct answer logic
+                    elements.feedback.textContent = 'Correct!';
+                    elements.feedback.classList.add('correct');
+                    currentState.score++; // Increase score
+                    currentState.correctAnswersInCurrentLevel++; // Track for level up
+                    
+                    // Check if the user has met the criteria to level up
+                    if (currentState.correctAnswersInCurrentLevel >= currentState.levelUpThreshold) {
+                        currentState.level++; // Increment level
+                        currentState.correctAnswersInCurrentLevel = 0; // Reset counter for the new level
+                        // Using a simple alert for level up for now. This could be a custom modal later.
+                        setTimeout(() => { // Delay alert slightly to allow 'Correct!' feedback to show
+                            alert(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`);
+                        }, 200);
+                    }
+                    updateStatsDisplay(); // Refresh score and level display
+                    saveState(currentState.practiceType); // Save state after a correct answer and potential level up
+                    
+                    // After a short delay, clear the input and show the next item
+                    setTimeout(() => {
+                        showNextItem();
+                    }, 800);
+
+                } else {
+                    // Incorrect answer logic
+                    elements.feedback.textContent = `Not quite! The correct answer was "${currentState.currentItem.romaji}". Try again!`;
+                    elements.feedback.classList.add('incorrect');
+                    elements.input.classList.add('shake'); // Apply shake animation for incorrect answer
+                    
+                    // Remove the shake animation after it completes
+                    setTimeout(() => {
+                        elements.input.classList.remove('shake');
+                    }, 300);
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Event listener for the form submission (when user presses Enter or clicks 'Check Answer')
+            elements.form.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default form submission (page reload)
+                checkAnswer(); // Call the function to check the answer
+            });
+
+            // Event listener for the mode toggle switch (checkbox 'change' event)
+            elements.modeToggleSwitch.addEventListener('change', () => {
+                // Save the current mode's state before switching
+                saveState(currentState.practiceType);
+
+                // Determine the new practice type based on the switch's checked state
+                const newPracticeType = elements.modeToggleSwitch.checked ? 'words' : 'characters';
+
+                if (newPracticeType === 'words') {
+                    // Allow switching to words only if the user has reached Level 3 in character practice,
+                    // and there are words available to practice. This adds a sense of progression.
+                    if (currentState.level >= 3 && hiraganaWords.length > 0) {
+                         currentState = loadState('words'); // Load word practice state
+                    } else {
+                        // Inform the user if they haven't met the criteria for word practice.
+                        alert("Great job! Reach at least Level 3 in character practice to unlock word practice!");
+                        elements.modeToggleSwitch.checked = false; // Revert the switch if condition not met
+                        return; // Do not switch mode if condition not met
+                    }
+                } else {
+                    // If currently in word practice, switch back to character practice
+                    currentState = loadState('characters'); // Load character practice state
+                }
+                
+                // Update the current practice type in the state
+                currentState.practiceType = newPracticeType;
+
+                updateStatsDisplay(); // Update display with new mode's stats
+                showNextItem(); // Show the first item of the new mode
+            });
+
+            // --- INITIALIZATION ---
+            // Determine initial practice type from localStorage or default
+            const initialPracticeType = localStorage.getItem('lastPracticeType') || 'characters';
+            currentState = loadState(initialPracticeType);
+            
+            // Set the initial state of the toggle switch based on the loaded practice type
+            elements.modeToggleSwitch.checked = (initialPracticeType === 'words');
+
+            updateStatsDisplay(); // Set initial score and level on display
+            showNextItem(); // Display the first Hiragana item to start the practice
+        });
+    </script>
+</body>
+</html>
