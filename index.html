@@ -30,18 +30,20 @@
         /* Navbar Styling */
         .navbar {
             position: fixed;
-            top: 0;
+            bottom: 0; /* Moved to bottom */
             left: 0;
             width: 100%;
             background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Shadow at the top now */
             z-index: 100;
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* Centered elements */
             align-items: center;
-            border-bottom-left-radius: 15px; /* Rounded corners for the bottom of the nav */
-            border-bottom-right-radius: 15px;
+            border-top-left-radius: 15px; /* Rounded top corners */
+            border-top-right-radius: 15px;
+            border-bottom-left-radius: 0; /* No bottom corners */
+            border-bottom-right-radius: 0;
         }
 
         .navbar-brand {
@@ -49,6 +51,7 @@
             font-weight: 700;
             font-size: 1.5rem;
             color: #2c3e50;
+            display: none; /* Hide brand when navbar is at the bottom or integrate it differently if needed */
         }
 
         .navbar-buttons {
@@ -77,8 +80,9 @@
             width: 90vw; 
             padding: 20px;
             box-sizing: border-box; 
-            margin-top: 80px; /* Added margin to push content below the fixed navbar */
-            position: relative; /* For the mnemonic button to be relative to this, if ever needed (though fixed is fine) */
+            margin-top: 20px; /* Small margin from top */
+            margin-bottom: 80px; /* Added margin to push content above the fixed navbar */
+            position: relative; 
         }
 
         .card {
@@ -108,6 +112,7 @@
         .card-body {
             background-color: #f8f9fa; 
             padding: 30px;
+            position: relative; /* Set to relative for absolute positioning of mnemonic button */
         }
 
         .form-control {
@@ -189,15 +194,15 @@
 
         /* Mode Switch Styling (adjusted for navbar) */
         .mode-switch-area {
-            position: static; /* No longer fixed/absolute, part of navbar flow */
+            position: static; 
             display: flex;
             align-items: center;
             gap: 10px; 
             font-size: 0.9rem; 
             color: #555;
             z-index: 10; 
-            background-color: transparent; /* No background as it's within navbar */
-            padding: 0; /* No padding as it's within navbar */
+            background-color: transparent; 
+            padding: 0; 
             border-radius: 0; 
             box-shadow: none; 
         }
@@ -258,36 +263,36 @@
             transform: translateX(20px);
         }
 
-        /* Mnemonic Toggle Button */
+        /* Mnemonic Toggle Button - inside card */
         #mnemonic-toggle-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
+            position: absolute; /* Positioned relative to .card-body */
+            bottom: 10px;
+            right: 10px;
+            width: 30px; /* Made slightly smaller */
+            height: 30px;
             border-radius: 50%;
             background-color: #28a745; 
             color: white;
-            font-size: 24px;
+            font-size: 18px; /* Adjusted font size */
             font-weight: bold;
-            display: flex;
+            display: none; /* Initially hidden */
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 100; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Smaller shadow */
+            z-index: 10; /* Ensure it's above other elements in the card */
             transition: background-color 0.3s ease, transform 0.2s ease;
             border: none; 
         }
 
         #mnemonic-toggle-btn:hover {
             background-color: #218838; 
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         /* Mnemonic Overlay */
         #mnemonic-overlay,
-        .modal-custom-overlay { /* Generic overlay for all custom modals */
+        .modal-custom-overlay { 
             position: fixed;
             top: 0;
             left: 0;
@@ -324,7 +329,7 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            position: relative; /* For close button positioning */
+            position: relative; 
         }
 
         #mnemonic-content img {
@@ -414,7 +419,8 @@
             }
             .main-container {
                 padding: 10px; 
-                margin-top: 70px; /* Adjust margin for smaller navbar */
+                margin-top: 20px; 
+                margin-bottom: 70px; /* Adjust margin for smaller navbar */
                 width: 95vw; 
             }
             .mode-switch-area {
@@ -435,11 +441,11 @@
                 padding: 10px 15px;
             }
             #mnemonic-toggle-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 20px;
-                bottom: 15px;
-                right: 15px;
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+                bottom: 10px;
+                right: 10px;
             }
             #mnemonic-content, .modal-custom-content {
                 padding: 15px;
@@ -449,9 +455,8 @@
 </head>
 <body>
 
-    <!-- Top Navigation Bar -->
+    <!-- Bottom Navigation Bar -->
     <nav class="navbar">
-        <span class="navbar-brand">Hiragana Practice</span>
         <div class="navbar-buttons">
             <button class="navbar-btn" id="stats-btn">Stats</button>
             <!-- Mode Switch integrated directly into navbar -->
@@ -468,10 +473,8 @@
     </nav>
 
     <div class="main-container text-center">
-        <h1 class="mb-3 h2 text-left">Hiragana Reading</h1>
+        <h1 class="mb-3 h2 text-center">Hiragana Reading</h1> <!-- Centered the title -->
         <p class="text-muted mb-4 text-center" id="instruction-text">Type the Romaji for the character below.</p>
-
-        <!-- Stats Display is now inside the modal -->
 
         <div class="card">
             <!-- Hiragana character/word is displayed here -->
@@ -487,12 +490,11 @@
                     <button type="submit" class="btn btn-primary w-100">Check Answer</button>
                 </form>
                 <div id="feedback" class="feedback"></div>
+                <!-- Mnemonic Toggle Button - moved inside card-body -->
+                <button id="mnemonic-toggle-btn" style="display: none;">?</button> 
             </div>
         </div>
     </div>
-
-    <!-- Mnemonic Toggle Button -->
-    <button id="mnemonic-toggle-btn" style="display: none;">?</button> 
 
     <!-- Mnemonic Overlay (hidden by default) -->
     <div id="mnemonic-overlay" class="modal-custom-overlay">
@@ -712,14 +714,14 @@
                 mnemonicTitle: document.getElementById('mnemonic-title'),
                 mnemonicImage: document.getElementById('mnemonic-image'),
                 mnemonicText: document.getElementById('mnemonic-text'),
-                statsBtn: document.getElementById('stats-btn'),         // New
-                settingsBtn: document.getElementById('settings-btn'),   // New
-                statsModal: document.getElementById('stats-modal'),     // New
-                settingsModal: document.getElementById('settings-modal'), // New
-                modalCloseBtns: document.querySelectorAll('.modal-close-btn'), // New
-                mistakeList: document.getElementById('mistake-list'), // New
-                startReviewBtn: document.getElementById('start-review-btn'), // New
-                clearMistakesBtn: document.getElementById('clear-mistakes-btn') // New
+                statsBtn: document.getElementById('stats-btn'),         
+                settingsBtn: document.getElementById('settings-btn'),   
+                statsModal: document.getElementById('stats-modal'),     
+                settingsModal: document.getElementById('settings-modal'), 
+                modalCloseBtns: document.querySelectorAll('.modal-close-btn'), 
+                mistakeList: document.getElementById('mistake-list'), 
+                startReviewBtn: document.getElementById('start-review-btn'), 
+                clearMistakesBtn: document.getElementById('clear-mistakes-btn') 
             };
 
             // --- UI CONTROL FUNCTIONS ---
@@ -808,6 +810,9 @@
                 let instruction = '';
                 let modeLabel = ''; 
 
+                // Always hide mnemonic button at the start of a new item
+                elements.mnemonicToggleButton.style.display = 'none';
+
                 // Determine which data list to use and update UI text accordingly
                 if (currentState.practiceType === 'characters') {
                     dataList = hiraganaChart;
@@ -861,13 +866,6 @@
 
                 currentState.currentItem = itemToDisplay; // Set the item to be displayed
                 
-                // Show/hide mnemonic button based on if mnemonic data exists
-                if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
-                    elements.mnemonicToggleButton.style.display = 'flex'; 
-                } else {
-                    elements.mnemonicToggleButton.style.display = 'none'; 
-                }
-
                 // Update the display with the new Hiragana item
                 elements.display.textContent = currentState.currentItem.hiragana;
                 elements.input.value = ''; 
@@ -916,6 +914,9 @@
                     updateStatsDisplay(); 
                     saveState(currentState.practiceType); 
                     
+                    // Hide mnemonic button if the answer was correct
+                    elements.mnemonicToggleButton.style.display = 'none';
+
                     setTimeout(() => {
                         showNextItem();
                     }, 800);
@@ -938,6 +939,11 @@
                     }
                     currentState.correctAnswersInCurrentLevel = 0; // Reset correct streak if wrong
                     saveState(currentState.practiceType); 
+
+                    // Show mnemonic button if mnemonic data exists for the incorrect item
+                    if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
+                        elements.mnemonicToggleButton.style.display = 'flex';
+                    }
 
                     setTimeout(() => {
                         elements.input.classList.remove('shake');
@@ -1001,7 +1007,7 @@
 
             // Event listeners for opening modals
             elements.statsBtn.addEventListener('click', () => {
-                updateStatsDisplay(); // Ensure stats are fresh when modal opens
+                updateStatsDisplay(); 
                 showModal(elements.statsModal);
             });
 
@@ -1032,8 +1038,8 @@
                     // Start a review session with a copy of the failed queue
                     currentReviewQueue = [...currentState.failedItemsQueue];
                     reviewSessionActive = true;
-                    hideModal(elements.statsModal); // Close stats modal
-                    showNextItem(); // Immediately show the first item from the review queue
+                    hideModal(elements.statsModal); 
+                    showNextItem(); 
                     alert('Starting review session for your missed items!');
                 } else {
                     alert('No mistakes to review!');
@@ -1045,25 +1051,22 @@
                 if (confirm('Are you sure you want to clear all recorded mistakes? This cannot be undone.')) {
                     currentState.failedItemsQueue = [];
                     saveState(currentState.practiceType);
-                    updateStatsDisplay(); // Refresh the list
+                    updateStatsDisplay(); 
                     alert('All mistakes cleared!');
                 }
             });
-
 
             // Listen for window resize to re-adjust font size if needed
             window.addEventListener('resize', adjustFontSizeToFit);
 
             // --- INITIALIZATION ---
-            // Determine initial practice type from localStorage or default
             const initialPracticeType = localStorage.getItem('lastPracticeType') || 'characters';
             currentState = loadState(initialPracticeType);
             
-            // Set the initial state of the toggle switch based on the loaded practice type
             elements.modeToggleSwitch.checked = (initialPracticeType === 'words');
 
-            updateStatsDisplay(); // Set initial score and level on display and populate mistake list
-            showNextItem(); // Display the first Hiragana item to start the practice
+            updateStatsDisplay(); 
+            showNextItem(); 
         });
     </script>
 </body>
