@@ -176,9 +176,9 @@
         }
 
         /* Styles for the new score and level display (now inside modal) */
+        /* Changed to display: block for vertical stacking */
         .stats-container {
-            display: flex;
-            justify-content: space-around;
+            display: block; /* Ensures children stack vertically */
             margin-bottom: 20px;
             font-size: 1.1rem;
             font-weight: bold;
@@ -190,6 +190,11 @@
             margin-left: auto; 
             margin-right: auto; 
             max-width: 300px; 
+            text-align: center; /* Center content within the container */
+        }
+
+        .stats-container div {
+            margin: 5px 0; /* Add some vertical spacing between score and level */
         }
 
         /* Mode Switch Styling (adjusted for navbar) */
@@ -275,7 +280,7 @@
             color: white;
             font-size: 18px; /* Adjusted font size */
             font-weight: bold;
-            display: none; /* Initially hidden */
+            display: none; /* Initially hidden, controlled by JS */
             justify-content: center;
             align-items: center;
             cursor: pointer;
@@ -503,6 +508,7 @@
             <h3 id="mnemonic-title">Mnemonic for [Character]</h3>
             <img id="mnemonic-image" src="" alt="Mnemonic Image" onerror="this.style.display='none'; this.alt='Image not available';" style="display: none;">
             <p id="mnemonic-text"></p>
+            <p id="correct-answer-on-mistake" class="text-danger mt-3 fw-bold"></p> <!-- New element for correct answer -->
             <p class="text-muted">You can replace these placeholder images/texts with your own mnemonics!</p>
         </div>
     </div>
@@ -714,6 +720,7 @@
                 mnemonicTitle: document.getElementById('mnemonic-title'),
                 mnemonicImage: document.getElementById('mnemonic-image'),
                 mnemonicText: document.getElementById('mnemonic-text'),
+                correctAnswerOnMistake: document.getElementById('correct-answer-on-mistake'), // New element reference
                 statsBtn: document.getElementById('stats-btn'),         
                 settingsBtn: document.getElementById('settings-btn'),   
                 statsModal: document.getElementById('stats-modal'),     
@@ -810,8 +817,9 @@
                 let instruction = '';
                 let modeLabel = ''; 
 
-                // Always hide mnemonic button at the start of a new item
+                // Always hide mnemonic button and clear correct answer display at the start of a new item
                 elements.mnemonicToggleButton.style.display = 'none';
+                elements.correctAnswerOnMistake.textContent = ''; // Clear the correct answer text
 
                 // Determine which data list to use and update UI text accordingly
                 if (currentState.practiceType === 'characters') {
@@ -916,13 +924,14 @@
                     
                     // Hide mnemonic button if the answer was correct
                     elements.mnemonicToggleButton.style.display = 'none';
+                    elements.correctAnswerOnMistake.textContent = ''; // Ensure correct answer text is cleared
 
                     setTimeout(() => {
                         showNextItem();
                     }, 800);
 
                 } else {
-                    elements.feedback.textContent = `Not quite! The correct answer was "${currentState.currentItem.romaji}". Try again!`;
+                    elements.feedback.textContent = 'Not quite! Try again!'; // Simplified feedback
                     elements.feedback.classList.add('incorrect');
                     elements.input.classList.add('shake'); 
                     
@@ -944,6 +953,8 @@
                     if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
                         elements.mnemonicToggleButton.style.display = 'flex';
                     }
+                    // Set the correct answer text in the mnemonic modal
+                    elements.correctAnswerOnMistake.textContent = `Correct: "${currentState.currentItem.romaji}"`;
 
                     setTimeout(() => {
                         elements.input.classList.remove('shake');
