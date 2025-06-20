@@ -622,13 +622,18 @@ body {
     align-items: center;
     box-shadow: 0 -4px 8px var(--shadow-light);
     z-index: 900; /* Below modals, above main content */
-    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    flex-wrap: nowrap; /* Prevent wrapping initially to prioritize spacing */
     gap: 10px; /* Spacing between buttons */
 }
 
 .bottom-nav-bar .btn {
     flex: 1; /* Distribute space evenly */
-    min-width: 100px; /* Minimum width for buttons */
+    min-width: 0; /* Allow shrinking below min-content for very small screens */
+    padding: 10px 5px; /* Adjust padding for smaller buttons */
+    font-size: 0.9em; /* Smaller font size for button text */
+    white-space: nowrap; /* Prevent text wrapping within buttons */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
     text-align: center;
     margin: 0; /* Reset margin from general .btn */
     background-color: var(--primary-color); /* Apply primary color to buttons in nav */
@@ -641,9 +646,18 @@ body {
     border-color: #0062cc;
 }
 
+/* Specific styling for the Practice Mode button within the bottom nav */
+.bottom-nav-bar #mode-dropdown-btn {
+    display: flex; /* Use flex to align text and arrow */
+    justify-content: center; /* Center text and arrow horizontally */
+    align-items: center;
+    padding-right: 15px; /* Add padding for the arrow */
+}
+
+
 .bottom-nav-bar .mode-dropdown-container {
     flex: 1;
-    min-width: 100px;
+    min-width: 0; /* Allow container to shrink */
     text-align: center;
 }
 
@@ -660,10 +674,11 @@ body {
     transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.bottom-nav-bar .dropdown-menu.active {
-    transform: translateX(-50%) translateY(0); /* Reset transform on active */
+.bottom-nav-bar .dropdown-menu.show { /* Use .show for dropdown visibility */
+    display: block; /* Make sure it's block when shown */
     opacity: 1;
     visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* Dropdown menu item styles (re-applied for clarity) */
@@ -687,6 +702,7 @@ body {
     color: white;
 }
 
+/* Arrow for dropdown */
 .dropdown-arrow {
     border: solid white; /* Arrow color for nav bar buttons */
     border-width: 0 2px 2px 0;
@@ -698,14 +714,15 @@ body {
     transition: transform 0.3s ease;
 }
 
+/* Arrow up when active */
 .bottom-nav-bar #mode-dropdown-btn.active .dropdown-arrow {
-    transform: rotate(-135deg); /* Arrow up when active */
+    transform: rotate(-135deg);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     body {
-        padding-bottom: 60px; /* Adjust for smaller bottom nav height */
+        padding-bottom: 65px; /* Adjust for smaller bottom nav height on smaller screens */
     }
     .container {
         padding: 15px;
@@ -748,18 +765,24 @@ body {
     }
 
     .bottom-nav-bar .btn {
-        font-size: 0.9em;
-        padding: 8px 12px;
-        min-width: unset; /* Allow smaller width on very small screens */
+        font-size: 0.8em; /* Even smaller font for tiny screens */
+        padding: 8px 8px; /* Reduced padding */
+    }
+
+    .bottom-nav-bar #mode-dropdown-btn {
+        padding-right: 8px; /* Adjust padding for arrow on smaller screens */
+    }
+
+    .bottom-nav-bar .dropdown-arrow {
+        margin-left: 5px; /* Reduce margin for arrow */
     }
 
     .bottom-nav-bar .mode-dropdown-container {
-        min-width: unset;
+        /* No specific min-width needed here, flex:1 handles it */
     }
 
     .bottom-nav-bar .dropdown-menu {
-        min-width: 120px; /* Smaller dropdown for mobile */
-        transform: translateX(-50%); /* Re-center for consistency */
+        min-width: 100px; /* Allow smaller dropdown for very mobile */
     }
 }
 
@@ -775,13 +798,27 @@ body {
     }
 
     .bottom-nav-bar {
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap; /* Ensure no wrapping, let text ellipsis */
+        justify-content: space-between; /* Space out buttons */
     }
 
     .bottom-nav-bar .btn,
     .bottom-nav-bar .mode-dropdown-container {
-        width: calc(33% - 10px); /* 3 items per row, with gap */
-        margin: 5px 0;
+        flex: 1; /* Distribute space */
+        max-width: 32%; /* Allocate roughly even space for 3 buttons */
+    }
+
+    /* Further reduce font size on smallest screens to fit text */
+    .bottom-nav-bar .btn {
+        font-size: 0.75em;
+        padding: 8px 4px; /* Minimal padding */
+    }
+    
+    .bottom-nav-bar #mode-dropdown-btn {
+        padding-right: 5px; /* Reduce padding for arrow on very small screens */
+    }
+
+    .bottom-nav-bar .dropdown-arrow {
+        display: none; /* Hide arrow on very small screens if space is critical */
     }
 }
