@@ -785,7 +785,7 @@
             <h2>Settings</h2>
             <div class="text-left">
                 <div class="setting-section" id="character-settings">
-                    <h4 class="mt-3">Character Selection</h4>
+                    <!-- Removed the "Character Selection" title here -->
                     <div class="form-check form-switch d-flex align-items-center mb-3">
                         <label class="form-check-label" for="auto-progress-toggle">
                             Enable Automatic Level Progression
@@ -1337,6 +1337,7 @@
                     input.id = `filter-${option.value}`;
                     input.value = option.value;
                     input.checked = (currentState.selectedFilterOption === option.value); // Use currentState.selectedFilterOption
+                    // Set disabled status based on auto-progress toggle
                     input.disabled = currentState.autoProgressEnabled; 
 
                     const label = document.createElement('label');
@@ -1880,8 +1881,10 @@
 
             // Listener for auto-progress toggle in settings to show/hide relevant settings
             elements.autoProgressToggle.addEventListener('change', () => {
-                // If auto-progress is checked, hide the manual filter options and the mastery slider
-                if (elements.autoProgressToggle.checked) {
+                currentState.autoProgressEnabled = elements.autoProgressToggle.checked; // Update state immediately
+
+                // Control visibility
+                if (currentState.autoProgressEnabled) {
                     elements.characterSelectionOptionsContainer.style.display = 'none';
                     elements.masterySliderContainer.style.display = 'none';
                 } else {
@@ -1889,8 +1892,10 @@
                     elements.masterySliderContainer.style.display = 'block';
                 }
                 
-                // Re-populate and ensure correct state if auto-progress is re-enabled/disabled
-                populateSettingsModal(); 
+                // Update disabled state of radio buttons
+                document.querySelectorAll('input[name="characterFilter"]').forEach(radio => {
+                    radio.disabled = currentState.autoProgressEnabled;
+                });
             });
 
             // Listener for the mastery streak slider to update its display
@@ -2032,7 +2037,7 @@
             updateStatsDisplay(); 
             showNextItem(); 
         });
-	    	// Registering Service Worker
+	    // Registering Service Worker
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
 	}
