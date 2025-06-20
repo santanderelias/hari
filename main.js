@@ -341,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreDisplay: document.getElementById('score-display'),
         levelDisplay: document.getElementById('level-display'),
         instructionText: document.getElementById('instruction-text'),
-        // Replaced modeToggleSwitch with new buttons
         modeDropdownBtn: document.getElementById('mode-dropdown-btn'),
         modeDropdownMenu: document.getElementById('mode-dropdown-menu'),
         modeCharactersBtn: document.querySelector('#mode-dropdown-menu button[data-mode="characters"]'),
@@ -725,11 +724,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let instruction = '';
 
         // Remove active class from all mode buttons and set current active button
-        document.querySelectorAll('.mode-dropdown-menu .mode-btn').forEach(btn => btn.classList.remove('active'));
+        // Note: The mode buttons are now in the footer, so we select them from there.
+        document.querySelectorAll('.bottom-nav-bar .mode-btn').forEach(btn => btn.classList.remove('active'));
 
         if (currentState.practiceType === 'characters') {
             instruction = 'Type the Romaji for the character below.';
-            elements.modeCharactersBtn.classList.add('active'); 
+            document.querySelector('.bottom-nav-bar button[data-mode="characters"]').classList.add('active'); 
             filteredDataList = getFilteredCharacters();
             
             if (filteredDataList.length === 0) {
@@ -742,12 +742,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else if (currentState.practiceType === 'words') { 
             instruction = 'Type the Romaji for the word below.';
-            elements.modeWordsBtn.classList.add('active'); 
+            document.querySelector('.bottom-nav-bar button[data-mode="words"]').classList.add('active'); 
             filteredDataList = hiraganaWords; 
 
         } else if (currentState.practiceType === 'numbers') { 
             instruction = 'Type the Romaji for the number below.';
-            elements.modeNumbersBtn.classList.add('active'); 
+            document.querySelector('.bottom-nav-bar button[data-mode="numbers"]').classList.add('active'); 
             filteredDataList = japaneseNumbers;
         }
         
@@ -1055,19 +1055,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mode dropdown button listener
     elements.modeDropdownBtn.addEventListener('click', (event) => {
-        elements.modeDropdownMenu.classList.toggle('active');
+        // Toggle the dropdown menu visibility by toggling a class
+        elements.modeDropdownMenu.classList.toggle('show');
         event.stopPropagation(); // Prevent clicks on document from closing immediately
     });
 
     // Close dropdown if clicked outside
     document.addEventListener('click', (event) => {
         if (!event.target.closest('.mode-dropdown-container')) {
-            elements.modeDropdownMenu.classList.remove('active');
+            elements.modeDropdownMenu.classList.remove('show');
         }
     });
 
     // Mode selection buttons inside dropdown
-    document.querySelectorAll('.mode-dropdown-menu .mode-btn').forEach(button => {
+    document.querySelectorAll('.bottom-nav-bar .mode-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             saveState(currentState.practiceType); // Save current mode's state before switching
 
@@ -1078,14 +1079,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const charState = loadState('characters'); 
                 if (charState.level < 10) { 
                     showNotification("Great job! Master all Hiragana characters (Level 10) to unlock Word practice!", 'info', 4000);
-                    elements.modeDropdownMenu.classList.remove('active'); // Close dropdown
+                    elements.modeDropdownMenu.classList.remove('show'); // Close dropdown
                     return; 
                 }
             } else if (newPracticeType === 'numbers') { 
                 const charState = loadState('characters');
                 if (charState.level < 5) { 
                     showNotification("Practice more characters! Reach at least Level 5 in character practice to unlock Number practice!", 'info', 4000);
-                    elements.modeDropdownMenu.classList.remove('active'); // Close dropdown
+                    elements.modeDropdownMenu.classList.remove('show'); // Close dropdown
                     return; 
                 }
             }
@@ -1099,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateStatsDisplay(); 
             showNextItem(); 
             showNotification(`Switched to ${newPracticeType.charAt(0).toUpperCase() + newPracticeType.slice(1)} Practice!`, 'info', 2000);
-            elements.modeDropdownMenu.classList.remove('active'); // Close dropdown after selection
+            elements.modeDropdownMenu.classList.remove('show'); // Close dropdown after selection
         });
     });
 
@@ -1313,13 +1314,12 @@ document.addEventListener('DOMContentLoaded', () => {
     currentState = loadState(initialPracticeType);
     
     // Set the active mode button on load
-    if (currentState.practiceType === 'characters') {
-        elements.modeCharactersBtn.classList.add('active');
-    } else if (currentState.practiceType === 'words') {
-        elements.modeWordsBtn.classList.add('active');
-    } else if (currentState.practiceType === 'numbers') {
-        elements.modeNumbersBtn.classList.add('active');
+    // Need to select the button from the footer for activation
+    const initialModeButton = document.querySelector(`.bottom-nav-bar button[data-mode="${initialPracticeType}"]`);
+    if (initialModeButton) {
+        initialModeButton.classList.add('active');
     }
+
 
     // Collapse all collapsible sections by default on load
     elements.collapsibleHeaders.forEach(header => {
