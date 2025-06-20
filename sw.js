@@ -1,7 +1,8 @@
-const CACHE_NAME = 'hiragana-cache-v1.3';
+const CACHE_NAME = 'hiragana-cache-v1.1.4';
 const urlsToCache = [
   '/',
   'index.html',
+  'main.js',
   'icons/icon-192x192.png',
   'icons/icon-512x512.png',
   // Add paths to CSS and JS files if they were separate.
