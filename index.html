@@ -3,836 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiragana Reading Practice</title>
-    
+    <title>Hiragana Practice App</title>
     <!-- Bootstrap CSS for styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts for Hiragana and general text -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Webmanifest for PWA features -->
-    <link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
-
-    <style>
-        /* Custom styles for a more pleasant look and feel */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light blue-gray background */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Aligns items to the start of the cross axis (top) */
-            min-height: 100vh;
-            color: #333;
-            overflow-x: hidden;
-            padding-top: 0; 
-        }
-
-        /* Navbar Styling */
-        .navbar {
-            position: fixed;
-            bottom: 0; /* Moved to bottom */
-            left: 0;
-            width: 100%;
-            background-color: #ffffff;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Shadow at the top now */
-            z-index: 100;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: center; /* Centered elements */
-            align-items: center;
-            border-top-left-radius: 15px; /* Rounded top corners */
-            border-top-right-radius: 15px;
-            border-bottom-left-radius: 0; /* No bottom corners */
-            border-bottom-right-radius: 0;
-        }
-
-        .navbar-brand {
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: #2c3e50;
-            display: none; /* Hide brand when navbar is at the bottom or integrate it differently if needed */
-        }
-
-        .navbar-buttons {
-            display: flex;
-            gap: 15px;
-            position: relative; /* For positioning the mode dropdown */
-        }
-
-        .navbar-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-        }
-
-        .navbar-btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Adjust main content positioning to account for fixed navbar */
-        .main-container {
-            max-width: 700px; 
-            width: 90vw; 
-            padding: 20px;
-            box-sizing: border-box; 
-            margin-top: 20px; /* Small margin from top */
-            margin-bottom: 80px; /* Added margin to push content above the fixed navbar */
-            position: relative; 
-        }
-
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden; 
-        }
-
-        .hiragana-display {
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-            font-size: clamp(60px, 25vw, 120px); 
-            font-weight: 700;
-            color: #2c3e50; 
-            background-color: #ffffff;
-            padding: 40px 20px;
-            margin-bottom: 0;
-            line-height: 1;
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            min-height: 180px; 
-            text-align: center; 
-            word-break: break-word; 
-        }
-
-        .card-body {
-            background-color: #f8f9fa; 
-            padding: 30px;
-            position: relative; /* Set to relative for absolute positioning of mnemonic button */
-        }
-
-        .form-control {
-            border-radius: 10px;
-            text-align: center;
-            font-size: 1.2rem;
-            border: 2px solid #ced4da;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-        .btn {
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 12px 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .feedback {
-            height: 30px;
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: opacity 0.3s ease;
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .feedback.correct {
-            color: #28a745; 
-        }
-        
-    .feedback.incorrect {
-            color: #dc3545; 
-        }
-        
-        /* Animation for incorrect answer */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .shake {
-            animation: shake 0.3s;
-        }
-
-        /* Styles for the new score and level display (now inside modal) */
-        /* Changed to display: block for vertical stacking */
-        .stats-container {
-            display: block; /* Ensures children stack vertically */
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #555;
-            background-color: #e2e8f0; 
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-left: auto; 
-            margin-right: auto; 
-            max-width: 300px; 
-            text-align: center; /* Center content within the container */
-        }
-
-        .stats-container div {
-            margin: 5px 0; /* Add some vertical spacing between score and level */
-        }
-
-        /* Mode Dropdown Styles */
-        .mode-dropdown-container {
-            position: relative; /* Needed for positioning the dropdown menu */
-            display: inline-block;
-        }
-
-        .mode-dropdown-menu {
-            position: absolute;
-            bottom: 100%; /* Position above the button */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 150px;
-            padding: 5px 0;
-            z-index: 101; /* Above navbar buttons */
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 10px; /* Space between dropdown and button */
-        }
-
-        .mode-dropdown-menu.active {
-            display: flex; /* Show when active */
-        }
-
-        .mode-dropdown-menu .mode-btn {
-            background: none;
-            color: #333;
-            border: none;
-            text-align: left;
-            padding: 8px 15px;
-            width: 100%;
-            border-radius: 0;
-            font-weight: normal;
-            transition: background-color 0.2s ease;
-        }
-
-        .mode-dropdown-menu .mode-btn:hover {
-            background-color: #f0f0f0;
-        }
-
-        .mode-dropdown-menu .mode-btn.active {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Mnemonic Toggle Button - inside card */
-        #mnemonic-toggle-btn {
-            position: absolute; /* Positioned relative to .card-body */
-            bottom: 10px;
-            right: 10px;
-            width: 30px; /* Made slightly smaller */
-            height: 30px;
-            border-radius: 50%;
-            background-color: #28a745; 
-            color: white;
-            font-size: 18px; /* Adjusted font size */
-            font-weight: bold;
-            display: none; /* Initially hidden, controlled by JS */
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Smaller shadow */
-            z-index: 10; /* Ensure it's above other elements in the card */
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            border: none; 
-        }
-
-        #mnemonic-toggle-btn:hover {
-            background-color: #218838; 
-            transform: translateY(-1px);
-        }
-
-        /* Mnemonic Overlay */
-        #mnemonic-overlay,
-        .modal-custom-overlay { 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; 
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        #mnemonic-overlay.active,
-        .modal-custom-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        #mnemonic-content,
-        .modal-custom-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow-y: auto; 
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            position: relative; 
-        }
-
-        #mnemonic-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            display: block; 
-            margin: 0 auto; 
-        }
-
-        #mnemonic-content p {
-            margin-bottom: 0;
-            font-size: 1.1rem;
-            color: #333;
-        }
-
-        /* Close button for mnemonic overlay and other modals */
-        #mnemonic-close-btn,
-        .modal-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: #555;
-            cursor: pointer;
-            line-height: 1;
-            padding: 5px;
-        }
-        #mnemonic-close-btn:hover,
-        .modal-close-btn:hover {
-            color: #000;
-        }
-
-        /* Styles for review mistakes section in Stats modal */
-        #review-mistakes-section {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        #mistake-list {
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        #mistake-list span {
-            display: inline-block;
-            background-color: #fce8e8;
-            border: 1px solid #dc3545;
-            color: #dc3545;
-            padding: 5px 8px;
-            margin: 3px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        #start-review-btn {
-            background-color: #ffc107;
-            color: #333;
-            border-color: #ffc107;
-        }
-        #start-review-btn:hover {
-            background-color: #e0a800;
-            border-color: #e0a800;
-        }
-
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050; /* Above modals */
-        }
-        .toast {
-            background-color: #28a745; /* Default green for success */
-            color: white;
-            border: none;
-            border-radius: 8px; 
-            padding: 15px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none; /* Hidden by default */
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            align-items: center; /* Vertically center content */
-            gap: 10px; /* Space between text and button */
-        }
-        .toast.show {
-            display: flex; /* Use flexbox for toast content */
-            opacity: 1;
-        }
-        .toast.toast-warning {
-            background-color: #ffc107;
-            color: #333;
-        }
-        .toast.toast-info {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .toast.toast-danger { /* NEW: Style for danger toast */
-            background-color: #dc3545; /* Red for errors/danger */
-            color: white;
-        }
-        /* Style for the update button inside the toast */
-        .toast-update-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
-            white-space: nowrap; /* Prevent button text from wrapping */
-            margin-left: auto; /* Push button to the right */
-        }
-        .toast-update-btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Settings Modal Specifics */
-        .setting-section {
-            margin-bottom: 20px;
-        }
-
-        /* Progress Visualizations Styling */
-        #progress-visualizations-section {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-            text-align: left; /* Align sections to left */
-        }
-        #progress-visualizations-section h5 {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        .progress-list {
-            max-height: 120px;
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 10px;
-            background-color: #fcfcfc;
-        }
-        .progress-list h6 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-            text-align: center;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 5px;
-        }
-        .progress-list .item-tag {
-            display: inline-flex; /* Use flexbox for alignment */
-            align-items: center; /* Vertically center items */
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 4px 8px;
-            margin: 3px;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            white-space: nowrap; /* Prevent breaking on small screens */
-            border: 1px solid #dee2e6;
-        }
-        .item-tag .status-indicator {
-            margin-right: 5px;
-            font-size: 0.9em; /* Adjust emoji size */
-        }
-        .item-tag.mastered {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-            opacity: 0.7; /* Mastered items appear slightly less prominent */
-        }
-        .item-tag.learning {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
-        }
-        .item-tag.not-started {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
-        }
-
-        /* Collapsible / Foldable Sections in Stats Modal */
-        .collapsible-section {
-            margin-bottom: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background-color: #e9ecef;
-            font-weight: bold;
-            cursor: pointer;
-            border-bottom: 1px solid #e0e0e0;
-            transition: background-color 0.2s ease;
-        }
-
-        .collapsible-header:hover {
-            background-color: #e2e6ea;
-        }
-
-        .collapsible-header .toggle-icon {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        .collapsible-header.collapsed .toggle-icon {
-            transform: rotate(-90deg);
-        }
-
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out; /* Smoother collapse/expand */
-            padding: 0 15px; /* Padding for when expanded */
-        }
-
-        .collapsible-content.expanded {
-            max-height: 500px; /* Adjust based on max expected content height */
-            padding: 15px; /* Adjust padding for expanded state */
-        }
-
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 576px) {
-            .navbar {
-                padding: 8px 15px;
-            }
-            .navbar-brand {
-                font-size: 1.2rem;
-            }
-            .navbar-buttons {
-                gap: 10px;
-            }
-            .navbar-btn {
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
-            .main-container {
-                padding: 10px; 
-                margin-top: 20px; 
-                margin-bottom: 70px; /* Adjust margin for smaller navbar */
-                width: 95vw; 
-            }
-            .mode-dropdown-menu {
-                min-width: 120px;
-                padding: 3px 0;
-            }
-            .mode-dropdown-menu .mode-btn {
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
-            .hiragana-display {
-                padding: 15px 5px; 
-                min-height: 120px; 
-            }
-            .card-body {
-                padding: 20px;
-            }
-            .form-control {
-                font-size: 1rem;
-            }
-            .btn {
-                padding: 10px 15px;
-            }
-            #mnemonic-toggle-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 18px;
-                bottom: 10px;
-                right: 10px;
-            }
-            #mnemonic-content, .modal-custom-content {
-                padding: 15px;
-            }
-            .toast-container {
-                top: 10px;
-                right: 10px;
-                width: calc(100% - 20px); /* Full width minus padding */
-            }
-            .progress-list {
-                max-height: 100px; /* Adjust height for smaller screens */
-            }
-            .item-tag {
-                font-size: 0.75rem;
-                padding: 3px 6px;
-            }
-            .collapsible-header {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-            .collapsible-content.expanded {
-                padding: 10px;
-            }
-        }
-
-        /* Custom Toggle Switch Styles */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 28px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        /* Update Button Styles */
-        #update-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #17a2b8; /* Info blue */
-            color: white;
-            font-size: 1.5rem;
-            display: none; /* Hidden by default */
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000; /* Ensure it's above other content */
-            border: none;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        #update-button:hover {
-            background-color: #138496; /* Darker blue on hover */
-            transform: translateY(-2px);
-        }
-
-        #update-button.hidden {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="main.js" defer></script>
 </head>
 <body>
-
-    <!-- Update Button -->
-    <button id="update-button" class="hidden">🔄</button> <!-- Changed to emoji icon -->
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-buttons">
-            <button class="navbar-btn" id="stats-btn">Stats</button>
-            <!-- Mode Dropdown -->
-            <div class="mode-dropdown-container">
-                <button class="navbar-btn" id="mode-dropdown-btn">Mode</button>
-                <div class="mode-dropdown-menu" id="mode-dropdown-menu">
-                    <button class="mode-btn" data-mode="characters">Characters</button>
-                    <button class="mode-btn" data-mode="words">Words</button>
-                    <button class="mode-btn" data-mode="numbers">Numbers</button>
-                </div>
-            </div>
-            <button class="navbar-btn" id="settings-btn">Settings</button>
-        </div>
-    </nav>
-
-    <div class="main-container text-center">
-        <h1 class="mb-3 h2 text-center">Hiragana Reading</h1> <!-- Centered the title -->
-        <p class="text-muted mb-4 text-center" id="instruction-text">Type the Romaji for the character below.</p>
-
-        <div class="card">
-            <!-- Hiragana character/word is displayed here -->
-            <div id="hiragana-display" class="hiragana-display">
-                あ
-            </div>
-
-            <div class="card-body">
-                <form id="answer-form">
-                    <div class="mb-3">
-                        <input type="text" id="romaji-input" class="form-control form-control-lg" placeholder="e.g., 'ka'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="container">
+        <header class="header">
+            <h1 class="app-title">Hiragana Maestro</h1>
+            <div class="header-controls">
+                <div class="mode-dropdown-container">
+                    <button id="mode-dropdown-btn" class="btn btn-primary dropdown-toggle">
+                        Practice Mode <span class="dropdown-arrow"></span>
+                    </button>
+                    <div id="mode-dropdown-menu" class="dropdown-menu">
+                        <button class="mode-btn" data-mode="characters">Characters</button>
+                        <button class="mode-btn" data-mode="words">Words</button>
+                        <button class="mode-btn" data-mode="numbers">Numbers</button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Check</button> <!-- Changed label to "Check" -->
-                </form>
-                <div id="feedback" class="feedback"></div>
-                <!-- Mnemonic Toggle Button - moved inside card-body -->
-                <button id="mnemonic-toggle-btn" style="display: none;">?</button> 
+                </div>
+                <button id="stats-btn" class="btn btn-secondary ms-2">Stats</button>
+                <button id="settings-btn" class="btn btn-secondary ms-2">Settings</button>
             </div>
-        </div>
+        </header>
+
+        <main class="main-content">
+            <p id="instruction-text" class="instruction-text">Type the Romaji for the character below.</p>
+            <div id="hiragana-display" class="hiragana-display rounded-box">あ</div>
+            <p id="correct-answer-on-mistake" class="correct-answer-on-mistake"></p>
+            
+            <form id="answer-form" class="answer-form">
+                <input type="text" id="romaji-input" class="text-input" placeholder="Type Romaji here..." autofocus autocomplete="off">
+                <button type="submit" class="btn btn-primary submit-btn">Check</button>
+            </form>
+
+            <div id="feedback" class="feedback-text"></div>
+            <div class="score-display">
+                Score: <span id="score-display">0</span> | Level: <span id="level-display">1</span>
+            </div>
+
+            <button id="mnemonic-toggle-btn" class="btn btn-info mnemonic-btn" style="display: none;">Show Mnemonic</button>
+        </main>
     </div>
 
-    <!-- Mnemonic Overlay (hidden by default) -->
+    <!-- Mnemonic Overlay Modal -->
     <div id="mnemonic-overlay" class="modal-custom-overlay">
-        <div id="mnemonic-content" class="modal-custom-content">
-            <button id="mnemonic-close-btn" class="modal-close-btn">&times;</button>
-            <h3 id="mnemonic-title">Mnemonic for [Character]</h3>
-            <img id="mnemonic-image" src="" alt="Mnemonic Image" onerror="this.style.display='none'; this.alt='Image not available';" style="display: none;">
-            <p id="mnemonic-text"></p>
-            <p id="correct-answer-on-mistake" class="text-danger mt-3 fw-bold"></p> <!-- New element for correct answer -->
-            <p class="text-muted">You can replace these placeholder images/texts with your own mnemonics!</p>
+        <div class="modal-custom-content">
+            <h3 id="mnemonic-title">Mnemonic</h3>
+            <img id="mnemonic-image" src="" alt="Mnemonic Image" class="mnemonic-image" onerror="this.style.display='none'">
+            <p id="mnemonic-text" class="mnemonic-text"></p>
+            <button class="btn btn-secondary modal-close-btn" data-modal-id="mnemonic-overlay">Close</button>
         </div>
     </div>
 
     <!-- Stats Modal -->
     <div id="stats-modal" class="modal-custom-overlay">
-        <div class="modal-custom-content">
-            <button class="modal-close-btn" data-modal-id="stats-modal">&times;</button>
-            <h2>Your Progress</h2>
-            <div class="stats-container">
-                <div>Score: <span id="score-display">0</span></div>
-                <div>Level: <span id="level-display">1</span></div>
+        <div class="modal-custom-content large-modal">
+            <h3>Your Progress Stats</h3>
+            <button class="modal-close-btn top-right" data-modal-id="stats-modal">&times;</button>
+            
+            <div class="stats-section">
+                <h4 class="collapsible-header collapsed" data-target="character-progress-content">
+                    Character Progress <span class="arrow-icon">▼</span>
+                </h4>
+                <div id="character-progress-content" class="collapsible-content">
+                    <div id="char-mastered-list" class="progress-list mastered">
+                        <h6>Mastered (⭐)</h6>
+                        <p class="text-muted">No mastered characters yet.</p>
+                    </div>
+                    <div id="char-learning-list" class="progress-list learning">
+                        <h6>Learning (🟡)</h6>
+                        <p class="text-muted">No characters in learning yet.</p>
+                    </div>
+                    <div id="char-not-started-list" class="progress-list not-started">
+                        <h6>Not Started (⚪)</h6>
+                        <p class="text-muted">All characters are being learned or mastered!</p>
+                    </div>
+                </div>
             </div>
 
-            <div id="review-mistakes-section" class="text-center">
-                <h4>Review Mistakes</h4>
-                <div id="mistake-list" class="mb-3">
-                    <!-- Failed items will be displayed here dynamically -->
+            <div class="stats-section mt-4">
+                <h4 class="collapsible-header collapsed" data-target="word-progress-content">
+                    Word Progress <span class="arrow-icon">▼</span>
+                </h4>
+                <div id="word-progress-content" class="collapsible-content">
+                    <div id="word-mastered-list" class="progress-list mastered">
+                        <h6>Mastered (⭐)</h6>
+                        <p class="text-muted">No mastered words yet.</p>
+                    </div>
+                    <div id="word-learning-list" class="progress-list learning">
+                        <h6>Learning (🟡)</h6>
+                        <p class="text-muted">No words in learning yet.</p>
+                    </div>
+                    <div id="word-not-started-list" class="progress-list not-started">
+                        <h6>Not Started (⚪)</h6>
+                        <p class="text-muted">All words are being learned or mastered!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section mt-4">
+                <h4 class="collapsible-header collapsed" data-target="number-progress-content">
+                    Number Progress <span class="arrow-icon">▼</span>
+                </h4>
+                <div id="number-progress-content" class="collapsible-content">
+                    <div id="num-mastered-list" class="progress-list mastered">
+                        <h6>Mastered (⭐)</h6>
+                        <p class="text-muted">No mastered numbers yet.</p>
+                    </div>
+                    <div id="num-learning-list" class="progress-list learning">
+                        <h6>Learning (🟡)</h6>
+                        <p class="text-muted">No numbers in learning yet.</p>
+                    </div>
+                    <div id="num-not-started-list" class="progress-list not-started">
+                        <h6>Not Started (⚪)</h6>
+                        <p class="text-muted">All numbers are being learned or mastered!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mistakes-review mt-4">
+                <h4>Mistakes to Review</h4>
+                <div id="mistake-list" class="mistake-list">
                     <p class="text-muted">No mistakes to review yet!</p>
                 </div>
-                <button class="btn btn-warning" id="start-review-btn">Start Review Session</button>
-                <button class="btn btn-secondary mt-2" id="clear-mistakes-btn" style="display: none;">Clear Mistakes</button>
-            </div>
-
-            <div id="progress-visualizations-section" class="text-center mt-4">
-                <h4>Progress Visualizations</h4>
-
-                <!-- Characters Progress Section (Collapsible) -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" data-target="characters-progress-display">
-                        <h5>Characters</h5>
-                        <span class="toggle-icon">&#9660;</span> <!-- Down arrow -->
-                    </div>
-                    <div id="characters-progress-display" class="collapsible-content">
-                        <div id="char-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                        <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</div>
-                        <div id="char-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
-                    </div>
-                </div>
-
-                <!-- Words Progress Section (Collapsible) -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" data-target="words-progress-display">
-                        <h5>Words</h5>
-                        <span class="toggle-icon">&#9660;</span>
-                    </div>
-                    <div id="words-progress-display" class="collapsible-content">
-                        <div id="word-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                        <div id="word-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
-                        <div id="word-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
-                    </div>
-                </div>
-
-                <!-- Numbers Progress Section (Collapsible) -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" data-target="numbers-progress-display">
-                        <h5>Numbers</h5>
-                        <span class="toggle-icon">&#9660;</span>
-                    </div>
-                    <div id="numbers-progress-display" class="collapsible-content">
-                        <div id="num-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                        <div id="num-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
-                        <div id="num-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
-                    </div>
-                </div>
+                <button id="start-review-btn" class="btn btn-primary mt-3" disabled>Start Review Session</button>
+                <button id="clear-mistakes-btn" class="btn btn-outline-danger mt-3" style="display:none;">Clear Mistakes</button>
             </div>
         </div>
     </div>
@@ -840,53 +139,50 @@
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal-custom-overlay">
         <div class="modal-custom-content">
-            <button class="modal-close-btn" data-modal-id="settings-modal">&times;</button>
-            <h2>Settings</h2>
-            <div class="text-left">
-                <div class="setting-section" id="character-settings">
-                    <div class="form-check form-switch d-flex align-items-center mb-3">
-                        <label class="form-check-label" for="auto-progress-toggle">
-                            Enable Automatic Level Progression
-                        </label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="auto-progress-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <!-- Moved character-filter-options into its own container for dynamic hiding -->
-                    <div id="character-selection-options-container">
-                        <div id="character-filter-options">
-                            <!-- Radio buttons for character filtering will be dynamically inserted here -->
-                        </div>
+            <h3>Settings</h3>
+            <button class="modal-close-btn top-right" data-modal-id="settings-modal">&times;</button>
+            
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="auto-progress-toggle">
+                    <label class="form-check-label" for="auto-progress-toggle">Enable Automatic Level Progression (Characters)</label>
+                </div>
+                <small class="form-text text-muted">
+                    When enabled, the app automatically introduces new characters as you master previous ones.
+                    Character filtering and mastery streak settings will be disabled.
+                </small>
+            </div>
+
+            <div id="character-settings" class="settings-section">
+                <h4>Character Practice Settings</h4>
+                <div id="character-selection-options-container">
+                    <h5>Filter Characters:</h5>
+                    <div id="character-filter-options">
+                        <!-- Radio buttons will be populated by JavaScript -->
                     </div>
                 </div>
                 
-                <!-- NEW SETTING: Mastery Streak Slider -->
-                <div class="setting-section" id="character-mastery-settings">
-                    <p class="text-muted mb-3">Correct answers needed to master a character:</p>
-                    <div id="mastery-slider-container">
-                        <input type="range" class="form-range" id="mastery-streak-slider" min="1" max="10" step="1">
-                        <p class="text-center">Current: <span id="mastery-streak-display">5</span> correct answers</p>
-                    </div>
+                <div id="character-mastery-settings">
+                    <h5>Character Mastery Streak:</h5>
+                    <label for="mastery-streak-slider" class="form-label">Consecutive correct answers required to master a character:</label>
+                    <input type="range" class="form-range" min="1" max="10" value="5" id="mastery-streak-slider">
+                    <p>Current: <span id="mastery-streak-display">5</span> correct answers</p>
                 </div>
+            </div>
 
-                <!-- Numbers mode could have its own settings section here if needed -->
+            <div class="settings-section mt-4">
+                <h4>Reset Progress</h4>
+                <p>Use this to clear all progress for the current practice mode.</p>
+                <button id="start-over-btn" class="btn btn-danger">Reset Current Mode Progress</button>
+            </div>
 
-                <div class="text-center mt-4">
-                    <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
-                    <!-- Start Over Button -->
-                    <button class="btn btn-danger mt-2" id="start-over-btn">Start Over Current Mode</button>
-                </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container for Notifications -->
-    <div class="toast-container">
-        <!-- Toasts will be appended here -->
-    </div>
-
-    <!-- Link to the external JavaScript file -->
-    <script src="main.js"></script>
+    <!-- Toast container for notifications -->
+    <div class="toast-container"></div>
 </body>
 </html>
