@@ -12,7 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-	<link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
+    <link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
+
     <style>
         /* Custom styles for a more pleasant look and feel */
         body {
@@ -57,6 +58,7 @@
         .navbar-buttons {
             display: flex;
             gap: 15px;
+            position: relative; /* For positioning the mode dropdown */
         }
 
         .navbar-btn {
@@ -197,90 +199,54 @@
             margin: 5px 0; /* Add some vertical spacing between score and level */
         }
 
-        /* Mode Switch Styling (adjusted for navbar) */
-        .mode-selection {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .mode-btn {
-            background-color: #6c757d; /* Gray for inactive */
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .mode-btn.active {
-            background-color: #007bff; /* Blue for active */
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .mode-btn:not(.active):hover {
-            background-color: #5a6268;
-        }
-
-        /* The switch - the box around the slider (if still needed for other purposes) */
-        .switch {
-            position: relative;
+        /* Mode Dropdown Styles */
+        .mode-dropdown-container {
+            position: relative; /* Needed for positioning the dropdown menu */
             display: inline-block;
-            width: 45px; 
-            height: 25px; 
         }
 
-        /* Hide default HTML checkbox */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* The slider */
-        .slider {
+        .mode-dropdown-menu {
             position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc; 
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 25px; 
+            bottom: 100%; /* Position above the button */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 150px;
+            padding: 5px 0;
+            z-index: 101; /* Above navbar buttons */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px; /* Space between dropdown and button */
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 19px; 
-            width: 19px; 
-            left: 3px; 
-            bottom: 3px; 
-            background-color: white; 
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; 
+        .mode-dropdown-menu.active {
+            display: flex; /* Show when active */
         }
 
-        input:checked + .slider {
-            background-color: #007bff; 
+        .mode-dropdown-menu .mode-btn {
+            background: none;
+            color: #333;
+            border: none;
+            text-align: left;
+            padding: 8px 15px;
+            width: 100%;
+            border-radius: 0;
+            font-weight: normal;
+            transition: background-color 0.2s ease;
         }
 
-        input:focus + .slider {
-            box-shadow: 0 0 1px #007bff;
+        .mode-dropdown-menu .mode-btn:hover {
+            background-color: #f0f0f0;
         }
 
-        input:checked + .slider:before {
-            -webkit-transform: translateX(20px); 
-            -ms-transform: translateX(20px);
-            transform: translateX(20px);
+        .mode-dropdown-menu .mode-btn.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
         }
 
         /* Mnemonic Toggle Button - inside card */
@@ -520,6 +486,52 @@
             color: #721c24;
         }
 
+        /* Collapsible / Foldable Sections in Stats Modal */
+        .collapsible-section {
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #e9ecef;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: #e2e6ea;
+        }
+
+        .collapsible-header .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out; /* Smoother collapse/expand */
+            padding: 0 15px; /* Padding for when expanded */
+        }
+
+        .collapsible-content.expanded {
+            max-height: 500px; /* Adjust based on max expected content height */
+            padding: 15px; /* Adjust padding for expanded state */
+        }
 
         /* Responsive adjustments for smaller screens */
         @media (max-width: 576px) {
@@ -542,13 +554,13 @@
                 margin-bottom: 70px; /* Adjust margin for smaller navbar */
                 width: 95vw; 
             }
-            .mode-selection {
-                flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-                justify-content: center;
+            .mode-dropdown-menu {
+                min-width: 120px;
+                padding: 3px 0;
             }
-            .mode-btn {
-                padding: 6px 10px;
-                font-size: 0.8rem;
+            .mode-dropdown-menu .mode-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
             .hiragana-display {
                 padding: 15px 5px; 
@@ -585,6 +597,13 @@
                 font-size: 0.75rem;
                 padding: 3px 6px;
             }
+            .collapsible-header {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            .collapsible-content.expanded {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -594,11 +613,14 @@
     <nav class="navbar">
         <div class="navbar-buttons">
             <button class="navbar-btn" id="stats-btn">Stats</button>
-            <!-- Mode Selection Buttons -->
-            <div class="mode-selection">
-                <button class="mode-btn" id="mode-characters-btn" data-mode="characters">Characters</button>
-                <button class="mode-btn" id="mode-words-btn" data-mode="words">Words</button>
-                <button class="mode-btn" id="mode-numbers-btn" data-mode="numbers">Numbers</button>
+            <!-- Mode Dropdown -->
+            <div class="mode-dropdown-container">
+                <button class="navbar-btn" id="mode-dropdown-btn">Mode</button>
+                <div class="mode-dropdown-menu" id="mode-dropdown-menu">
+                    <button class="mode-btn" data-mode="characters">Characters</button>
+                    <button class="mode-btn" data-mode="words">Words</button>
+                    <button class="mode-btn" data-mode="numbers">Numbers</button>
+                </div>
             </div>
             <button class="navbar-btn" id="settings-btn">Settings</button>
         </div>
@@ -662,24 +684,44 @@
 
             <div id="progress-visualizations-section" class="text-center mt-4">
                 <h4>Progress Visualizations</h4>
-                <div id="characters-progress-display" class="mt-3">
-                    <h5>Characters</h5>
-                    <div id="char-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                    <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</div>
-                    <div id="char-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+
+                <!-- Characters Progress Section (Collapsible) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-target="characters-progress-display">
+                        <h5>Characters</h5>
+                        <span class="toggle-icon">&#9660;</span> <!-- Down arrow -->
+                    </div>
+                    <div id="characters-progress-display" class="collapsible-content">
+                        <div id="char-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                        <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</div>
+                        <div id="char-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                    </div>
                 </div>
-                <div id="words-progress-display" class="mt-4">
-                    <h5>Words</h5>
-                    <div id="word-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                    <div id="word-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
-                    <div id="word-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+
+                <!-- Words Progress Section (Collapsible) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-target="words-progress-display">
+                        <h5>Words</h5>
+                        <span class="toggle-icon">&#9660;</span>
+                    </div>
+                    <div id="words-progress-display" class="collapsible-content">
+                        <div id="word-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                        <div id="word-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                        <div id="word-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                    </div>
                 </div>
-                <!-- NEW: Numbers Progress Display -->
-                <div id="numbers-progress-display" class="mt-4">
-                    <h5>Numbers</h5>
-                    <div id="num-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                    <div id="num-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
-                    <div id="num-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+
+                <!-- Numbers Progress Section (Collapsible) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-target="numbers-progress-display">
+                        <h5>Numbers</h5>
+                        <span class="toggle-icon">&#9660;</span>
+                    </div>
+                    <div id="numbers-progress-display" class="collapsible-content">
+                        <div id="num-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                        <div id="num-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                        <div id="num-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -693,24 +735,29 @@
             <div class="text-left">
                 <div class="setting-section" id="character-settings">
                     <h4 class="mt-3">Character Selection</h4>
-                    <p class="text-muted mb-3">Choose which characters to practice:</p>
+                    <!-- Removed: <p class="text-muted mb-3">Choose which characters to practice:</p> -->
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="auto-progress-toggle">
                         <label class="form-check-label" for="auto-progress-toggle">
                             Enable Automatic Level Progression
                         </label>
                     </div>
-                    <div id="character-filter-options">
-                        <!-- Radio buttons for character filtering will be dynamically inserted here -->
+                    <!-- Moved character-filter-options into its own container for dynamic hiding -->
+                    <div id="character-selection-options-container">
+                        <div id="character-filter-options">
+                            <!-- Radio buttons for character filtering will be dynamically inserted here -->
+                        </div>
                     </div>
                 </div>
                 
                 <!-- NEW SETTING: Mastery Streak Slider -->
                 <div class="setting-section" id="character-mastery-settings">
-                    <h4 class="mt-3">Character Mastery Threshold</h4>
+                    <!-- Removed: <h4 class="mt-3">Character Mastery Threshold</h4> -->
                     <p class="text-muted mb-3">Correct answers needed to master a character:</p>
-                    <input type="range" class="form-range" id="mastery-streak-slider" min="1" max="10" step="1">
-                    <p class="text-center">Current: <span id="mastery-streak-display">5</span> correct answers</p>
+                    <div id="mastery-slider-container">
+                        <input type="range" class="form-range" id="mastery-streak-slider" min="1" max="10" step="1">
+                        <p class="text-center">Current: <span id="mastery-streak-display">5</span> correct answers</p>
+                    </div>
                 </div>
 
                 <!-- Numbers mode could have its own settings section here if needed -->
@@ -783,36 +830,36 @@
                 { type: 'character', hiragana: 'ん', romaji: 'n', group: 'n-alone', vowel: null, mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=N_Mnemonic', mnemonicText: 'A "n"oodle.' },
 
                 // Dakuten characters
-                { type: 'character', hiragana: 'が', romaji: 'ga', group: 'ga-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GA_Mnemonic', mnemonicText: 'Ka with two dots (ten-ten) becomes ga. Imagine a "ga"me controller.' },
-                { type: 'character', hiragana: 'ぎ', romaji: 'gi', group: 'ga-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GI_Mnemonic', mnemonicText: 'Ki with ten-ten becomes gi. "Gi"ft box.' },
-                { type: 'character', hiragana: 'ぐ', romaji: 'gu', group: 'ga-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GU_Mnemonic', mnemonicText: 'Ku with ten-ten becomes gu. "Gu"n shape.' },
-                { type: 'character', hiragana: 'げ', romaji: 'ge', group: 'ga-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GE_Mnemonic', mnemonicText: 'Ke with ten-ten becomes ge. "Ge"ometry triangle.' },
-                { type: 'character', hiragana: 'ご', romaji: 'go', group: 'ga-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GO_Mnemonic', mnemonicText: 'Ko with ten-ten becomes go. "Go"ogle maps marker.' },
+                { type: 'character', hiragana: 'が', romaji: 'ga', group: 'ga-row-dakuten', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GA_Mnemonic', mnemonicText: 'Ka with two dots (ten-ten) becomes ga. Imagine a "ga"me controller.' },
+                { type: 'character', hiragana: 'ぎ', romaji: 'gi', group: 'ga-row-dakuten', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GI_Mnemonic', mnemonicText: 'Ki with ten-ten becomes gi. "Gi"ft box.' },
+                { type: 'character', hiragana: 'ぐ', romaji: 'gu', group: 'ga-row-dakuten', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GU_Mnemonic', mnemonicText: 'Ku with ten-ten becomes gu. "Gu"n shape.' },
+                { type: 'character', hiragana: 'げ', romaji: 'ge', group: 'ga-row-dakuten', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GE_Mnemonic', mnemonicText: 'Ke with ten-ten becomes ge. "Ge"ometry triangle.' },
+                { type: 'character', hiragana: 'ご', romaji: 'go', group: 'ga-row-dakuten', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GO_Mnemonic', mnemonicText: 'Ko with ten-ten becomes go. "Go"ogle maps marker.' },
 
-                { type: 'character', hiragana: 'ざ', romaji: 'za', group: 'za-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZA_Mnemonic', mnemonicText: 'Sa with ten-ten becomes za. "Za"bra crossing.' },
-                { type: 'character', hiragana: 'じ', romaji: 'ji', group: 'za-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=JI_Mnemonic', mnemonicText: 'Shi with ten-ten becomes ji. "Ji"gsaw puzzle piece.' },
-                { type: 'character', hiragana: 'ず', romaji: 'zu', group: 'za-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZU_Mnemonic', mnemonicText: 'Su with ten-ten becomes zu. "Zu"m-zoom car.' },
-                { type: 'character', hiragana: 'ぜ', romaji: 'ze', group: 'za-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZE_Mnemonic', mnemonicText: 'Se with ten-ten becomes ze. "Ze"bra stripes.' },
-                { type: 'character', hiragana: 'ぞ', romaji: 'zo', group: 'za-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZO_Mnemonic', mnemonicText: 'So with ten-ten becomes zo. "Zo"rro mark.' },
+                { type: 'character', hiragana: 'ざ', romaji: 'za', group: 'za-row-dakuten', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZA_Mnemonic', mnemonicText: 'Sa with ten-ten becomes za. "Za"bra crossing.' },
+                { type: 'character', hiragana: 'じ', romaji: 'ji', group: 'za-row-dakuten', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=JI_Mnemonic', mnemonicText: 'Shi with ten-ten becomes ji. "Ji"gsaw puzzle piece.' },
+                { type: 'character', hiragana: 'ず', romaji: 'zu', group: 'za-row-dakuten', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZU_Mnemonic', mnemonicText: 'Su with ten-ten becomes zu. "Zu"m-zoom car.' },
+                { type: 'character', hiragana: 'ぜ', romaji: 'ze', group: 'za-row-dakuten', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZE_Mnemonic', mnemonicText: 'Se with ten-ten becomes ze. "Ze"bra stripes.' },
+                { type: 'character', hiragana: 'ぞ', romaji: 'zo', group: 'za-row-dakuten', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZO_Mnemonic', mnemonicText: 'So with ten-ten becomes zo. "Zo"rro mark.' },
 
-                { type: 'character', hiragana: 'だ', romaji: 'da', group: 'da-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DA_Mnemonic', mnemonicText: 'Ta with ten-ten becomes da. "Da"nce shoe.' },
-                { type: 'character', hiragana: 'ぢ', romaji: 'ji', group: 'da-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DI_Mnemonic', mnemonicText: 'Chi with ten-ten becomes ji.' },
-                { type: 'character', hiragana: 'づ', romaji: 'zu', group: 'da-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DU_Mnemonic', mnemonicText: 'Tsu with ten-ten becomes zu.' },
-                { type: 'character', hiragana: 'で', romaji: 'de', group: 'da-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DE_Mnemonic', mnemonicText: 'Te with ten-ten becomes de. "De"sk.' },
-                { type: 'character', hiragana: 'ど', romaji: 'do', group: 'da-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DO_Mnemonic', mnemonicText: 'To with ten-ten becomes do. "Do"g house.' },
+                { type: 'character', hiragana: 'だ', romaji: 'da', group: 'da-row-dakuten', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DA_Mnemonic', mnemonicText: 'Ta with ten-ten becomes da. "Da"nce shoe.' },
+                { type: 'character', hiragana: 'ぢ', romaji: 'ji', group: 'da-row-dakuten', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DI_Mnemonic', mnemonicText: 'Chi with ten-ten becomes ji.' },
+                { type: 'character', hiragana: 'づ', romaji: 'zu', group: 'da-row-dakuten', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DU_Mnemonic', mnemonicText: 'Tsu with ten-ten becomes zu.' },
+                { type: 'character', hiragana: 'で', romaji: 'de', group: 'da-row-dakuten', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DE_Mnemonic', mnemonicText: 'Te with ten-ten becomes de. "De"sk.' },
+                { type: 'character', hiragana: 'ど', romaji: 'do', group: 'da-row-dakuten', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DO_Mnemonic', mnemonicText: 'To with ten-ten becomes do. "Do"g house.' },
 
-                { type: 'character', hiragana: 'ば', romaji: 'ba', group: 'ba-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BA_Mnemonic', mnemonicText: 'Ha with ten-ten becomes ba. "Ba"ll.' },
-                { type: 'character', hiragana: 'び', romaji: 'bi', group: 'ba-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BI_Mnemonic', mnemonicText: 'Hi with ten-ten becomes bi. "Bi"rd wing.' },
-                { type: 'character', hiragana: 'ぶ', romaji: 'bu', group: 'ba-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BU_Mnemonic', mnemonicText: 'Fu with ten-ten becomes bu. "Bu"bbles.' },
-                { type: 'character', hiragana: 'べ', romaji: 'be', group: 'ba-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BE_Mnemonic', mnemonicText: 'He with ten-ten becomes be. "Be"ll.' },
-                { type: 'character', hiragana: 'ぼ', romaji: 'bo', group: 'ba-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BO_Mnemonic', mnemonicText: 'Ho with ten-ten becomes bo. "Bo"at.' },
+                { type: 'character', hiragana: 'ば', romaji: 'ba', group: 'ba-row-dakuten', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BA_Mnemonic', mnemonicText: 'Ha with ten-ten becomes ba. "Ba"ll.' },
+                { type: 'character', hiragana: 'び', romaji: 'bi', group: 'ba-row-dakuten', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BI_Mnemonic', mnemonicText: 'Hi with ten-ten becomes bi. "Bi"rd wing.' },
+                { type: 'character', hiragana: 'ぶ', romaji: 'bu', group: 'ba-row-dakuten', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BU_Mnemonic', mnemonicText: 'Fu with ten-ten becomes bu. "Bu"bbles.' },
+                { type: 'character', hiragana: 'べ', romaji: 'be', group: 'ba-row-dakuten', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BE_Mnemonic', mnemonicText: 'He with ten-ten becomes be. "Be"ll.' },
+                { type: 'character', hiragana: 'ぼ', romaji: 'bo', group: 'ba-row-dakuten', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BO_Mnemonic', mnemonicText: 'Ho with ten-ten becomes bo. "Bo"at.' },
 
                 // Handakuten characters
-                { type: 'character', hiragana: 'ぱ', romaji: 'pa', group: 'pa-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PA_Mnemonic', mnemonicText: 'Ha with circle (maru) becomes pa. "Pa"rty popper.' },
-                { type: 'character', hiragana: 'ぴ', romaji: 'pi', group: 'pa-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PI_Mnemonic', mnemonicText: 'Hi with maru becomes pi. "Pi"ano key.' },
-                { type: 'character', hiragana: 'ぷ', romaji: 'pu', group: 'pa-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PU_Mnemonic', mnemonicText: 'Fu with maru becomes pu. "Pu"sh pin.' },
-                { type: 'character', hiragana: 'ぺ', romaji: 'pe', group: 'pa-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PE_Mnemonic', mnemonicText: 'He with maru becomes pe. "Pe"g.' },
-                { type: 'character', hiragana: 'ぽ', romaji: 'po', group: 'pa-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PO_Mnemonic', mnemonicText: 'Ho with maru becomes po. "Po"t.' },
+                { type: 'character', hiragana: 'ぱ', romaji: 'pa', group: 'pa-row-handakuten', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PA_Mnemonic', mnemonicText: 'Ha with circle (maru) becomes pa. "Pa"rty popper.' },
+                { type: 'character', hiragana: 'ぴ', romaji: 'pi', group: 'pa-row-handakuten', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PI_Mnemonic', mnemonicText: 'Hi with maru becomes pi. "Pi"ano key.' },
+                { type: 'character', hiragana: 'ぷ', romaji: 'pu', group: 'pa-row-handakuten', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PU_Mnemonic', mnemonicText: 'Fu with maru becomes pu. "Pu"sh pin.' },
+                { type: 'character', hiragana: 'ぺ', romaji: 'pe', group: 'pa-row-handakuten', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PE_Mnemonic', mnemonicText: 'He with maru becomes pe. "Pe"g.' },
+                { type: 'character', hiragana: 'ぽ', romaji: 'po', group: 'pa-row-handakuten', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PO_Mnemonic', mnemonicText: 'Ho with maru becomes po. "Po"t.' },
 
                 // Combination characters (Yōon) - using a generic mnemonic for now
                 { type: 'character', hiragana: 'きゃ', romaji: 'kya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of き and ゃ' },
@@ -1066,9 +1113,11 @@
                 levelDisplay: document.getElementById('level-display'),
                 instructionText: document.getElementById('instruction-text'),
                 // Replaced modeToggleSwitch with new buttons
-                modeCharactersBtn: document.getElementById('mode-characters-btn'), // NEW
-                modeWordsBtn: document.getElementById('mode-words-btn'),       // NEW
-                modeNumbersBtn: document.getElementById('mode-numbers-btn'),     // NEW
+                modeDropdownBtn: document.getElementById('mode-dropdown-btn'), // NEW
+                modeDropdownMenu: document.getElementById('mode-dropdown-menu'), // NEW
+                modeCharactersBtn: document.querySelector('#mode-dropdown-menu button[data-mode="characters"]'), // NEW
+                modeWordsBtn: document.querySelector('#mode-dropdown-menu button[data-mode="words"]'),       // NEW
+                modeNumbersBtn: document.querySelector('#mode-dropdown-menu button[data-mode="numbers"]'),     // NEW
                 mnemonicToggleButton: document.getElementById('mnemonic-toggle-btn'),
                 mnemonicOverlay: document.getElementById('mnemonic-overlay'),
                 mnemonicCloseBtn: document.getElementById('mnemonic-close-btn'),
@@ -1084,8 +1133,10 @@
                 mistakeList: document.getElementById('mistake-list'), 
                 startReviewBtn: document.getElementById('start-review-btn'), 
                 clearMistakesBtn: document.getElementById('clear-mistakes-btn'),
-                characterSettingsSection: document.getElementById('character-settings'), // NEW
-                characterMasterySettingsSection: document.getElementById('character-mastery-settings'), // NEW
+                characterSettingsSection: document.getElementById('character-settings'), 
+                characterMasterySettingsSection: document.getElementById('character-mastery-settings'), 
+                characterSelectionOptionsContainer: document.getElementById('character-selection-options-container'), // NEW
+                masterySliderContainer: document.getElementById('mastery-slider-container'), // NEW
                 characterFilterOptions: document.getElementById('character-filter-options'), 
                 saveSettingsBtn: document.getElementById('save-settings-btn'), 
                 autoProgressToggle: document.getElementById('auto-progress-toggle'), 
@@ -1101,7 +1152,8 @@
                 numNotStartedList: document.getElementById('num-not-started-list'), // NEW
                 masteryStreakSlider: document.getElementById('mastery-streak-slider'), 
                 masteryStreakDisplay: document.getElementById('mastery-streak-display'),  
-                startOverBtn: document.getElementById('start-over-btn') 
+                startOverBtn: document.getElementById('start-over-btn'),
+                collapsibleHeaders: document.querySelectorAll('.collapsible-header') 
             };
 
             // --- UI CONTROL FUNCTIONS ---
@@ -1263,8 +1315,9 @@
                 // Set slider value and display
                 elements.masteryStreakSlider.value = currentState.charMasteryStreakRequired;
                 elements.masteryStreakDisplay.textContent = currentState.charMasteryStreakRequired;
-                // Disable slider if auto-progress is enabled (because it uses a fixed mastery target)
-                elements.masteryStreakSlider.disabled = currentState.autoProgressEnabled; 
+                // Control visibility of filter options and slider based on auto-progress toggle
+                elements.characterSelectionOptionsContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
+                elements.masterySliderContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
             }
 
             /**
@@ -1332,6 +1385,7 @@
 
                 // Helper to filter characters by their dynamically determined category
                 const filterByCategory = (categoryName) => hiraganaChart.filter(item => getCategory(item) === categoryName);
+                // Modified filterByVowelSound to explicitly check for 'basic' category
                 const filterByVowelSound = (vowel) => hiraganaChart.filter(item => item.vowel === vowel && getCategory(item) === 'basic');
 
                 if (currentState.autoProgressEnabled) {
@@ -1343,30 +1397,35 @@
                     );
 
                     if (currentState.level >= 2) { 
+                        // Add basic 'a' vowel characters (excluding dakuten/handakuten/combinations)
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('a')])]; 
                     }
                     if (currentState.level >= 3) { 
+                        // Add basic 'i' vowel characters
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('i')])]; 
                     }
                     if (currentState.level >= 4) { 
+                        // Add basic 'u' vowel characters
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('u')])]; 
                     }
                     if (currentState.level >= 5) { 
+                        // Add basic 'e' vowel characters
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('e')])]; 
                     }
                     if (currentState.level >= 6) { 
+                        // Add basic 'o' vowel characters
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('o')])]; 
                     }
 
                     // New order for advanced character types
-                    if (currentState.level >= 7) { 
-                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('combination')])]; 
+                    if (currentState.level >= 7) { // Combinations introduced at Level 7
+                        cumulativeChars = [...new Set([...cumulativeChars, ...hiraganaChart.filter(item => item.group && item.group.includes('combination'))])]; 
                     }
-                    if (currentState.level >= 8) { 
-                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('dakuten')])]; 
+                    if (currentState.level >= 8) { // Dakuten introduced at Level 8
+                        cumulativeChars = [...new Set([...cumulativeChars, ...hiraganaChart.filter(item => item.group && item.group.includes('dakuten'))])]; 
                     }
-                    if (currentState.level >= 9) { 
-                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('handakuten')])]; 
+                    if (currentState.level >= 9) { // Handakuten introduced at Level 9
+                        cumulativeChars = [...new Set([...cumulativeChars, ...hiraganaChart.filter(item => item.group && item.group.includes('handakuten'))])]; 
                     }
                     
                     charactersToUse = cumulativeChars;
@@ -1384,6 +1443,7 @@
                         case 'u':
                         case 'e':
                         case 'o':
+                            // For manual selection of a vowel row, it means basic characters with that vowel sound.
                             charactersToUse = hiraganaChart.filter(item => item.vowel === selectedFilter && getCategory(item) === 'basic');
                             break;
                         case 'dakuten':
@@ -1416,8 +1476,8 @@
                 let filteredDataList = []; 
                 let instruction = '';
 
-                // Remove active class from all mode buttons
-                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                // Remove active class from all mode buttons and set current active button
+                document.querySelectorAll('.mode-dropdown-menu .mode-btn').forEach(btn => btn.classList.remove('active'));
 
                 if (currentState.practiceType === 'characters') {
                     instruction = 'Type the Romaji for the character below.';
@@ -1437,7 +1497,7 @@
                     elements.modeWordsBtn.classList.add('active'); 
                     filteredDataList = hiraganaWords; 
 
-                } else if (currentState.practiceType === 'numbers') { // NEW
+                } else if (currentState.practiceType === 'numbers') { 
                     instruction = 'Type the Romaji for the number below.';
                     elements.modeNumbersBtn.classList.add('active'); 
                     filteredDataList = japaneseNumbers;
@@ -1517,7 +1577,7 @@
                     currentItemInMasteryData = hiraganaChart.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
                 } else if (currentState.practiceType === 'words') {
                     currentItemInMasteryData = hiraganaWords.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
-                } else if (currentState.practiceType === 'numbers') { // NEW
+                } else if (currentState.practiceType === 'numbers') { 
                     currentItemInMasteryData = japaneseNumbers.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
                 }
 
@@ -1542,7 +1602,7 @@
                                 currentItemInMasteryData.correctStreak = 0; 
                                 showNotification(`You've leveled up mastery for "${currentItemInMasteryData.hiragana}"! (Level ${currentItemInMasteryData.masteryLevel})`, 'success', 2000);
                             }
-                        } else if (currentState.practiceType === 'numbers') { // NEW
+                        } else if (currentState.practiceType === 'numbers') { 
                             if (currentItemInMasteryData.correctStreak >= NUMBER_MASTERY_THRESHOLD_PER_LEVEL && currentItemInMasteryData.masteryLevel < NUMBER_MAX_MASTERY_LEVEL) {
                                 currentItemInMasteryData.masteryLevel++;
                                 currentItemInMasteryData.correctStreak = 0; 
@@ -1600,7 +1660,7 @@
                     }
                     
                     // Only reset correctAnswersInCurrentLevel for word/number mode, as character mode uses individual mastery
-                    if (currentState.practiceType === 'words' || currentState.practiceType === 'numbers') { // Adjusted for numbers
+                    if (currentState.practiceType === 'words' || currentState.practiceType === 'numbers') { 
                         currentState.correctAnswersInCurrentLevel = 0; 
                     }
                     saveState(currentState.practiceType); 
@@ -1627,9 +1687,13 @@
                 elements.wordMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>';
                 elements.wordLearningList.innerHTML = '<h6>Learning (🟡)</h6>';
                 elements.wordNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>';
-                elements.numMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>'; // NEW
-                elements.numLearningList.innerHTML = '<h6>Learning (🟡)</h6>'; // NEW
-                elements.numNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>'; // NEW
+                elements.numMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>'; 
+                elements.numLearningList.innerHTML = '<h6>Learning (🟡)</h6>'; 
+                elements.numNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>'; 
+
+                // Hide/Show progress sections based on current mode for clarity, or just show all.
+                // For simplicity, let's keep them all visible in stats for now, but in a more complex app,
+                // you might show only relevant sections.
 
                 // Helper to add an item to the correct list
                 const addItemToList = (item, listType) => {
@@ -1641,13 +1705,13 @@
                     let itemMaxMastery;
                     if (listType === 'char') itemMaxMastery = CHAR_MAX_MASTERY_LEVEL;
                     else if (listType === 'word') itemMaxMastery = WORD_MAX_MASTERY_LEVEL;
-                    else if (listType === 'num') itemMaxMastery = NUMBER_MAX_MASTERY_LEVEL; // NEW
+                    else if (listType === 'num') itemMaxMastery = NUMBER_MAX_MASTERY_LEVEL; 
 
                     if (item.masteryLevel === itemMaxMastery) {
                         indicator = '⭐';
                         className = 'mastered';
                     } else if (item.masteryLevel > 0) {
-                        indicator = '�';
+                        indicator = '🟡';
                         className = 'learning';
                     } else {
                         indicator = '⚪';
@@ -1659,7 +1723,7 @@
                          span.innerHTML += ` (${item.correctStreak}/${currentState.charMasteryStreakRequired})`; 
                     } else if (listType === 'word' && item.masteryLevel < WORD_MAX_MASTERY_LEVEL) { 
                          span.innerHTML += ` (Lvl ${item.masteryLevel}/${WORD_MAX_MASTERY_LEVEL})`;
-                    } else if (listType === 'num' && item.masteryLevel < NUMBER_MAX_MASTERY_LEVEL) { // NEW
+                    } else if (listType === 'num' && item.masteryLevel < NUMBER_MAX_MASTERY_LEVEL) { 
                          span.innerHTML += ` (Lvl ${item.masteryLevel}/${NUMBER_MAX_MASTERY_LEVEL})`;
                     }
                     span.classList.add(className);
@@ -1672,7 +1736,7 @@
                         if (item.masteryLevel === WORD_MAX_MASTERY_LEVEL) elements.wordMasteredList.appendChild(span);
                         else if (item.masteryLevel > 0) elements.wordLearningList.appendChild(span);
                         else elements.wordNotStartedList.appendChild(span);
-                    } else if (listType === 'num') { // NEW
+                    } else if (listType === 'num') { 
                         if (item.masteryLevel === NUMBER_MAX_MASTERY_LEVEL) elements.numMasteredList.appendChild(span);
                         else if (item.masteryLevel > 0) elements.numLearningList.appendChild(span);
                         else elements.numNotStartedList.appendChild(span);
@@ -1685,7 +1749,7 @@
                 // Populate word lists
                 hiraganaWords.forEach(word => addItemToList(word, 'word'));
 
-                // Populate number lists (NEW)
+                // Populate number lists 
                 japaneseNumbers.forEach(num => addItemToList(num, 'num'));
             }
 
@@ -1696,8 +1760,21 @@
                 checkAnswer(); 
             });
 
-            // NEW: Mode selection button listeners
-            document.querySelectorAll('.mode-btn').forEach(button => {
+            // NEW: Mode dropdown button listener
+            elements.modeDropdownBtn.addEventListener('click', (event) => {
+                elements.modeDropdownMenu.classList.toggle('active');
+                event.stopPropagation(); // Prevent clicks on document from closing immediately
+            });
+
+            // NEW: Close dropdown if clicked outside
+            document.addEventListener('click', (event) => {
+                if (!elements.modeDropdownContainer.contains(event.target)) {
+                    elements.modeDropdownMenu.classList.remove('active');
+                }
+            });
+
+            // NEW: Mode selection buttons inside dropdown
+            document.querySelectorAll('.mode-dropdown-menu .mode-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
                     saveState(currentState.practiceType); // Save current mode's state before switching
 
@@ -1705,27 +1782,30 @@
 
                     // Condition to unlock word/number practice
                     if (newPracticeType === 'words') {
-                        const charState = loadState('characters');
-                        if (charState.level < 9) {
-                            showNotification("Great job! Reach at least Level 9 in character practice to unlock word practice!", 'info', 4000);
-                            return; // Do not switch mode
+                        const charState = loadState('characters'); 
+                        if (charState.level < 10) { 
+                            showNotification("Great job! Master all Hiragana characters (Level 10) to unlock Word practice!", 'info', 4000);
+                            elements.modeDropdownMenu.classList.remove('active'); // Close dropdown
+                            return; 
                         }
-                    } else if (newPracticeType === 'numbers') { // Example: Numbers mode could also have a prerequisite
+                    } else if (newPracticeType === 'numbers') { 
                         const charState = loadState('characters');
-                        if (charState.level < 5) { // Example: unlock numbers at level 5 of characters
-                            showNotification("Practice more characters! Reach at least Level 5 in character practice to unlock number practice!", 'info', 4000);
-                            return; // Do not switch mode
+                        if (charState.level < 5) { 
+                            showNotification("Practice more characters! Reach at least Level 5 in character practice to unlock Number practice!", 'info', 4000);
+                            elements.modeDropdownMenu.classList.remove('active'); // Close dropdown
+                            return; 
                         }
                     }
 
                     currentState = loadState(newPracticeType); 
-                    currentState.practiceType = newPracticeType; // Explicitly set practiceType
+                    currentState.practiceType = newPracticeType; 
                     reviewSessionActive = false;
                     currentReviewQueue = [];
 
                     updateStatsDisplay(); 
                     showNextItem(); 
                     showNotification(`Switched to ${newPracticeType.charAt(0).toUpperCase() + newPracticeType.slice(1)} Practice!`, 'info', 2000);
+                    elements.modeDropdownMenu.classList.remove('active'); // Close dropdown after selection
                 });
             });
 
@@ -1762,38 +1842,17 @@
 
             // Listener for auto-progress toggle in settings to enable/disable radio buttons and mastery slider
             elements.autoProgressToggle.addEventListener('change', () => {
-                const radioButtons = elements.characterFilterOptions.querySelectorAll('input[type="radio"]');
-                radioButtons.forEach(radio => {
-                    radio.disabled = elements.autoProgressToggle.checked;
-                });
-                // Disable/enable mastery streak slider based on auto-progress state
-                elements.masteryStreakSlider.disabled = elements.autoProgressToggle.checked;
-
-                // If auto-progress is enabled, re-check the radio button corresponding to the current level
+                // If auto-progress is checked, hide the manual filter options and the mastery slider
                 if (elements.autoProgressToggle.checked) {
-                    let effectiveSelection = 'vowels'; 
-                    if (currentState.level >= 2) effectiveSelection = 'a';
-                    if (currentState.level >= 3) effectiveSelection = 'i';
-                    if (currentState.level >= 4) effectiveSelection = 'u';
-                    if (currentState.level >= 5) effectiveSelection = 'e';
-                    if (currentState.level >= 6) effectiveSelection = 'o';
-                    else if (currentState.level === 7) effectiveSelection = 'combination'; 
-                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     
-                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  
-                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; 
-                    
-                    const currentRadio = document.getElementById(`filter-${effectiveSelection}`);
-                    if (currentRadio) {
-                        currentRadio.checked = true;
-                    }
+                    elements.characterSelectionOptionsContainer.style.display = 'none';
+                    elements.masterySliderContainer.style.display = 'none';
                 } else {
-                    const lastManualRadio = document.getElementById(`filter-${currentState.selectedFilterOption}`);
-                    if (lastManualRadio) {
-                        lastManualRadio.checked = true;
-                    } else {
-                        document.getElementById('filter-vowels').checked = true;
-                    }
+                    elements.characterSelectionOptionsContainer.style.display = 'block';
+                    elements.masterySliderContainer.style.display = 'block';
                 }
+                
+                // Re-populate and ensure correct state if auto-progress is re-enabled/disabled
+                populateSettingsModal(); 
             });
 
             // Listener for the mastery streak slider to update its display
@@ -1853,7 +1912,7 @@
                         targetDataArray = hiraganaWords;
                         localStorageKey = 'hiraganaWordState';
                         defaultStateToApply = defaultWordState;
-                    } else if (currentState.practiceType === 'numbers') { // NEW
+                    } else if (currentState.practiceType === 'numbers') { 
                         targetDataArray = japaneseNumbers;
                         localStorageKey = 'hiraganaNumberState';
                         defaultStateToApply = defaultNumberState;
@@ -1876,11 +1935,34 @@
                 }
             });
 
+            // NEW: Collapsible sections logic
+            elements.collapsibleHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const targetId = header.dataset.target;
+                    const content = document.getElementById(targetId);
+                    if (content) {
+                        const isCollapsed = header.classList.contains('collapsed');
+                        // Toggle the class for header and content
+                        header.classList.toggle('collapsed', !isCollapsed);
+                        content.classList.toggle('expanded', isCollapsed);
+
+                        // Set max-height for smooth transition
+                        if (isCollapsed) {
+                            content.style.maxHeight = content.scrollHeight + "px"; // Expand
+                        } else {
+                            content.style.maxHeight = "0"; // Collapse
+                        }
+
+                        // Rotate the arrow icon (already handled by CSS based on .collapsed class)
+                    }
+                });
+            });
+
             window.addEventListener('resize', adjustFontSizeToFit);
 
             // --- INITIALIZATION ---
             // Ensure all items have mastery properties on first load if not present
-            [hiraganaChart, hiraganaWords, japaneseNumbers].forEach(dataArray => { // Added japaneseNumbers
+            [hiraganaChart, hiraganaWords, japaneseNumbers].forEach(dataArray => { 
                 dataArray.forEach(item => {
                     if (item.masteryLevel === undefined) item.masteryLevel = 0;
                     if (item.correctStreak === undefined) item.correctStreak = 0;
@@ -1899,14 +1981,23 @@
                 elements.modeNumbersBtn.classList.add('active');
             }
 
+            // Collapse all collapsible sections by default on load
+            elements.collapsibleHeaders.forEach(header => {
+                header.classList.add('collapsed');
+                const content = document.getElementById(header.dataset.target);
+                if (content) {
+                    content.classList.remove('expanded');
+                    content.style.maxHeight = '0'; // Ensure it's visually collapsed
+                }
+            });
+
             updateStatsDisplay(); 
             showNextItem(); 
         });
-	    	    // Registering Service Worker
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
-		}
+	// Registering Service Worker
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
+	}
     </script>
 </body>
 </html>
-�
