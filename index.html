@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hiragana Practice App</title>
-    <!-- Bootstrap CSS for styling -->
+    <!-- Bootstrap CSS for styling, will be cached by service worker -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,20 +14,6 @@
     <div class="container">
         <header class="header">
             <h1 class="app-title">Hiragana Maestro</h1>
-            <div class="header-controls">
-                <div class="mode-dropdown-container">
-                    <button id="mode-dropdown-btn" class="btn btn-primary dropdown-toggle">
-                        Practice Mode <span class="dropdown-arrow"></span>
-                    </button>
-                    <div id="mode-dropdown-menu" class="dropdown-menu">
-                        <button class="mode-btn" data-mode="characters">Characters</button>
-                        <button class="mode-btn" data-mode="words">Words</button>
-                        <button class="mode-btn" data-mode="numbers">Numbers</button>
-                    </div>
-                </div>
-                <button id="stats-btn" class="btn btn-secondary ms-2">Stats</button>
-                <button id="settings-btn" class="btn btn-secondary ms-2">Settings</button>
-            </div>
         </header>
 
         <main class="main-content">
@@ -184,5 +170,20 @@
 
     <!-- Toast container for notifications -->
     <div class="toast-container"></div>
+
+    <footer class="bottom-nav-bar">
+        <div class="mode-dropdown-container">
+            <button id="mode-dropdown-btn" class="btn btn-primary dropdown-toggle">
+                Practice Mode <span class="dropdown-arrow"></span>
+            </button>
+            <div id="mode-dropdown-menu" class="dropdown-menu">
+                <button class="mode-btn" data-mode="characters">Characters</button>
+                <button class="mode-btn" data-mode="words">Words</button>
+                <button class="mode-btn" data-mode="numbers">Numbers</button>
+            </div>
+        </div>
+        <button id="stats-btn" class="btn btn-secondary">Stats</button>
+        <button id="settings-btn" class="btn btn-secondary">Settings</button>
+    </footer>
 </body>
 </html>
