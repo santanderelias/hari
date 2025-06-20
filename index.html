@@ -13,7 +13,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
 	<link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
-
     <style>
         /* Custom styles for a more pleasant look and feel */
         body {
@@ -199,21 +198,36 @@
         }
 
         /* Mode Switch Styling (adjusted for navbar) */
-        .mode-switch-area {
-            position: static; 
+        .mode-selection {
             display: flex;
+            gap: 10px;
             align-items: center;
-            gap: 10px; 
-            font-size: 0.9rem; 
-            color: #555;
-            z-index: 10; 
-            background-color: transparent; 
-            padding: 0; 
-            border-radius: 0; 
-            box-shadow: none; 
+            justify-content: center;
         }
 
-        /* The switch - the box around the slider */
+        .mode-btn {
+            background-color: #6c757d; /* Gray for inactive */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background-color: #007bff; /* Blue for active */
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-btn:not(.active):hover {
+            background-color: #5a6268;
+        }
+
+        /* The switch - the box around the slider (if still needed for other purposes) */
         .switch {
             position: relative;
             display: inline-block;
@@ -528,9 +542,13 @@
                 margin-bottom: 70px; /* Adjust margin for smaller navbar */
                 width: 95vw; 
             }
-            .mode-switch-area {
+            .mode-selection {
+                flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+                justify-content: center;
+            }
+            .mode-btn {
+                padding: 6px 10px;
                 font-size: 0.8rem;
-                gap: 5px;
             }
             .hiragana-display {
                 padding: 15px 5px; 
@@ -576,14 +594,11 @@
     <nav class="navbar">
         <div class="navbar-buttons">
             <button class="navbar-btn" id="stats-btn">Stats</button>
-            <!-- Mode Switch integrated directly into navbar -->
-            <div class="mode-switch-area">
-                <span>Mode:</span>
-                <label class="switch">
-                    <input type="checkbox" id="mode-toggle-switch">
-                    <span class="slider"></span>
-                </label>
-                <span id="mode-label-text">Character</span>
+            <!-- Mode Selection Buttons -->
+            <div class="mode-selection">
+                <button class="mode-btn" id="mode-characters-btn" data-mode="characters">Characters</button>
+                <button class="mode-btn" id="mode-words-btn" data-mode="words">Words</button>
+                <button class="mode-btn" id="mode-numbers-btn" data-mode="numbers">Numbers</button>
             </div>
             <button class="navbar-btn" id="settings-btn">Settings</button>
         </div>
@@ -650,7 +665,7 @@
                 <div id="characters-progress-display" class="mt-3">
                     <h5>Characters</h5>
                     <div id="char-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
-                    <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                    <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</div>
                     <div id="char-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
                 </div>
                 <div id="words-progress-display" class="mt-4">
@@ -658,6 +673,13 @@
                     <div id="word-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
                     <div id="word-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
                     <div id="word-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                </div>
+                <!-- NEW: Numbers Progress Display -->
+                <div id="numbers-progress-display" class="mt-4">
+                    <h5>Numbers</h5>
+                    <div id="num-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                    <div id="num-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                    <div id="num-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
                 </div>
             </div>
         </div>
@@ -669,7 +691,7 @@
             <button class="modal-close-btn" data-modal-id="settings-modal">&times;</button>
             <h2>Settings</h2>
             <div class="text-left">
-                <div class="setting-section">
+                <div class="setting-section" id="character-settings">
                     <h4 class="mt-3">Character Selection</h4>
                     <p class="text-muted mb-3">Choose which characters to practice:</p>
                     <div class="form-check mb-3">
@@ -684,15 +706,19 @@
                 </div>
                 
                 <!-- NEW SETTING: Mastery Streak Slider -->
-                <div class="setting-section">
+                <div class="setting-section" id="character-mastery-settings">
                     <h4 class="mt-3">Character Mastery Threshold</h4>
                     <p class="text-muted mb-3">Correct answers needed to master a character:</p>
                     <input type="range" class="form-range" id="mastery-streak-slider" min="1" max="10" step="1">
                     <p class="text-center">Current: <span id="mastery-streak-display">5</span> correct answers</p>
                 </div>
 
+                <!-- Numbers mode could have its own settings section here if needed -->
+
                 <div class="text-center mt-4">
                     <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
+                    <!-- Start Over Button -->
+                    <button class="btn btn-danger mt-2" id="start-over-btn">Start Over Current Mode</button>
                 </div>
             </div>
         </div>
@@ -854,6 +880,24 @@
                 { type: 'word', hiragana: 'にほん', romaji: 'nihon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NIHON_Mnemonic', mnemonicText: 'Nihon means Japan. "Ni" from "knee", "hon" from "home".' }  // good morning
             ];
 
+            // NEW: Japanese Numbers Data
+            const japaneseNumbers = [
+                { type: 'number', hiragana: 'いち', romaji: 'ichi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ICHI_Mnemonic', mnemonicText: 'One (ichi) is a single, straight line.' },
+                { type: 'number', hiragana: 'に', romaji: 'ni', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NI_Mnemonic', mnemonicText: 'Two (ni) looks like two knees bent down.' },
+                { type: 'number', hiragana: 'さん', romaji: 'san', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SAN_Mnemonic', mnemonicText: 'Three (san) has three horizontal lines, like mountains (san).' },
+                { type: 'number', hiragana: 'よん', romaji: 'yon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YON_Mnemonic', mnemonicText: 'Four (yon) looks like a sailing yacht with four sails.' },
+                { type: 'number', hiragana: 'ご', romaji: 'go', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GO_Mnemonic', mnemonicText: 'Five (go) is a strong arm pointing to "go" for five.' },
+                { type: 'number', hiragana: 'ろく', romaji: 'roku', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ROKU_Mnemonic', mnemonicText: 'Six (roku) looks like a rock falling and bouncing 6 times.' },
+                { type: 'number', hiragana: 'なな', romaji: 'nana', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NANA_Mnemonic', mnemonicText: 'Seven (nana) is like two number 7s.' },
+                { type: 'number', hiragana: 'はち', romaji: 'hachi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HACHI_Mnemonic', mnemonicText: 'Eight (hachi) looks like a fancy hat, for eight.' },
+                { type: 'number', hiragana: 'きゅう', romaji: 'kyuu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KYUU_Mnemonic', mnemonicText: 'Nine (kyuu) looks like a cue stick for billiards.' },
+                { type: 'number', hiragana: 'じゅう', romaji: 'juu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=JUU_Mnemonic', mnemonicText: 'Ten (juu) is like a cross with two lines.' },
+                { type: 'number', hiragana: 'ひゃく', romaji: 'hyaku', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HYAKU_Mnemonic', mnemonicText: 'Hundred (hyaku). Think "hy"drant with a hundred streams.' },
+                { type: 'number', hiragana: 'せん', romaji: 'sen', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SEN_Mnemonic', mnemonicText: 'Thousand (sen). Imagine a thousand blades of grass.' },
+                { type: 'number', hiragana: 'まん', romaji: 'man', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MAN_Mnemonic', mnemonicText: 'Ten thousand (man). A "man" holding ten thousand coins.' },
+            ];
+
+
             // Constants for mastery system
             // Number of consecutive correct answers for a *single character* to be considered "mastered" (level 1)
             const CHAR_MASTERY_CORRECT_STREAK_REQUIRED_DEFAULT = 5; 
@@ -863,6 +907,10 @@
             // For words, we can keep the old system or define new constants
             const WORD_MASTERY_THRESHOLD_PER_LEVEL = 3; // Word mastery can still be multi-level
             const WORD_MAX_MASTERY_LEVEL = 5; 
+            
+            // NEW: Constants for Number Mastery
+            const NUMBER_MASTERY_THRESHOLD_PER_LEVEL = 3; 
+            const NUMBER_MAX_MASTERY_LEVEL = 5; 
 
             // --- STATE MANAGEMENT ---
             const defaultCharacterState = {
@@ -890,6 +938,20 @@
                 autoProgressEnabled: false 
             };
 
+            // NEW: Default Number State
+            const defaultNumberState = {
+                currentItem: null,
+                currentIndex: -1,
+                score: 0,
+                level: 1,
+                practiceType: 'numbers',
+                correctAnswersInCurrentLevel: 0,
+                levelUpThreshold: 3, 
+                failedItemsQueue: [], 
+                selectedFilterOption: null, // Not used for numbers
+                autoProgressEnabled: true // Assuming numbers will have auto-progress by default
+            };
+
             let currentState = { ...defaultCharacterState }; 
             const rePresentDelay = 1; 
 
@@ -900,15 +962,23 @@
             /**
              * Saves the current application state to local storage.
              * Includes global settings and per-item mastery data.
-             * @param {string} type - 'characters' or 'words' to determine which state to save.
+             * @param {string} type - 'characters', 'words', or 'numbers' to determine which state to save.
              */
             function saveState(type) {
                 try {
                     const stateToSave = { ...currentState }; 
-                    // Extract mastery data from the global hiraganaChart/hiraganaWords
-                    stateToSave.itemMasteryData = (type === 'characters' ? hiraganaChart : hiraganaWords).map(item => ({
+                    let targetData;
+                    if (type === 'characters') {
+                        targetData = hiraganaChart;
+                    } else if (type === 'words') {
+                        targetData = hiraganaWords;
+                    } else if (type === 'numbers') { // NEW
+                        targetData = japaneseNumbers;
+                    }
+
+                    stateToSave.itemMasteryData = targetData.map(item => ({
                         hiragana: item.hiragana,
-                        romaji: item.romaji, // Include romaji for easy lookup
+                        romaji: item.romaji, 
                         masteryLevel: item.masteryLevel,
                         correctStreak: item.correctStreak
                     }));
@@ -917,6 +987,8 @@
                         localStorage.setItem('hiraganaCharacterState', JSON.stringify(stateToSave));
                     } else if (type === 'words') {
                         localStorage.setItem('hiraganaWordState', JSON.stringify(stateToSave));
+                    } else if (type === 'numbers') { // NEW
+                        localStorage.setItem('hiraganaNumberState', JSON.stringify(stateToSave));
                     }
                     localStorage.setItem('lastPracticeType', currentState.practiceType); 
                 } catch (e) {
@@ -927,48 +999,61 @@
             /**
              * Loads the application state from local storage.
              * Initializes per-item mastery data if not found in saved state or on first launch.
-             * @param {string} type - 'characters' or 'words' to determine which state to load.
+             * @param {string} type - 'characters', 'words', or 'numbers' to determine which state to load.
              * @returns {Object} The loaded or default state.
              */
             function loadState(type) {
+                let savedStateKey;
+                let defaultStateObject;
+                let targetDataArray;
+
+                if (type === 'characters') {
+                    savedStateKey = 'hiraganaCharacterState';
+                    defaultStateObject = defaultCharacterState;
+                    targetDataArray = hiraganaChart;
+                } else if (type === 'words') {
+                    savedStateKey = 'hiraganaWordState';
+                    defaultStateObject = defaultWordState;
+                    targetDataArray = hiraganaWords;
+                } else if (type === 'numbers') { // NEW
+                    savedStateKey = 'hiraganaNumberState';
+                    defaultStateObject = defaultNumberState;
+                    targetDataArray = japaneseNumbers;
+                }
+
                 try {
-                    const savedState = localStorage.getItem(type === 'characters' ? 'hiraganaCharacterState' : 'hiraganaWordState');
+                    const savedState = localStorage.getItem(savedStateKey);
                     if (savedState) {
                         const parsedState = JSON.parse(savedState);
                         parsedState.failedItemsQueue = parsedState.failedItemsQueue || [];
                         parsedState.selectedFilterOption = parsedState.selectedFilterOption || 'vowels'; 
                         parsedState.autoProgressEnabled = typeof parsedState.autoProgressEnabled === 'boolean' ? parsedState.autoProgressEnabled : true; 
-                        // Load new setting with fallback to default
                         parsedState.charMasteryStreakRequired = parsedState.charMasteryStreakRequired || CHAR_MASTERY_CORRECT_STREAK_REQUIRED_DEFAULT;
 
-                        // Apply mastery data to the global hiraganaChart/hiraganaWords
-                        const targetData = type === 'characters' ? hiraganaChart : hiraganaWords;
-                        targetData.forEach(item => {
+                        targetDataArray.forEach(item => {
                             const savedItemData = parsedState.itemMasteryData?.find(saved => saved.hiragana === item.hiragana && saved.romaji === item.romaji);
                             if (savedItemData) {
                                 item.masteryLevel = savedItemData.masteryLevel;
                                 item.correctStreak = savedItemData.correctStreak;
                             } else {
-                                // If a new item or old save, initialize to 0
                                 item.masteryLevel = 0;
                                 item.correctStreak = 0;
                             }
                         });
-                        // Remove itemMasteryData from parsedState copy, as it's now on the global data arrays
                         delete parsedState.itemMasteryData; 
                         return parsedState;
                     }
                 } catch (e) {
-                    console.error("Error loading from localStorage:", e);
+                    console.error(`Error loading state for ${type} from localStorage:`, e);
                 }
-                // If no saved state, return default and ensure global items are initialized
-                const defaultState = type === 'characters' ? { ...defaultCharacterState } : { ...defaultWordState };
-                const targetData = type === 'characters' ? hiraganaChart : hiraganaWords;
-                targetData.forEach(item => {
+                
+                // If no saved state or error, return default and ensure global items are initialized
+                const initialState = { ...defaultStateObject };
+                targetDataArray.forEach(item => {
                     item.masteryLevel = 0;
                     item.correctStreak = 0;
                 });
-                return defaultState;
+                return initialState;
             }
 
             // --- DOM ELEMENTS ---
@@ -980,8 +1065,10 @@
                 scoreDisplay: document.getElementById('score-display'),
                 levelDisplay: document.getElementById('level-display'),
                 instructionText: document.getElementById('instruction-text'),
-                modeToggleSwitch: document.getElementById('mode-toggle-switch'),
-                modeLabelText: document.getElementById('mode-label-text'),
+                // Replaced modeToggleSwitch with new buttons
+                modeCharactersBtn: document.getElementById('mode-characters-btn'), // NEW
+                modeWordsBtn: document.getElementById('mode-words-btn'),       // NEW
+                modeNumbersBtn: document.getElementById('mode-numbers-btn'),     // NEW
                 mnemonicToggleButton: document.getElementById('mnemonic-toggle-btn'),
                 mnemonicOverlay: document.getElementById('mnemonic-overlay'),
                 mnemonicCloseBtn: document.getElementById('mnemonic-close-btn'),
@@ -997,6 +1084,8 @@
                 mistakeList: document.getElementById('mistake-list'), 
                 startReviewBtn: document.getElementById('start-review-btn'), 
                 clearMistakesBtn: document.getElementById('clear-mistakes-btn'),
+                characterSettingsSection: document.getElementById('character-settings'), // NEW
+                characterMasterySettingsSection: document.getElementById('character-mastery-settings'), // NEW
                 characterFilterOptions: document.getElementById('character-filter-options'), 
                 saveSettingsBtn: document.getElementById('save-settings-btn'), 
                 autoProgressToggle: document.getElementById('auto-progress-toggle'), 
@@ -1007,8 +1096,12 @@
                 wordMasteredList: document.getElementById('word-mastered-list'),
                 wordLearningList: document.getElementById('word-learning-list'),
                 wordNotStartedList: document.getElementById('word-not-started-list'),
-                masteryStreakSlider: document.getElementById('mastery-streak-slider'), // New element
-                masteryStreakDisplay: document.getElementById('mastery-streak-display')  // New element
+                numMasteredList: document.getElementById('num-mastered-list'), // NEW
+                numLearningList: document.getElementById('num-learning-list'), // NEW
+                numNotStartedList: document.getElementById('num-not-started-list'), // NEW
+                masteryStreakSlider: document.getElementById('mastery-streak-slider'), 
+                masteryStreakDisplay: document.getElementById('mastery-streak-display'),  
+                startOverBtn: document.getElementById('start-over-btn') 
             };
 
             // --- UI CONTROL FUNCTIONS ---
@@ -1038,12 +1131,15 @@
 
             function populateMistakeList() {
                 elements.mistakeList.innerHTML = ''; 
-                if (currentState.failedItemsQueue.length === 0) {
+                // Determine which failed queue to use based on current practice type
+                const failedQueue = currentState.failedItemsQueue;
+
+                if (failedQueue.length === 0) {
                     elements.mistakeList.innerHTML = '<p class="text-muted">No mistakes to review yet!</p>';
                     elements.startReviewBtn.disabled = true;
                     elements.clearMistakesBtn.style.display = 'none';
                 } else {
-                    currentState.failedItemsQueue.forEach(item => {
+                    failedQueue.forEach(item => {
                         const span = document.createElement('span');
                         span.textContent = `${item.hiragana} (${item.romaji})`;
                         elements.mistakeList.appendChild(span);
@@ -1099,6 +1195,15 @@
              * Populates the settings modal with character filtering radio buttons and mastery slider.
              */
             function populateSettingsModal() {
+                // Hide/show character specific settings based on current mode
+                if (currentState.practiceType === 'characters') {
+                    elements.characterSettingsSection.style.display = 'block';
+                    elements.characterMasterySettingsSection.style.display = 'block';
+                } else {
+                    elements.characterSettingsSection.style.display = 'none';
+                    elements.characterMasterySettingsSection.style.display = 'none';
+                }
+
                 elements.characterFilterOptions.innerHTML = ''; 
 
                 // Set the auto-progress toggle state
@@ -1111,7 +1216,7 @@
                     { value: 'u', label: 'Only U-vowel characters' },
                     { value: 'e', label: 'Only E-vowel characters' },
                     { value: 'o', label: 'Only O-vowel characters' },
-                    { value: 'combination', label: 'Only Combination Characters (きゃ, しゃ, ちょ...)' }, // Moved up
+                    { value: 'combination', label: 'Only Combination Characters (きゃ, しゃ, ちょ...)' }, 
                     { value: 'dakuten', label: 'Only Dakuten (゛) Characters' },
                     { value: 'handakuten', label: 'Only Handakuten (゜) Characters' },
                     { value: 'all-characters', label: 'All Hiragana Characters' } 
@@ -1119,19 +1224,17 @@
 
                 let effectiveSelection = currentState.selectedFilterOption;
                 // If auto-progress is enabled, the actual filter shown in settings should reflect the current level's filter
-                if (currentState.autoProgressEnabled) {
-                    // This is a simplified way to represent the auto-progression in the UI,
-                    // as the actual filtering is cumulative.
+                if (currentState.autoProgressEnabled && currentState.practiceType === 'characters') {
                     if (currentState.level === 1) effectiveSelection = 'vowels';
                     else if (currentState.level === 2) effectiveSelection = 'a';
                     else if (currentState.level === 3) effectiveSelection = 'i';
                     else if (currentState.level === 4) effectiveSelection = 'u';
                     else if (currentState.level === 5) effectiveSelection = 'e';
                     else if (currentState.level === 6) effectiveSelection = 'o';
-                    else if (currentState.level === 7) effectiveSelection = 'combination'; // Combinations at Level 7
-                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     // Dakuten at Level 8
-                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  // Handakuten at Level 9
-                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; // Level 10 now implies all characters mastered (for words unlock)
+                    else if (currentState.level === 7) effectiveSelection = 'combination'; 
+                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     
+                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  
+                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; 
                 }
 
                 filterOptions.forEach(option => {
@@ -1168,29 +1271,31 @@
              * Applies the selected character filter setting.
              */
             function applySettings() {
-                const newAutoProgressEnabled = elements.autoProgressToggle.checked;
-                let newCharacterFilter = currentState.selectedFilterOption;
-                let newCharMasteryStreak = parseInt(elements.masteryStreakSlider.value);
+                if (currentState.practiceType === 'characters') {
+                    const newAutoProgressEnabled = elements.autoProgressToggle.checked;
+                    let newCharacterFilter = currentState.selectedFilterOption;
+                    let newCharMasteryStreak = parseInt(elements.masteryStreakSlider.value);
 
-                if (newAutoProgressEnabled) {
-                    showNotification('Automatic level progression enabled!', 'info');
-                } else {
-                    const selectedManualFilter = document.querySelector('input[name="characterFilter"]:checked')?.value;
-                    if (!selectedManualFilter) {
-                        showNotification('Please select a character filtering option for manual mode!', 'warning');
-                        return; 
+                    if (newAutoProgressEnabled) {
+                        showNotification('Automatic level progression enabled!', 'info');
+                    } else {
+                        const selectedManualFilter = document.querySelector('input[name="characterFilter"]:checked')?.value;
+                        if (!selectedManualFilter) {
+                            showNotification('Please select a character filtering option for manual mode!', 'warning');
+                            return; 
+                        }
+                        newCharacterFilter = selectedManualFilter;
+                        showNotification('Manual character selection enabled!', 'info');
                     }
-                    newCharacterFilter = selectedManualFilter;
-                    showNotification('Manual character selection enabled!', 'info');
+
+                    currentState.autoProgressEnabled = newAutoProgressEnabled;
+                    currentState.selectedFilterOption = newCharacterFilter;
+                    currentState.charMasteryStreakRequired = newCharMasteryStreak; 
                 }
-
-                currentState.autoProgressEnabled = newAutoProgressEnabled;
-                currentState.selectedFilterOption = newCharacterFilter;
-                currentState.charMasteryStreakRequired = newCharMasteryStreak; // Save new streak value
-
+                // No settings specific to words or numbers yet, but can be added here
                 saveState(currentState.practiceType);
                 hideModal(elements.settingsModal);
-                showNextItem(); // Restart practice with new settings
+                showNextItem(); 
             }
 
             // --- GAME LOGIC FUNCTIONS ---
@@ -1254,13 +1359,13 @@
                     }
 
                     // New order for advanced character types
-                    if (currentState.level >= 7) { // Combinations introduced at Level 7
+                    if (currentState.level >= 7) { 
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('combination')])]; 
                     }
-                    if (currentState.level >= 8) { // Dakuten introduced at Level 8
+                    if (currentState.level >= 8) { 
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('dakuten')])]; 
                     }
-                    if (currentState.level >= 9) { // Handakuten introduced at Level 9
+                    if (currentState.level >= 9) { 
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('handakuten')])]; 
                     }
                     
@@ -1279,7 +1384,6 @@
                         case 'u':
                         case 'e':
                         case 'o':
-                            // For manual selection of a vowel row, it means basic characters with that vowel sound.
                             charactersToUse = hiraganaChart.filter(item => item.vowel === selectedFilter && getCategory(item) === 'basic');
                             break;
                         case 'dakuten':
@@ -1311,16 +1415,13 @@
             function showNextItem() {
                 let filteredDataList = []; 
                 let instruction = '';
-                let modeLabel = ''; 
 
-                elements.mnemonicToggleButton.style.display = 'none';
-                elements.correctAnswerOnMistake.textContent = ''; 
+                // Remove active class from all mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
 
                 if (currentState.practiceType === 'characters') {
                     instruction = 'Type the Romaji for the character below.';
-                    modeLabel = 'Character';
-                    elements.modeToggleSwitch.checked = false; 
-
+                    elements.modeCharactersBtn.classList.add('active'); 
                     filteredDataList = getFilteredCharacters();
                     
                     if (filteredDataList.length === 0) {
@@ -1331,15 +1432,18 @@
                         return;
                     }
 
-                } else { // currentState.practiceType === 'words'
+                } else if (currentState.practiceType === 'words') { 
                     instruction = 'Type the Romaji for the word below.';
-                    modeLabel = 'Word';
-                    elements.modeToggleSwitch.checked = true; 
+                    elements.modeWordsBtn.classList.add('active'); 
                     filteredDataList = hiraganaWords; 
+
+                } else if (currentState.practiceType === 'numbers') { // NEW
+                    instruction = 'Type the Romaji for the number below.';
+                    elements.modeNumbersBtn.classList.add('active'); 
+                    filteredDataList = japaneseNumbers;
                 }
                 
                 elements.instructionText.textContent = instruction;
-                elements.modeLabelText.textContent = modeLabel; 
 
                 let itemToDisplay = null;
 
@@ -1358,10 +1462,10 @@
 
                     if (foundFailedItem) {
                         itemToDisplay = foundFailedItem;
+                        // Remove from failed queue if it was found and is being reviewed
                         currentState.failedItemsQueue = currentState.failedItemsQueue.filter(item => item !== foundFailedItem);
                     } else {
-                        // If a failed item exists but isn't in the *current* filtered list (e.g., changed settings)
-                        // then just pick a random new item.
+                        // Fallback to random if a failed item isn't in the current filtered list
                         let newIndex;
                         do {
                             newIndex = Math.floor(Math.random() * filteredDataList.length);
@@ -1407,10 +1511,16 @@
                 elements.feedback.classList.remove('correct', 'incorrect');
                 elements.input.classList.remove('shake');
 
-                // Find the actual item in the global data array to update its mastery
-                const currentItemInMasteryData = (currentState.practiceType === 'characters' ? hiraganaChart : hiraganaWords).find(
-                    item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
-                );
+                // Find the actual item in the global data array based on current practice type
+                let currentItemInMasteryData;
+                if (currentState.practiceType === 'characters') {
+                    currentItemInMasteryData = hiraganaChart.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
+                } else if (currentState.practiceType === 'words') {
+                    currentItemInMasteryData = hiraganaWords.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
+                } else if (currentState.practiceType === 'numbers') { // NEW
+                    currentItemInMasteryData = japaneseNumbers.find(item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji);
+                }
+
 
                 if (userAnswer === currentState.currentItem.romaji) {
                     elements.feedback.textContent = 'Correct!';
@@ -1421,15 +1531,19 @@
                     if (currentItemInMasteryData) {
                         currentItemInMasteryData.correctStreak++;
                         if (currentState.practiceType === 'characters') {
-                            // Character mastery: binary (0 or 1) based on consecutive correct answers
                             if (currentItemInMasteryData.correctStreak >= currentState.charMasteryStreakRequired && currentItemInMasteryData.masteryLevel < CHAR_MAX_MASTERY_LEVEL) {
-                                currentItemInMasteryData.masteryLevel = CHAR_MAX_MASTERY_LEVEL; // Set to 1 (mastered)
-                                currentItemInMasteryData.correctStreak = 0; // Reset streak as it's now mastered
+                                currentItemInMasteryData.masteryLevel = CHAR_MAX_MASTERY_LEVEL; 
+                                currentItemInMasteryData.correctStreak = 0; 
                                 showNotification(`You've mastered "${currentItemInMasteryData.hiragana}"!`, 'success', 2000);
                             }
-                        } else {
-                            // Word mastery: multi-level progression
+                        } else if (currentState.practiceType === 'words') {
                             if (currentItemInMasteryData.correctStreak >= WORD_MASTERY_THRESHOLD_PER_LEVEL && currentItemInMasteryData.masteryLevel < WORD_MAX_MASTERY_LEVEL) {
+                                currentItemInMasteryData.masteryLevel++;
+                                currentItemInMasteryData.correctStreak = 0; 
+                                showNotification(`You've leveled up mastery for "${currentItemInMasteryData.hiragana}"! (Level ${currentItemInMasteryData.masteryLevel})`, 'success', 2000);
+                            }
+                        } else if (currentState.practiceType === 'numbers') { // NEW
+                            if (currentItemInMasteryData.correctStreak >= NUMBER_MASTERY_THRESHOLD_PER_LEVEL && currentItemInMasteryData.masteryLevel < NUMBER_MAX_MASTERY_LEVEL) {
                                 currentItemInMasteryData.masteryLevel++;
                                 currentItemInMasteryData.correctStreak = 0; 
                                 showNotification(`You've leveled up mastery for "${currentItemInMasteryData.hiragana}"! (Level ${currentItemInMasteryData.masteryLevel})`, 'success', 2000);
@@ -1444,16 +1558,14 @@
                         currentState.failedItemsQueue.splice(failedIndex, 1);
                     }
                     
-                    // Call the new global level progression check for characters
                     if (currentState.practiceType === 'characters') {
                         checkCharacterGlobalLevelProgression(); 
-                    } else { // Word practice mode retains the old global level logic
-                        // For words, correctAnswersInCurrentLevel still matters for global level progression
+                    } else { // Word and Number practice modes retain the old global level logic
                         currentState.correctAnswersInCurrentLevel++;
                         if (currentState.correctAnswersInCurrentLevel >= currentState.levelUpThreshold) {
                             currentState.level++;
                             currentState.correctAnswersInCurrentLevel = 0;
-                            showNotification(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`, 'success');
+                            showNotification(`Congratulations! You reached Level ${currentState.level} in ${currentState.practiceType}! Keep up the great work!`, 'success');
                         }
                     }
 
@@ -1486,8 +1598,9 @@
                     if (reviewSessionActive) {
                         currentReviewQueue.push(currentState.currentItem);
                     }
-                    // Only reset correctAnswersInCurrentLevel for word mode, as character mode uses individual mastery
-                    if (currentState.practiceType === 'words') {
+                    
+                    // Only reset correctAnswersInCurrentLevel for word/number mode, as character mode uses individual mastery
+                    if (currentState.practiceType === 'words' || currentState.practiceType === 'numbers') { // Adjusted for numbers
                         currentState.correctAnswersInCurrentLevel = 0; 
                     }
                     saveState(currentState.practiceType); 
@@ -1514,6 +1627,9 @@
                 elements.wordMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>';
                 elements.wordLearningList.innerHTML = '<h6>Learning (🟡)</h6>';
                 elements.wordNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>';
+                elements.numMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>'; // NEW
+                elements.numLearningList.innerHTML = '<h6>Learning (🟡)</h6>'; // NEW
+                elements.numNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>'; // NEW
 
                 // Helper to add an item to the correct list
                 const addItemToList = (item, listType) => {
@@ -1522,13 +1638,16 @@
                     let indicator = '';
                     let className = '';
                     
-                    const itemMaxMastery = (listType === 'char') ? CHAR_MAX_MASTERY_LEVEL : WORD_MAX_MASTERY_LEVEL;
+                    let itemMaxMastery;
+                    if (listType === 'char') itemMaxMastery = CHAR_MAX_MASTERY_LEVEL;
+                    else if (listType === 'word') itemMaxMastery = WORD_MAX_MASTERY_LEVEL;
+                    else if (listType === 'num') itemMaxMastery = NUMBER_MAX_MASTERY_LEVEL; // NEW
 
                     if (item.masteryLevel === itemMaxMastery) {
                         indicator = '⭐';
                         className = 'mastered';
                     } else if (item.masteryLevel > 0) {
-                        indicator = '🟡';
+                        indicator = '�';
                         className = 'learning';
                     } else {
                         indicator = '⚪';
@@ -1536,10 +1655,12 @@
                     }
                     
                     span.innerHTML = `<span class="status-indicator">${indicator}</span> ${item.hiragana} <small>(${item.romaji})</small>`;
-                    if (listType === 'char' && item.masteryLevel < CHAR_MAX_MASTERY_LEVEL) { // For characters, show streak if not fully mastered
-                         span.innerHTML += ` (${item.correctStreak}/${currentState.charMasteryStreakRequired})`; // Use current state value
-                    } else if (listType === 'word' && item.masteryLevel < WORD_MAX_MASTERY_LEVEL) { // For words, show level
+                    if (listType === 'char' && item.masteryLevel < CHAR_MAX_MASTERY_LEVEL) { 
+                         span.innerHTML += ` (${item.correctStreak}/${currentState.charMasteryStreakRequired})`; 
+                    } else if (listType === 'word' && item.masteryLevel < WORD_MAX_MASTERY_LEVEL) { 
                          span.innerHTML += ` (Lvl ${item.masteryLevel}/${WORD_MAX_MASTERY_LEVEL})`;
+                    } else if (listType === 'num' && item.masteryLevel < NUMBER_MAX_MASTERY_LEVEL) { // NEW
+                         span.innerHTML += ` (Lvl ${item.masteryLevel}/${NUMBER_MAX_MASTERY_LEVEL})`;
                     }
                     span.classList.add(className);
 
@@ -1551,6 +1672,10 @@
                         if (item.masteryLevel === WORD_MAX_MASTERY_LEVEL) elements.wordMasteredList.appendChild(span);
                         else if (item.masteryLevel > 0) elements.wordLearningList.appendChild(span);
                         else elements.wordNotStartedList.appendChild(span);
+                    } else if (listType === 'num') { // NEW
+                        if (item.masteryLevel === NUMBER_MAX_MASTERY_LEVEL) elements.numMasteredList.appendChild(span);
+                        else if (item.masteryLevel > 0) elements.numLearningList.appendChild(span);
+                        else elements.numNotStartedList.appendChild(span);
                     }
                 };
 
@@ -1559,6 +1684,9 @@
 
                 // Populate word lists
                 hiraganaWords.forEach(word => addItemToList(word, 'word'));
+
+                // Populate number lists (NEW)
+                japaneseNumbers.forEach(num => addItemToList(num, 'num'));
             }
 
             // --- EVENT LISTENERS ---
@@ -1568,34 +1696,39 @@
                 checkAnswer(); 
             });
 
-            elements.modeToggleSwitch.addEventListener('change', () => {
-                saveState(currentState.practiceType);
+            // NEW: Mode selection button listeners
+            document.querySelectorAll('.mode-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    saveState(currentState.practiceType); // Save current mode's state before switching
 
-                const newPracticeType = elements.modeToggleSwitch.checked ? 'words' : 'characters';
+                    const newPracticeType = event.target.dataset.mode;
 
-                if (newPracticeType === 'words') {
-                    // Only allow word mode if level 9+ is reached in character mode.
-                    const charState = loadState('characters'); // Load character state to check its level
-                    if (charState.level >= 9) { // Ensure words are available
-                         currentState = loadState('words'); 
-                         showNotification("Switched to Word Practice!", 'info', 2000);
-                    } else {
-                        showNotification("Great job! Reach at least Level 9 in character practice to unlock word practice!", 'info', 4000);
-                        elements.modeToggleSwitch.checked = false; // Revert toggle
-                        return; 
+                    // Condition to unlock word/number practice
+                    if (newPracticeType === 'words') {
+                        const charState = loadState('characters');
+                        if (charState.level < 9) {
+                            showNotification("Great job! Reach at least Level 9 in character practice to unlock word practice!", 'info', 4000);
+                            return; // Do not switch mode
+                        }
+                    } else if (newPracticeType === 'numbers') { // Example: Numbers mode could also have a prerequisite
+                        const charState = loadState('characters');
+                        if (charState.level < 5) { // Example: unlock numbers at level 5 of characters
+                            showNotification("Practice more characters! Reach at least Level 5 in character practice to unlock number practice!", 'info', 4000);
+                            return; // Do not switch mode
+                        }
                     }
-                } else {
-                    currentState = loadState('characters'); 
-                    showNotification("Switched to Character Practice!", 'info', 2000);
-                }
-                
-                currentState.practiceType = newPracticeType;
-                reviewSessionActive = false;
-                currentReviewQueue = [];
 
-                updateStatsDisplay(); 
-                showNextItem(); 
+                    currentState = loadState(newPracticeType); 
+                    currentState.practiceType = newPracticeType; // Explicitly set practiceType
+                    reviewSessionActive = false;
+                    currentReviewQueue = [];
+
+                    updateStatsDisplay(); 
+                    showNextItem(); 
+                    showNotification(`Switched to ${newPracticeType.charAt(0).toUpperCase() + newPracticeType.slice(1)} Practice!`, 'info', 2000);
+                });
             });
+
 
             elements.mnemonicToggleButton.addEventListener('click', () => {
                 if (currentState.currentItem) {
@@ -1638,29 +1771,26 @@
 
                 // If auto-progress is enabled, re-check the radio button corresponding to the current level
                 if (elements.autoProgressToggle.checked) {
-                    // Set the checked state for the radio button that *represents* the current auto-progress level
-                    let effectiveSelection = 'vowels'; // Default to level 1
+                    let effectiveSelection = 'vowels'; 
                     if (currentState.level >= 2) effectiveSelection = 'a';
                     if (currentState.level >= 3) effectiveSelection = 'i';
                     if (currentState.level >= 4) effectiveSelection = 'u';
                     if (currentState.level >= 5) effectiveSelection = 'e';
                     if (currentState.level >= 6) effectiveSelection = 'o';
-                    else if (currentState.level === 7) effectiveSelection = 'combination'; // Combinations at Level 7
-                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     // Dakuten at Level 8
-                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  // Handakuten at Level 9
-                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; // Level 10 now implies all characters mastered (for words unlock)
+                    else if (currentState.level === 7) effectiveSelection = 'combination'; 
+                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     
+                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  
+                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; 
                     
                     const currentRadio = document.getElementById(`filter-${effectiveSelection}`);
                     if (currentRadio) {
                         currentRadio.checked = true;
                     }
                 } else {
-                    // If disabling auto-progress, ensure the last manual selection is checked
                     const lastManualRadio = document.getElementById(`filter-${currentState.selectedFilterOption}`);
                     if (lastManualRadio) {
                         lastManualRadio.checked = true;
                     } else {
-                        // Fallback to vowels if for some reason the last selected doesn't exist
                         document.getElementById('filter-vowels').checked = true;
                     }
                 }
@@ -1669,10 +1799,6 @@
             // Listener for the mastery streak slider to update its display
             elements.masteryStreakSlider.addEventListener('input', () => {
                 elements.masteryStreakDisplay.textContent = elements.masteryStreakSlider.value;
-                // No need to save here, as 'Save Settings' button handles persistence.
-                // However, for immediate visual feedback if not using a save button:
-                // currentState.charMasteryStreakRequired = parseInt(elements.masteryStreakSlider.value);
-                // saveState(currentState.practiceType);
             });
 
             elements.modalCloseBtns.forEach(button => {
@@ -1711,11 +1837,50 @@
                 }
             });
 
+            // Event listener for the "Start Over" button
+            elements.startOverBtn.addEventListener('click', () => {
+                const confirmMessage = `Are you sure you want to reset all your progress for ${currentState.practiceType} mode? This action cannot be undone.`;
+                if (confirm(confirmMessage)) {
+                    let targetDataArray;
+                    let localStorageKey;
+                    let defaultStateToApply;
+
+                    if (currentState.practiceType === 'characters') {
+                        targetDataArray = hiraganaChart;
+                        localStorageKey = 'hiraganaCharacterState';
+                        defaultStateToApply = defaultCharacterState;
+                    } else if (currentState.practiceType === 'words') {
+                        targetDataArray = hiraganaWords;
+                        localStorageKey = 'hiraganaWordState';
+                        defaultStateToApply = defaultWordState;
+                    } else if (currentState.practiceType === 'numbers') { // NEW
+                        targetDataArray = japaneseNumbers;
+                        localStorageKey = 'hiraganaNumberState';
+                        defaultStateToApply = defaultNumberState;
+                    }
+
+                    // Reset current state to default for the active practice type
+                    currentState = { ...defaultStateToApply };
+                    localStorage.removeItem(localStorageKey);
+
+                    // Reset mastery data for all items in the *active* data array
+                    targetDataArray.forEach(item => {
+                        item.masteryLevel = 0;
+                        item.correctStreak = 0;
+                    });
+                    
+                    showNotification(`Progress for ${currentState.practiceType} mode reset!`, 'info', 3000);
+                    hideModal(elements.settingsModal);
+                    updateStatsDisplay();
+                    showNextItem();
+                }
+            });
+
             window.addEventListener('resize', adjustFontSizeToFit);
 
             // --- INITIALIZATION ---
             // Ensure all items have mastery properties on first load if not present
-            [hiraganaChart, hiraganaWords].forEach(dataArray => {
+            [hiraganaChart, hiraganaWords, japaneseNumbers].forEach(dataArray => { // Added japaneseNumbers
                 dataArray.forEach(item => {
                     if (item.masteryLevel === undefined) item.masteryLevel = 0;
                     if (item.correctStreak === undefined) item.correctStreak = 0;
@@ -1725,20 +1890,23 @@
             const initialPracticeType = localStorage.getItem('lastPracticeType') || 'characters';
             currentState = loadState(initialPracticeType);
             
-            elements.modeToggleSwitch.checked = (initialPracticeType === 'words');
-
-            // If starting in character mode with auto-progress, ensure filter is correct for current level
-            if (currentState.practiceType === 'characters' && currentState.autoProgressEnabled) {
-                // No need to set selectedFilterOption here, getFilteredCharacters will handle it dynamically
+            // Set the active mode button on load
+            if (currentState.practiceType === 'characters') {
+                elements.modeCharactersBtn.classList.add('active');
+            } else if (currentState.practiceType === 'words') {
+                elements.modeWordsBtn.classList.add('active');
+            } else if (currentState.practiceType === 'numbers') {
+                elements.modeNumbersBtn.classList.add('active');
             }
 
             updateStatsDisplay(); 
             showNextItem(); 
-        });	           
-	    // Registering Service Worker
+        });
+	    	    // Registering Service Worker
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
 		}
     </script>
 </body>
 </html>
+�
