@@ -1111,9 +1111,9 @@
                     { value: 'u', label: 'Only U-vowel characters' },
                     { value: 'e', label: 'Only E-vowel characters' },
                     { value: 'o', label: 'Only O-vowel characters' },
+                    { value: 'combination', label: 'Only Combination Characters (きゃ, しゃ, ちょ...)' }, // Moved up
                     { value: 'dakuten', label: 'Only Dakuten (゛) Characters' },
                     { value: 'handakuten', label: 'Only Handakuten (゜) Characters' },
-                    { value: 'combination', label: 'Only Combination Characters (きゃ, しゃ, ちょ...)' },
                     { value: 'all-characters', label: 'All Hiragana Characters' } 
                 ];
 
@@ -1128,9 +1128,10 @@
                     else if (currentState.level === 4) effectiveSelection = 'u';
                     else if (currentState.level === 5) effectiveSelection = 'e';
                     else if (currentState.level === 6) effectiveSelection = 'o';
-                    else if (currentState.level === 7) effectiveSelection = 'dakuten';
-                    else if (currentState.level === 8) effectiveSelection = 'handakuten';
-                    else if (currentState.level >= 9) effectiveSelection = 'all-characters';
+                    else if (currentState.level === 7) effectiveSelection = 'combination'; // Combinations at Level 7
+                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     // Dakuten at Level 8
+                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  // Handakuten at Level 9
+                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; // Level 10 now implies all characters mastered (for words unlock)
                 }
 
                 filterOptions.forEach(option => {
@@ -1252,14 +1253,15 @@
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('o')])]; 
                     }
 
-                    if (currentState.level >= 7) { 
+                    // New order for advanced character types
+                    if (currentState.level >= 7) { // Combinations introduced at Level 7
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('combination')])]; 
+                    }
+                    if (currentState.level >= 8) { // Dakuten introduced at Level 8
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('dakuten')])]; 
                     }
-                    if (currentState.level >= 8) { 
+                    if (currentState.level >= 9) { // Handakuten introduced at Level 9
                         cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('handakuten')])]; 
-                    }
-                    if (currentState.level >= 9) { 
-                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('combination')])]; 
                     }
                     
                     charactersToUse = cumulativeChars;
@@ -1643,9 +1645,10 @@
                     if (currentState.level >= 4) effectiveSelection = 'u';
                     if (currentState.level >= 5) effectiveSelection = 'e';
                     if (currentState.level >= 6) effectiveSelection = 'o';
-                    if (currentState.level >= 7) effectiveSelection = 'dakuten';
-                    if (currentState.level >= 8) effectiveSelection = 'handakuten';
-                    if (currentState.level >= 9) effectiveSelection = 'all-characters';
+                    else if (currentState.level === 7) effectiveSelection = 'combination'; // Combinations at Level 7
+                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     // Dakuten at Level 8
+                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  // Handakuten at Level 9
+                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; // Level 10 now implies all characters mastered (for words unlock)
                     
                     const currentRadio = document.getElementById(`filter-${effectiveSelection}`);
                     if (currentRadio) {
@@ -1731,8 +1734,8 @@
 
             updateStatsDisplay(); 
             showNextItem(); 
-        });
-	            // Registering Service Worker
+        });	           
+	    // Registering Service Worker
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
 		}
