@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="hari.webmanifest">
 
-    <link rel="manifest" href="manifest.json">
     <style>
         /* Custom styles for a more pleasant look and feel */
         body {
@@ -162,7 +162,7 @@
             color: #28a745; 
         }
         
-        .feedback.incorrect {
+    .feedback.incorrect {
             color: #dc3545; 
         }
         
@@ -408,6 +408,105 @@
             border-color: #e0a800;
         }
 
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050; /* Above modals */
+        }
+        .toast {
+            background-color: #28a745; /* Default green for success */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .toast.show {
+            display: block;
+            opacity: 1;
+        }
+        .toast.toast-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .toast.toast-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        /* Settings Modal Specifics */
+        .setting-section {
+            margin-bottom: 20px;
+        }
+
+        /* Progress Visualizations Styling */
+        #progress-visualizations-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: left; /* Align sections to left */
+        }
+        #progress-visualizations-section h5 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .progress-list {
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 10px;
+            background-color: #fcfcfc;
+        }
+        .progress-list h6 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            text-align: center;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+        .progress-list .item-tag {
+            display: inline-flex; /* Use flexbox for alignment */
+            align-items: center; /* Vertically center items */
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 4px 8px;
+            margin: 3px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            white-space: nowrap; /* Prevent breaking on small screens */
+            border: 1px solid #dee2e6;
+        }
+        .item-tag .status-indicator {
+            margin-right: 5px;
+            font-size: 0.9em; /* Adjust emoji size */
+        }
+        .item-tag.mastered {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .item-tag.learning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .item-tag.not-started {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+
         /* Responsive adjustments for smaller screens */
         @media (max-width: 576px) {
             .navbar {
@@ -455,6 +554,18 @@
             }
             #mnemonic-content, .modal-custom-content {
                 padding: 15px;
+            }
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                width: calc(100% - 20px); /* Full width minus padding */
+            }
+            .progress-list {
+                max-height: 100px; /* Adjust height for smaller screens */
+            }
+            .item-tag {
+                font-size: 0.75rem;
+                padding: 3px 6px;
             }
         }
     </style>
@@ -536,78 +647,183 @@
 
             <div id="progress-visualizations-section" class="text-center mt-4">
                 <h4>Progress Visualizations</h4>
-                <p class="text-muted">This section could show your mastery of characters/words over time (e.g., a heatmap or a list of mastered items).</p>
-                <p class="text-muted">To be implemented in future iterations.</p>
+                <div id="characters-progress-display" class="mt-3">
+                    <h5>Characters</h5>
+                    <div id="char-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                    <div id="char-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                    <div id="char-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                </div>
+                <div id="words-progress-display" class="mt-4">
+                    <h5>Words</h5>
+                    <div id="word-mastered-list" class="progress-list"><h6>Mastered (⭐)</h6></div>
+                    <div id="word-learning-list" class="progress-list"><h6>Learning (🟡)</h6></div>
+                    <div id="word-not-started-list" class="progress-list"><h6>Not Started (⚪)</h6></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal (Placeholder) -->
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal-custom-overlay">
         <div class="modal-custom-content">
             <button class="modal-close-btn" data-modal-id="settings-modal">&times;</button>
             <h2>Settings</h2>
-            <p class="text-muted">Settings options will go here (e.g., reset progress, sound options).</p>
-            <p class="text-muted">To be implemented in future iterations.</p>
+            <div class="text-left">
+                <div class="setting-section">
+                    <h4 class="mt-3">Character Selection</h4>
+                    <p class="text-muted mb-3">Choose which characters to practice:</p>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="auto-progress-toggle">
+                        <label class="form-check-label" for="auto-progress-toggle">
+                            Enable Automatic Level Progression
+                        </label>
+                    </div>
+                    <div id="character-filter-options">
+                        <!-- Radio buttons for character filtering will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container">
+        <!-- Toasts will be appended here -->
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
-            // The basic set of Hiragana characters (Gojuon) with 'type' for categorization
-            // Added placeholder mnemonicImage and mnemonicText for demonstration
+            // The basic set of Hiragana characters (Gojuon) with 'type', 'group', and 'vowel' for categorization
+            // Added dakuten and handakuten characters
             const hiraganaChart = [
-                { type: 'character', hiragana: 'あ', romaji: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=A_Mnemonic', mnemonicText: 'Imagine "a" as an apple with a stem.' }, 
-                { type: 'character', hiragana: 'い', romaji: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=I_Mnemonic', mnemonicText: 'Two eels "i"n a river.' }, 
-                { type: 'character', hiragana: 'う', romaji: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=U_Mnemonic', mnemonicText: 'A "u"FO flying.' }, 
-                { type: 'character', hiragana: 'え', romaji: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=E_Mnemonic', mnemonicText: 'A "e"lephant\'s trunk.' }, 
-                { type: 'character', hiragana: 'お', romaji: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=O_Mnemonic', mnemonicText: 'A person saying "oh!"' },
-                { type: 'character', hiragana: 'か', romaji: 'ka', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KA_Mnemonic', mnemonicText: 'The "ka"te that broke a "ka"ble.' }, 
-                { type: 'character', hiragana: 'き', romaji: 'ki', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KI_Mnemonic', mnemonicText: 'A "ki"te string.' }, 
-                { type: 'character', hiragana: 'く', romaji: 'ku', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KU_Mnemonic', mnemonicText: 'A "ku"ckoo bird beak.' }, 
-                { type: 'character', hiragana: 'け', romaji: 'ke', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KE_Mnemonic', mnemonicText: 'A "ke"ttle with steam.' }, 
-                { type: 'character', hiragana: 'こ', romaji: 'ko', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KO_Mnemonic', mnemonicText: 'Two "ko"ns lying down.' },
-                { type: 'character', hiragana: 'さ', romaji: 'sa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SA_Mnemonic', mnemonicText: 'A "sa"mple of rice.' }, 
-                { type: 'character', hiragana: 'し', romaji: 'shi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SHI_Mnemonic', mnemonicText: 'A "shi"ngle fishhook.' }, 
-                { type: 'character', hiragana: 'す', romaji: 'su', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SU_Mnemonic', mnemonicText: 'A "su"gar cube.' }, 
-                { type: 'character', hiragana: 'せ', romaji: 'se', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SE_Mnemonic', mnemonicText: 'A "se"ahorse.' }, 
-                { type: 'character', hiragana: 'そ', romaji: 'so', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SO_Mnemonic', mnemonicText: 'A "so"wing needle.' },
-                { type: 'character', hiragana: 'た', romaji: 'ta', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TA_Mnemonic', mnemonicText: 'A "ta"ble.' }, 
-                { type: 'character', hiragana: 'ち', romaji: 'chi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=CHI_Mnemonic', mnemonicText: 'A "chi"cken\'s foot.' }, 
-                { type: 'character', hiragana: 'つ', romaji: 'tsu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TSU_Mnemonic', mnemonicText: 'A "tsu"nami wave.' }, 
-                { type: 'character', hiragana: 'て', romaji: 'te', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TE_Mnemonic', mnemonicText: 'A "te"mple gate.' }, 
-                { type: 'character', hiragana: 'と', romaji: 'to', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TO_Mnemonic', mnemonicText: 'A "to"rtise shell.' },
-                { type: 'character', hiragana: 'な', romaji: 'na', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NA_Mnemonic', mnemonicText: 'A "na"ked man kneeling.' }, 
-                { type: 'character', hiragana: 'に', romaji: 'ni', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NI_Mnemonic', mnemonicText: 'Two "ni"dget wrestlers.' }, 
-                { type: 'character', hiragana: 'ぬ', romaji: 'nu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NU_Mnemonic', mnemonicText: 'A "nu"dle with a loop.' }, 
-                { type: 'character', hiragana: 'ね', romaji: 'ne', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NE_Mnemonic', mnemonicText: 'A "ne"st for birds.' }, 
-                { type: 'character', hiragana: 'の', romaji: 'no', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NO_Mnemonic', mnemonicText: 'A "no" sign.' },
-                { type: 'character', hiragana: 'は', romaji: 'ha', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HA_Mnemonic', mnemonicText: 'A "ha"t on a hook.' }, 
-                { type: 'character', hiragana: 'ひ', romaji: 'hi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HI_Mnemonic', mnemonicText: 'A "hi"ll with a cliff.' }, 
-                { type: 'character', hiragana: 'ふ', romaji: 'fu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=FU_Mnemonic', mnemonicText: 'Mount "Fu"ji.' }, 
-                { type: 'character', hiragana: 'へ', romaji: 'he', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HE_Mnemonic', mnemonicText: 'A "he"avenly gate.' }, 
-                { type: 'character', hiragana: 'ほ', romaji: 'ho', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HO_Mnemonic', mnemonicText: 'A "ho"use with a chimney.' },
-                { type: 'character', hiragana: 'ま', romaji: 'ma', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MA_Mnemonic', mnemonicText: 'A "ma"gician\'s wand.' }, 
-                { type: 'character', hiragana: 'み', romaji: 'mi', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MI_Mnemonic', mnemonicText: 'Three "mi"crobes.' }, 
-                { type: 'character', hiragana: 'む', romaji: 'mu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MU_Mnemonic', mnemonicText: 'A "mu"shroom with a curly stem.' }, 
-                { type: 'character', hiragana: 'め', romaji: 'me', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ME_Mnemonic', mnemonicText: 'A "me"rry-go-round.' }, 
-                { type: 'character', hiragana: 'も', romaji: 'mo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MO_Mnemonic', mnemonicText: 'A "mo"ose head.' },
-                { type: 'character', hiragana: 'や', romaji: 'ya', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YA_Mnemonic', mnemonicText: 'A "ya"cht sail.' }, 
-                { type: 'character', hiragana: 'ゆ', romaji: 'yu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YU_Mnemonic', mnemonicText: 'A "yu"rt from above.' }, 
-                { type: 'character', hiragana: 'よ', romaji: 'yo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YO_Mnemonic', mnemonicText: 'A "yo"-yo string.' },
-                { type: 'character', hiragana: 'ら', romaji: 'ra', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RA_Mnemonic', mnemonicText: 'A "ra"bbit ear.' }, 
-                { type: 'character', hiragana: 'り', romaji: 'ri', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RI_Mnemonic', mnemonicText: 'A "ri"ver flowing.' }, 
-                { type: 'character', hiragana: 'る', romaji: 'ru', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RU_Mnemonic', mnemonicText: 'A "ru"ler.' }, 
-                { type: 'character', hiragana: 'れ', romaji: 're', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RE_Mnemonic', mnemonicText: 'A "re"d arrow.' }, 
-                { type: 'character', hiragana: 'ろ', romaji: 'ro', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RO_Mnemonic', mnemonicText: 'A "ro"ad sign.' },
-                { type: 'character', hiragana: 'わ', romaji: 'wa', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WA_Mnemonic', mnemonicText: 'A "wa"ve.' }, 
-                { type: 'character', hiragana: 'を', romaji: 'wo', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WO_Mnemonic', mnemonicText: 'A "wo"lfe howling.' },
-                { type: 'character', hiragana: 'ん', romaji: 'n', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=N_Mnemonic', mnemonicText: 'A "n"oodle.' }
+                { type: 'character', hiragana: 'あ', romaji: 'a', group: 'a-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=A_Mnemonic', mnemonicText: 'Imagine "a" as an apple with a stem.' }, 
+                { type: 'character', hiragana: 'い', romaji: 'i', group: 'a-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=I_Mnemonic', mnemonicText: 'Two eels "i"n a river.' }, 
+                { type: 'character', hiragana: 'う', romaji: 'u', group: 'a-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=U_Mnemonic', mnemonicText: 'A "u"FO flying.' }, 
+                { type: 'character', hiragana: 'え', romaji: 'e', group: 'a-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=E_Mnemonic', mnemonicText: 'A "e"lephant\'s trunk.' }, 
+                { type: 'character', hiragana: 'お', romaji: 'o', group: 'a-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=O_Mnemonic', mnemonicText: 'A person saying "oh!"' },
+                { type: 'character', hiragana: 'か', romaji: 'ka', group: 'ka-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KA_Mnemonic', mnemonicText: 'The "ka"te that broke a "ka"ble.' }, 
+                { type: 'character', hiragana: 'き', romaji: 'ki', group: 'ka-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KI_Mnemonic', mnemonicText: 'A "ki"te string.' }, 
+                { type: 'character', hiragana: 'く', romaji: 'ku', group: 'ka-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KU_Mnemonic', mnemonicText: 'A "ku"ckoo bird beak.' }, 
+                { type: 'character', hiragana: 'け', romaji: 'ke', group: 'ka-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KE_Mnemonic', mnemonicText: 'A "ke"ttle with steam.' }, 
+                { type: 'character', hiragana: 'こ', romaji: 'ko', group: 'ka-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=KO_Mnemonic', mnemonicText: 'Two "ko"ns lying down.' },
+                { type: 'character', hiragana: 'さ', romaji: 'sa', group: 'sa-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SA_Mnemonic', mnemonicText: 'A "sa"mple of rice.' }, 
+                { type: 'character', hiragana: 'し', romaji: 'shi', group: 'sa-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SHI_Mnemonic', mnemonicText: 'A "shi"ngle fishhook.' }, 
+                { type: 'character', hiragana: 'す', romaji: 'su', group: 'sa-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SU_Mnemonic', mnemonicText: 'A "su"gar cube.' }, 
+                { type: 'character', hiragana: 'せ', romaji: 'se', group: 'sa-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SE_Mnemonic', mnemonicText: 'A "se"ahorse.' }, 
+                { type: 'character', hiragana: 'そ', romaji: 'so', group: 'sa-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SO_Mnemonic', mnemonicText: 'A "so"wing needle.' },
+                { type: 'character', hiragana: 'た', romaji: 'ta', group: 'ta-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TA_Mnemonic', mnemonicText: 'A "ta"ble.' }, 
+                { type: 'character', hiragana: 'ち', romaji: 'chi', group: 'ta-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=CHI_Mnemonic', mnemonicText: 'A "chi"cken\'s foot.' }, 
+                { type: 'character', hiragana: 'つ', romaji: 'tsu', group: 'ta-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TSU_Mnemonic', mnemonicText: 'A "tsu"nami wave.' }, 
+                { type: 'character', hiragana: 'て', romaji: 'te', group: 'ta-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TE_Mnemonic', mnemonicText: 'A "te"mple gate.' }, 
+                { type: 'character', hiragana: 'と', romaji: 'to', group: 'ta-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TO_Mnemonic', mnemonicText: 'A "to"rtise shell.' },
+                { type: 'character', hiragana: 'な', romaji: 'na', group: 'na-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NA_Mnemonic', mnemonicText: 'A "na"ked man kneeling.' }, 
+                { type: 'character', hiragana: 'に', romaji: 'ni', group: 'na-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NI_Mnemonic', mnemonicText: 'Two "ni"dget wrestlers.' }, 
+                { type: 'character', hiragana: 'ぬ', romaji: 'nu', group: 'na-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NU_Mnemonic', mnemonicText: 'A "nu"dle with a loop.' }, 
+                { type: 'character', hiragana: 'ね', romaji: 'ne', group: 'na-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NE_Mnemonic', mnemonicText: 'A "ne"st for birds.' }, 
+                { type: 'character', hiragana: 'の', romaji: 'no', group: 'na-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NO_Mnemonic', mnemonicText: 'A "no" sign.' },
+                { type: 'character', hiragana: 'は', romaji: 'ha', group: 'ha-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HA_Mnemonic', mnemonicText: 'A "ha"t on a hook.' }, 
+                { type: 'character', hiragana: 'ひ', romaji: 'hi', group: 'ha-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HI_Mnemonic', mnemonicText: 'A "hi"ll with a cliff.' }, 
+                { type: 'character', hiragana: 'ふ', romaji: 'fu', group: 'ha-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=FU_Mnemonic', mnemonicText: 'Mount "Fu"ji.' }, 
+                { type: 'character', hiragana: 'へ', romaji: 'he', group: 'ha-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HE_Mnemonic', mnemonicText: 'A "he"avenly gate.' }, 
+                { type: 'character', hiragana: 'ほ', romaji: 'ho', group: 'ha-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=HO_Mnemonic', mnemonicText: 'A "ho"use with a chimney.' },
+                { type: 'character', hiragana: 'ま', romaji: 'ma', group: 'ma-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MA_Mnemonic', mnemonicText: 'A "ma"gician\'s wand.' }, 
+                { type: 'character', hiragana: 'み', romaji: 'mi', group: 'ma-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MI_Mnemonic', mnemonicText: 'Three "mi"crobes.' }, 
+                { type: 'character', hiragana: 'む', romaji: 'mu', group: 'ma-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MU_Mnemonic', mnemonicText: 'A "mu"shroom with a curly stem.' }, 
+                { type: 'character', hiragana: 'め', romaji: 'me', group: 'ma-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ME_Mnemonic', mnemonicText: 'A "me"rry-go-round.' }, 
+                { type: 'character', hiragana: 'も', romaji: 'mo', group: 'ma-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=MO_Mnemonic', mnemonicText: 'A "mo"ose head.' },
+                { type: 'character', hiragana: 'や', romaji: 'ya', group: 'ya-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YA_Mnemonic', mnemonicText: 'A "ya"cht sail.' }, 
+                { type: 'character', hiragana: 'ゆ', romaji: 'yu', group: 'ya-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YU_Mnemonic', mnemonicText: 'A "yu"rt from above.' }, 
+                { type: 'character', hiragana: 'よ', romaji: 'yo', group: 'ya-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=YO_Mnemonic', mnemonicText: 'A "yo"-yo string.' },
+                { type: 'character', hiragana: 'ら', romaji: 'ra', group: 'ra-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RA_Mnemonic', mnemonicText: 'A "ra"bbit ear.' }, 
+                { type: 'character', hiragana: 'り', romaji: 'ri', group: 'ra-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RI_Mnemonic', mnemonicText: 'A "ri"ver flowing.' }, 
+                { type: 'character', hiragana: 'る', romaji: 'ru', group: 'ra-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RU_Mnemonic', mnemonicText: 'A "ru"ler.' }, 
+                { type: 'character', hiragana: 'れ', romaji: 're', group: 'ra-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RE_Mnemonic', mnemonicText: 'A "re"d arrow.' }, 
+                { type: 'character', hiragana: 'ろ', romaji: 'ro', group: 'ra-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=RO_Mnemonic', mnemonicText: 'A "ro"ad sign.' },
+                { type: 'character', hiragana: 'わ', romaji: 'wa', group: 'wa-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WA_Mnemonic', mnemonicText: 'A "wa"ve.' }, 
+                { type: 'character', hiragana: 'を', romaji: 'wo', group: 'wa-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=WO_Mnemonic', mnemonicText: 'A "wo"lfe howling.' },
+                { type: 'character', hiragana: 'ん', romaji: 'n', group: 'n-alone', vowel: null, mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=N_Mnemonic', mnemonicText: 'A "n"oodle.' },
+
+                // Dakuten characters
+                { type: 'character', hiragana: 'が', romaji: 'ga', group: 'ga-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GA_Mnemonic', mnemonicText: 'Ka with two dots (ten-ten) becomes ga. Imagine a "ga"me controller.' },
+                { type: 'character', hiragana: 'ぎ', romaji: 'gi', group: 'ga-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GI_Mnemonic', mnemonicText: 'Ki with ten-ten becomes gi. "Gi"ft box.' },
+                { type: 'character', hiragana: 'ぐ', romaji: 'gu', group: 'ga-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GU_Mnemonic', mnemonicText: 'Ku with ten-ten becomes gu. "Gu"n shape.' },
+                { type: 'character', hiragana: 'げ', romaji: 'ge', group: 'ga-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GE_Mnemonic', mnemonicText: 'Ke with ten-ten becomes ge. "Ge"ometry triangle.' },
+                { type: 'character', hiragana: 'ご', romaji: 'go', group: 'ga-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GO_Mnemonic', mnemonicText: 'Ko with ten-ten becomes go. "Go"ogle maps marker.' },
+
+                { type: 'character', hiragana: 'ざ', romaji: 'za', group: 'za-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZA_Mnemonic', mnemonicText: 'Sa with ten-ten becomes za. "Za"bra crossing.' },
+                { type: 'character', hiragana: 'じ', romaji: 'ji', group: 'za-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=JI_Mnemonic', mnemonicText: 'Shi with ten-ten becomes ji. "Ji"gsaw puzzle piece.' },
+                { type: 'character', hiragana: 'ず', romaji: 'zu', group: 'za-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZU_Mnemonic', mnemonicText: 'Su with ten-ten becomes zu. "Zu"m-zoom car.' },
+                { type: 'character', hiragana: 'ぜ', romaji: 'ze', group: 'za-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZE_Mnemonic', mnemonicText: 'Se with ten-ten becomes ze. "Ze"bra stripes.' },
+                { type: 'character', hiragana: 'ぞ', romaji: 'zo', group: 'za-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=ZO_Mnemonic', mnemonicText: 'So with ten-ten becomes zo. "Zo"rro mark.' },
+
+                { type: 'character', hiragana: 'だ', romaji: 'da', group: 'da-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DA_Mnemonic', mnemonicText: 'Ta with ten-ten becomes da. "Da"nce shoe.' },
+                { type: 'character', hiragana: 'ぢ', romaji: 'ji', group: 'da-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DI_Mnemonic', mnemonicText: 'Chi with ten-ten becomes ji.' },
+                { type: 'character', hiragana: 'づ', romaji: 'zu', group: 'da-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DU_Mnemonic', mnemonicText: 'Tsu with ten-ten becomes zu.' },
+                { type: 'character', hiragana: 'で', romaji: 'de', group: 'da-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DE_Mnemonic', mnemonicText: 'Te with ten-ten becomes de. "De"sk.' },
+                { type: 'character', hiragana: 'ど', romaji: 'do', group: 'da-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=DO_Mnemonic', mnemonicText: 'To with ten-ten becomes do. "Do"g house.' },
+
+                { type: 'character', hiragana: 'ば', romaji: 'ba', group: 'ba-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BA_Mnemonic', mnemonicText: 'Ha with ten-ten becomes ba. "Ba"ll.' },
+                { type: 'character', hiragana: 'び', romaji: 'bi', group: 'ba-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BI_Mnemonic', mnemonicText: 'Hi with ten-ten becomes bi. "Bi"rd wing.' },
+                { type: 'character', hiragana: 'ぶ', romaji: 'bu', group: 'ba-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BU_Mnemonic', mnemonicText: 'Fu with ten-ten becomes bu. "Bu"bbles.' },
+                { type: 'character', hiragana: 'べ', romaji: 'be', group: 'ba-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BE_Mnemonic', mnemonicText: 'He with ten-ten becomes be. "Be"ll.' },
+                { type: 'character', hiragana: 'ぼ', romaji: 'bo', group: 'ba-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=BO_Mnemonic', mnemonicText: 'Ho with ten-ten becomes bo. "Bo"at.' },
+
+                // Handakuten characters
+                { type: 'character', hiragana: 'ぱ', romaji: 'pa', group: 'pa-row', vowel: 'a', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PA_Mnemonic', mnemonicText: 'Ha with circle (maru) becomes pa. "Pa"rty popper.' },
+                { type: 'character', hiragana: 'ぴ', romaji: 'pi', group: 'pa-row', vowel: 'i', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PI_Mnemonic', mnemonicText: 'Hi with maru becomes pi. "Pi"ano key.' },
+                { type: 'character', hiragana: 'ぷ', romaji: 'pu', group: 'pa-row', vowel: 'u', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PU_Mnemonic', mnemonicText: 'Fu with maru becomes pu. "Pu"sh pin.' },
+                { type: 'character', hiragana: 'ぺ', romaji: 'pe', group: 'pa-row', vowel: 'e', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PE_Mnemonic', mnemonicText: 'He with maru becomes pe. "Pe"g.' },
+                { type: 'character', hiragana: 'ぽ', romaji: 'po', group: 'pa-row', vowel: 'o', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=PO_Mnemonic', mnemonicText: 'Ho with maru becomes po. "Po"t.' },
+
+                // Combination characters (Yōon) - using a generic mnemonic for now
+                { type: 'character', hiragana: 'きゃ', romaji: 'kya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of き and ゃ' },
+                { type: 'character', hiragana: 'きゅ', romaji: 'kyu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of き and ゅ' },
+                { type: 'character', hiragana: 'きょ', romaji: 'kyo', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of き and ょ' },
+                { type: 'character', hiragana: 'しゃ', romaji: 'sha', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of し and ゃ' },
+                { type: 'character', hiragana: 'しゅ', romaji: 'shu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of し and ゅ' },
+                { type: 'character', hiragana: 'しょ', romaji: 'sho', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of し and ょ' },
+                { type: 'character', hiragana: 'ちゃ', romaji: 'cha', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of ち and ゃ' },
+                { type: 'character', hiragana: 'ちゅ', romaji: 'chu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of ち and ゅ' },
+                { type: 'character', hiragana: 'ちょ', romaji: 'cho', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of ち and ょ' },
+                { type: 'character', hiragana: 'にゃ', romaji: 'nya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of に and ゃ' },
+                { type: 'character', hiragana: 'にゅ', romaji: 'nyu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of に and ゅ' },
+                { type: 'character', hiragana: 'にょ', romaji: 'nyo', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of に and ょ' },
+                { type: 'character', hiragana: 'ひゃ', romaji: 'hya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of ひ and ゃ' },
+                { type: 'character', hiragana: 'ひゅ', romaji: 'hyu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of ひ and ゅ' },
+                { type: 'character', hiragana: 'ひょ', romaji: 'hyo', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of ひ and ょ' },
+                { type: 'character', hiragana: 'みゃ', romaji: 'mya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of み and ゃ' },
+                { type: 'character', hiragana: 'みゅ', romaji: 'myu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of み and ゅ' },
+                { type: 'character', hiragana: 'みょ', romaji: 'myo', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of み and ょ' },
+                { type: 'character', hiragana: 'りゃ', romaji: 'rya', group: 'combination-row', vowel: 'a', mnemonicText: 'Combination of り and ゃ' },
+                { type: 'character', hiragana: 'りゅ', romaji: 'ryu', group: 'combination-row', vowel: 'u', mnemonicText: 'Combination of り and ゅ' },
+                { type: 'character', hiragana: 'りょ', romaji: 'ryo', group: 'combination-row', vowel: 'o', mnemonicText: 'Combination of り and ょ' },
+                
+                // Combination characters with Dakuten
+                { type: 'character', hiragana: 'ぎゃ', romaji: 'gya', group: 'combination-dakuten-row', vowel: 'a', mnemonicText: 'Combination of ぎ and ゃ' },
+                { type: 'character', hiragana: 'ぎゅ', romaji: 'gyu', group: 'combination-dakuten-row', vowel: 'u', mnemonicText: 'Combination of ぎ and ゅ' },
+                { type: 'character', hiragana: 'ぎょ', romaji: 'gyo', group: 'combination-dakuten-row', vowel: 'o', mnemonicText: 'Combination of ぎ and ょ' },
+                { type: 'character', hiragana: 'じゃ', romaji: 'ja', group: 'combination-dakuten-row', vowel: 'a', mnemonicText: 'Combination of じ and ゃ' },
+                { type: 'character', hiragana: 'じゅ', romaji: 'ju', group: 'combination-dakuten-row', vowel: 'u', mnemonicText: 'Combination of じ and ゅ' },
+                { type: 'character', hiragana: 'じょ', romaji: 'jo', group: 'combination-dakuten-row', vowel: 'o', mnemonicText: 'Combination of じ and ょ' },
+                { type: 'character', hiragana: 'ぢゃ', romaji: 'ja', group: 'combination-dakuten-row', vowel: 'a', mnemonicText: 'Combination of ぢ and ゃ' },
+                { type: 'character', hiragana: 'ぢゅ', romaji: 'ju', group: 'combination-dakuten-row', vowel: 'u', mnemonicText: 'Combination of ぢ and ゅ' },
+                { type: 'character', hiragana: 'ぢょ', romaji: 'jo', group: 'combination-dakuten-row', vowel: 'o', mnemonicText: 'Combination of ぢ and ょ' },
+                { type: 'character', hiragana: 'びゃ', romaji: 'bya', group: 'combination-dakuten-row', vowel: 'a', mnemonicText: 'Combination of び and ゃ' },
+                { type: 'character', hiragana: 'びゅ', romaji: 'byu', group: 'combination-dakuten-row', vowel: 'u', mnemonicText: 'Combination of び and ゅ' },
+                { type: 'character', hiragana: 'びょ', romaji: 'byo', group: 'combination-dakuten-row', vowel: 'o', mnemonicText: 'Combination of び and ょ' },
+
+                // Combination characters with Handakuten
+                { type: 'character', hiragana: 'ぴゃ', romaji: 'pya', group: 'combination-handakuten-row', vowel: 'a', mnemonicText: 'Combination of ぴ and ゃ' },
+                { type: 'character', hiragana: 'ぴゅ', romaji: 'pyu', group: 'combination-handakuten-row', vowel: 'u', mnemonicText: 'Combination of ぴ and ゅ' },
+                { type: 'character', hiragana: 'ぴょ', romaji: 'pyo', group: 'combination-handakuten-row', vowel: 'o', mnemonicText: 'Combination of ぴ and ょ' }
             ];
 
-            // Hiragana words data with 'type' for categorization
-            // Added placeholder mnemonicImage and mnemonicText for demonstration
+            // Hiragana words data (no group/vowel filtering for words currently)
             const hiraganaWords = [
                 { type: 'word', hiragana: 'ねこ', romaji: 'neko', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NEKO_Mnemonic', mnemonicText: 'Neko means cat. Think of a cat named "Neko".' },      // cat
                 { type: 'word', hiragana: 'いぬ', romaji: 'inu', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=INU_Mnemonic', mnemonicText: 'Inu means dog. Imagine an "inu" running.' },      // dog
@@ -627,12 +843,14 @@
                 { type: 'word', hiragana: 'てんぷら', romaji: 'tempura', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=TEMPURA_Mnemonic', mnemonicText: 'Tempura, the dish.' },
                 { type: 'word', hiragana: 'せんせい', romaji: 'sensei', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=SENSEI_Mnemonic', mnemonicText: 'Sensei means teacher. A "sensei" has a good "sense".' }, // teacher
                 { type: 'word', hiragana: 'がくせい', romaji: 'gakusei', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=GAKUSEI_Mnemonic', mnemonicText: 'Gakusei means student. "Gaku" like "school", "sei" like "say".' }, // student
-                { type: 'word', hiragana: 'にほん', romaji: 'nihon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NIHON_Mnemonic', mnemonicText: 'Nihon means Japan. "Ni" from "knee", "hon" from "home".' },    // Japan
-                { type: 'word', hiragana: 'おはよう', romaji: 'ohayou', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=OHAYOU_Mnemonic', mnemonicText: 'Ohayou means good morning. "Oh hi you!".' }  // good morning
+                { type: 'word', hiragana: 'にほん', romaji: 'nihon', mnemonicImage: 'https://placehold.co/150x150/e0e0e0/000?text=NIHON_Mnemonic', mnemonicText: 'Nihon means Japan. "Ni" from "knee", "hon" from "home".' }  // good morning
             ];
 
+            // Constants for mastery system
+            const MASTERY_THRESHOLD_PER_LEVEL = 5; // Number of consecutive correct answers to gain one mastery level
+            const MAX_MASTERY_LEVEL = 5; // Maximum mastery level for an item
+
             // --- STATE MANAGEMENT ---
-            // Define default state for both practice types
             const defaultCharacterState = {
                 currentItem: null,
                 currentIndex: -1,
@@ -640,8 +858,10 @@
                 level: 1,
                 practiceType: 'characters',
                 correctAnswersInCurrentLevel: 0,
-                levelUpThreshold: 5,
-                failedItemsQueue: [] // Queue for character mistakes
+                levelUpThreshold: 5, // Correct answers to advance global level
+                failedItemsQueue: [], 
+                selectedFilterOption: 'vowels', // Stores the manual override filter
+                autoProgressEnabled: true // Flag for automatic level progression
             };
 
             const defaultWordState = {
@@ -651,60 +871,92 @@
                 level: 1,
                 practiceType: 'words',
                 correctAnswersInCurrentLevel: 0,
-                levelUpThreshold: 3, // Words might be harder, so lower threshold or adjust as needed
-                failedItemsQueue: [] // Queue for word mistakes
+                levelUpThreshold: 3, // Correct answers to advance global level
+                failedItemsQueue: [], 
+                selectedFilterOption: null, // Not used for words
+                autoProgressEnabled: false // Auto progress doesn't apply to words mode
             };
 
-            // Global state object, will be loaded from localStorage
-            let currentState = { ...defaultCharacterState }; // Start with default character state
-            const rePresentDelay = 1; // Number of correct answers to show before re-presenting incorrect
+            let currentState = { ...defaultCharacterState }; 
+            const rePresentDelay = 1; 
 
-            // Variables for Review Session
-            let reviewSessionActive = false; // Flag to indicate if a review session is active
-            let currentReviewQueue = []; // Queue for items specifically in the active review session
+            let reviewSessionActive = false; 
+            let currentReviewQueue = []; 
 
             // --- LOCAL STORAGE FUNCTIONS ---
-
             /**
-             * Saves the current game state (score, level, etc.) to localStorage for the given practice type.
-             * @param {string} type - 'characters' or 'words'
+             * Saves the current application state to local storage.
+             * Includes global settings and per-item mastery data.
+             * @param {string} type - 'characters' or 'words' to determine which state to save.
              */
             function saveState(type) {
                 try {
+                    const stateToSave = { ...currentState }; 
+                    // Extract mastery data from the global hiraganaChart/hiraganaWords
+                    stateToSave.itemMasteryData = (type === 'characters' ? hiraganaChart : hiraganaWords).map(item => ({
+                        hiragana: item.hiragana,
+                        romaji: item.romaji, // Include romaji for easy lookup
+                        masteryLevel: item.masteryLevel,
+                        correctStreak: item.correctStreak
+                    }));
+
                     if (type === 'characters') {
-                        localStorage.setItem('hiraganaCharacterState', JSON.stringify(currentState));
+                        localStorage.setItem('hiraganaCharacterState', JSON.stringify(stateToSave));
                     } else if (type === 'words') {
-                        localStorage.setItem('hiraganaWordState', JSON.stringify(currentState));
+                        localStorage.setItem('hiraganaWordState', JSON.stringify(stateToSave));
                     }
-                    localStorage.setItem('lastPracticeType', currentState.practiceType); // Save last active mode
+                    localStorage.setItem('lastPracticeType', currentState.practiceType); 
                 } catch (e) {
                     console.error("Error saving to localStorage:", e);
                 }
             }
 
             /**
-             * Loads the game state from localStorage for the given practice type.
-             * If no saved state is found, returns the default state for that type.
-             * @param {string} type - 'characters' or 'words'
-             * @returns {object} The loaded or default state.
+             * Loads the application state from local storage.
+             * Initializes per-item mastery data if not found in saved state or on first launch.
+             * @param {string} type - 'characters' or 'words' to determine which state to load.
+             * @returns {Object} The loaded or default state.
              */
             function loadState(type) {
                 try {
                     const savedState = localStorage.getItem(type === 'characters' ? 'hiraganaCharacterState' : 'hiraganaWordState');
                     if (savedState) {
                         const parsedState = JSON.parse(savedState);
-                        // Ensure failedItemsQueue is always an array, even if loaded as null/undefined
                         parsedState.failedItemsQueue = parsedState.failedItemsQueue || [];
+                        parsedState.selectedFilterOption = parsedState.selectedFilterOption || 'vowels'; 
+                        parsedState.autoProgressEnabled = typeof parsedState.autoProgressEnabled === 'boolean' ? parsedState.autoProgressEnabled : true; 
+
+                        // Apply mastery data to the global hiraganaChart/hiraganaWords
+                        const targetData = type === 'characters' ? hiraganaChart : hiraganaWords;
+                        targetData.forEach(item => {
+                            const savedItemData = parsedState.itemMasteryData?.find(saved => saved.hiragana === item.hiragana && saved.romaji === item.romaji);
+                            if (savedItemData) {
+                                item.masteryLevel = savedItemData.masteryLevel;
+                                item.correctStreak = savedItemData.correctStreak;
+                            } else {
+                                // If a new item or old save, initialize to 0
+                                item.masteryLevel = 0;
+                                item.correctStreak = 0;
+                            }
+                        });
+                        // Remove itemMasteryData from parsedState copy, as it's now on the global data arrays
+                        delete parsedState.itemMasteryData; 
                         return parsedState;
                     }
                 } catch (e) {
                     console.error("Error loading from localStorage:", e);
                 }
-                return type === 'characters' ? { ...defaultCharacterState } : { ...defaultWordState };
+                // If no saved state, return default and ensure global items are initialized
+                const defaultState = type === 'characters' ? { ...defaultCharacterState } : { ...defaultWordState };
+                const targetData = type === 'characters' ? hiraganaChart : hiraganaWords;
+                targetData.forEach(item => {
+                    item.masteryLevel = 0;
+                    item.correctStreak = 0;
+                });
+                return defaultState;
             }
 
             // --- DOM ELEMENTS ---
-            // Storing references to the HTML elements for easier manipulation
             const elements = {
                 display: document.getElementById('hiragana-display'),
                 input: document.getElementById('romaji-input'),
@@ -721,7 +973,7 @@
                 mnemonicTitle: document.getElementById('mnemonic-title'),
                 mnemonicImage: document.getElementById('mnemonic-image'),
                 mnemonicText: document.getElementById('mnemonic-text'),
-                correctAnswerOnMistake: document.getElementById('correct-answer-on-mistake'), // New element reference
+                correctAnswerOnMistake: document.getElementById('correct-answer-on-mistake'), 
                 statsBtn: document.getElementById('stats-btn'),         
                 settingsBtn: document.getElementById('settings-btn'),   
                 statsModal: document.getElementById('stats-modal'),     
@@ -729,32 +981,46 @@
                 modalCloseBtns: document.querySelectorAll('.modal-close-btn'), 
                 mistakeList: document.getElementById('mistake-list'), 
                 startReviewBtn: document.getElementById('start-review-btn'), 
-                clearMistakesBtn: document.getElementById('clear-mistakes-btn') 
+                clearMistakesBtn: document.getElementById('clear-mistakes-btn'),
+                characterFilterOptions: document.getElementById('character-filter-options'), 
+                saveSettingsBtn: document.getElementById('save-settings-btn'), 
+                autoProgressToggle: document.getElementById('auto-progress-toggle'), 
+                toastContainer: document.querySelector('.toast-container'),
+                charMasteredList: document.getElementById('char-mastered-list'),
+                charLearningList: document.getElementById('char-learning-list'),
+                charNotStartedList: document.getElementById('char-not-started-list'),
+                wordMasteredList: document.getElementById('word-mastered-list'),
+                wordLearningList: document.getElementById('word-learning-list'),
+                wordNotStartedList: document.getElementById('word-not-started-list')
             };
 
             // --- UI CONTROL FUNCTIONS ---
-
-            /**
-             * Displays a custom modal.
-             * @param {HTMLElement} modalElement - The modal overlay element to display.
-             */
             function showModal(modalElement) {
                 modalElement.classList.add('active');
             }
 
-            /**
-             * Hides a custom modal.
-             * @param {HTMLElement} modalElement - The modal overlay element to hide.
-             */
             function hideModal(modalElement) {
                 modalElement.classList.remove('active');
             }
 
-            /**
-             * Populates the mistake list in the stats modal.
-             */
+            function showNotification(message, type = 'info', duration = 3000) {
+                const toast = document.createElement('div');
+                toast.classList.add('toast', `toast-${type}`);
+                toast.textContent = message;
+                elements.toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 100); 
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, duration);
+            }
+
             function populateMistakeList() {
-                elements.mistakeList.innerHTML = ''; // Clear previous list
+                elements.mistakeList.innerHTML = ''; 
                 if (currentState.failedItemsQueue.length === 0) {
                     elements.mistakeList.innerHTML = '<p class="text-muted">No mistakes to review yet!</p>';
                     elements.startReviewBtn.disabled = true;
@@ -770,126 +1036,331 @@
                 }
             }
 
-            // --- GAME LOGIC FUNCTIONS ---
+            /**
+             * Dynamically determines the category of a Hiragana item.
+             * @param {Object} item - The Hiragana item object.
+             * @returns {string} The category ('vowel', 'basic', 'dakuten', 'handakuten', 'combination').
+             */
+            const getCategory = (item) => {
+                if (item.romaji.length === 1 && ['a', 'i', 'u', 'e', 'o'].includes(item.romaji)) return 'vowel';
+                if (item.group && item.group.includes('dakuten')) return 'dakuten';
+                if (item.group && item.group.includes('handakuten')) return 'handakuten';
+                if (item.group && item.group.includes('combination')) return 'combination';
+                return 'basic'; // Default for gojuon characters without diacritics/combinations
+            };
 
             /**
-             * Updates the score and level displays in the stats modal.
+             * Returns the effective filter option based on current level in auto-progress mode.
+             * This function determines which *categories* of characters are included.
+             * @param {number} level - The current level.
+             * @returns {string[]} An array of category names to include.
              */
+            function getAutoProgressCategories(level) {
+                let categoriesToInclude = [];
+                categoriesToInclude.push('vowel'); 
+
+                // Basic consonant-vowel rows are added cumulatively
+                if (level >= 2) { categoriesToInclude.push('basic'); } // All basic characters will now be considered if their vowel matches.
+                
+                // Specific groups are added at higher levels
+                if (level >= 7) { categoriesToInclude.push('dakuten'); }
+                if (level >= 8) { categoriesToInclude.push('handakuten'); }
+                if (level >= 9) { categoriesToInclude.push('combination'); }
+
+                return categoriesToInclude;
+            }
+
+            /**
+             * Populates the settings modal with character filtering radio buttons.
+             */
+            function populateSettingsModal() {
+                elements.characterFilterOptions.innerHTML = ''; 
+
+                // Set the auto-progress toggle state
+                elements.autoProgressToggle.checked = currentState.autoProgressEnabled;
+
+                const filterOptions = [
+                    { value: 'vowels', label: 'Only Vowels (あ, い, う, え, お, ん)' },
+                    { value: 'a', label: 'Only A-vowel characters' },
+                    { value: 'i', label: 'Only I-vowel characters' },
+                    { value: 'u', label: 'Only U-vowel characters' },
+                    { value: 'e', label: 'Only E-vowel characters' },
+                    { value: 'o', label: 'Only O-vowel characters' },
+                    { value: 'dakuten', label: 'Only Dakuten (゛) Characters' },
+                    { value: 'handakuten', label: 'Only Handakuten (゜) Characters' },
+                    { value: 'combination', label: 'Only Combination Characters (きゃ, しゃ, ちょ...)' },
+                    { value: 'all-characters', label: 'All Hiragana Characters' } 
+                ];
+
+                let effectiveSelection = currentState.selectedFilterOption;
+                // If auto-progress is enabled, the actual filter shown in settings should reflect the current level's filter
+                if (currentState.autoProgressEnabled) {
+                    // This is a simplified way to represent the auto-progression in the UI,
+                    // as the actual filtering is cumulative.
+                    if (currentState.level === 1) effectiveSelection = 'vowels';
+                    else if (currentState.level === 2) effectiveSelection = 'a';
+                    else if (currentState.level === 3) effectiveSelection = 'i';
+                    else if (currentState.level === 4) effectiveSelection = 'u';
+                    else if (currentState.level === 5) effectiveSelection = 'e';
+                    else if (currentState.level === 6) effectiveSelection = 'o';
+                    else if (currentState.level === 7) effectiveSelection = 'dakuten';
+                    else if (currentState.level === 8) effectiveSelection = 'handakuten';
+                    else if (currentState.level >= 9) effectiveSelection = 'all-characters';
+                }
+
+                filterOptions.forEach(option => {
+                    const div = document.createElement('div');
+                    div.classList.add('form-check', 'mb-2');
+
+                    const input = document.createElement('input');
+                    input.classList.add('form-check-input');
+                    input.type = 'radio';
+                    input.name = 'characterFilter'; 
+                    input.id = `filter-${option.value}`;
+                    input.value = option.value;
+                    input.checked = (effectiveSelection === option.value);
+                    input.disabled = currentState.autoProgressEnabled; 
+
+                    const label = document.createElement('label');
+                    label.classList.add('form-check-label');
+                    label.htmlFor = `filter-${option.value}`;
+                    label.textContent = option.label;
+
+                    div.appendChild(input);
+                    div.appendChild(label);
+                    elements.characterFilterOptions.appendChild(div);
+                });
+            }
+
+            /**
+             * Applies the selected character filter setting.
+             */
+            function applySettings() {
+                const newAutoProgressEnabled = elements.autoProgressToggle.checked;
+                let newCharacterFilter = currentState.selectedFilterOption;
+
+                if (newAutoProgressEnabled) {
+                    // If auto-progress is enabled, the filter is dictated by the level, not explicit selection.
+                    // The actual filter won't be set by the radio buttons, but by getFilteredCharacters
+                    showNotification('Automatic level progression enabled!', 'info');
+                } else {
+                    // If auto-progress is disabled, use the manually selected filter.
+                    const selectedManualFilter = document.querySelector('input[name="characterFilter"]:checked')?.value;
+                    if (!selectedManualFilter) {
+                        showNotification('Please select a character filtering option for manual mode!', 'warning');
+                        return; 
+                    }
+                    newCharacterFilter = selectedManualFilter;
+                    showNotification('Manual character selection enabled!', 'info');
+                }
+
+                currentState.autoProgressEnabled = newAutoProgressEnabled;
+                currentState.selectedFilterOption = newCharacterFilter;
+                saveState(currentState.practiceType);
+                hideModal(elements.settingsModal);
+                showNextItem(); // Restart practice with new settings
+            }
+
+            // --- GAME LOGIC FUNCTIONS ---
             function updateStatsDisplay() {
                 elements.scoreDisplay.textContent = currentState.score;
                 elements.levelDisplay.textContent = currentState.level;
-                populateMistakeList(); // Always update mistake list when stats are updated
+                populateMistakeList(); 
+                renderProgressVisualizations(); // Update visualizations when stats are shown
             }
 
-            /**
-             * Adjusts the font size of the Hiragana display to ensure the text fits within its container.
-             * It iteratively reduces the font size until the text no longer overflows horizontally.
-             */
             function adjustFontSizeToFit() {
                 const displayElement = elements.display;
-                
-                // Set the initial font size to a max default
-                let currentFontSize = 120; // Maximum desired font size
+                let currentFontSize = 120; 
                 displayElement.style.fontSize = `${currentFontSize}px`;
-                displayElement.style.whiteSpace = 'nowrap'; // Try to keep on one line first
+                displayElement.style.whiteSpace = 'nowrap'; 
 
-                // Reduce font size if content overflows
                 while (displayElement.scrollWidth > displayElement.clientWidth && currentFontSize > 10) {
-                    currentFontSize -= 2; // Reduce font size by a smaller increment for finer control
+                    currentFontSize -= 2; 
                     displayElement.style.fontSize = `${currentFontSize}px`;
                 }
 
-                // If after shrinking, it still overflows and currentFontSize is at minimum, allow text wrapping
                 if (displayElement.scrollWidth > displayElement.clientWidth && currentFontSize <= 10) {
-                    displayElement.style.whiteSpace = 'normal'; // Allow wrapping
-                    displayElement.style.wordBreak = 'break-word'; // Ensure words break if needed
+                    displayElement.style.whiteSpace = 'normal'; 
+                    displayElement.style.wordBreak = 'break-word'; 
                 }
             }
 
+            /**
+             * Gets the list of characters to practice based on the current filter logic.
+             * @returns {Array} An array of character objects.
+             */
+            function getFilteredCharacters() {
+                let charactersToUse = [];
+
+                // Helper to filter characters by their dynamically determined category
+                const filterByCategory = (categoryName) => hiraganaChart.filter(item => getCategory(item) === categoryName);
+                const filterByVowelSound = (vowel) => hiraganaChart.filter(item => item.vowel === vowel && getCategory(item) === 'basic');
+                const filterByRomaji = (romajiArray) => hiraganaChart.filter(item => romajiArray.includes(item.romaji));
+
+                if (currentState.autoProgressEnabled) {
+                    let cumulativeChars = [];
+                    
+                    // Level 1: Vowels + 'ん'
+                    cumulativeChars = hiraganaChart.filter(item => ['a', 'i', 'u', 'e', 'o', 'n'].includes(item.romaji));
+
+                    if (currentState.level >= 2) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('a')])]; 
+                    }
+                    if (currentState.level >= 3) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('i')])]; 
+                    }
+                    if (currentState.level >= 4) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('u')])]; 
+                    }
+                    if (currentState.level >= 5) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('e')])]; 
+                    }
+                    if (currentState.level >= 6) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByVowelSound('o')])]; 
+                    }
+
+                    if (currentState.level >= 7) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('dakuten')])]; 
+                    }
+                    if (currentState.level >= 8) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('handakuten')])]; 
+                    }
+                    if (currentState.level >= 9) { 
+                        cumulativeChars = [...new Set([...cumulativeChars, ...filterByCategory('combination')])]; 
+                    }
+                    
+                    charactersToUse = cumulativeChars;
+
+                } else { // Manual selection based on selectedFilterOption
+                    const selectedFilter = currentState.selectedFilterOption;
+                    switch (selectedFilter) {
+                        case 'vowels':
+                            charactersToUse = hiraganaChart.filter(item => ['a', 'i', 'u', 'e', 'o', 'n'].includes(item.romaji));
+                            break;
+                        case 'a':
+                        case 'i':
+                        case 'u':
+                        case 'e':
+                        case 'o':
+                            // For manual selection of a vowel row, it means basic characters with that vowel sound.
+                            charactersToUse = hiraganaChart.filter(item => item.vowel === selectedFilter && getCategory(item) === 'basic');
+                            break;
+                        case 'dakuten':
+                            charactersToUse = filterByCategory('dakuten');
+                            break;
+                        case 'handakuten':
+                            charactersToUse = filterByCategory('handakuten');
+                            break;
+                        case 'combination':
+                            charactersToUse = filterByCategory('combination');
+                            break;
+                        case 'all-characters':
+                            charactersToUse = hiraganaChart.filter(item => item.type === 'character'); // All characters
+                            break;
+                        default:
+                            charactersToUse = hiraganaChart.filter(item => ['a', 'i', 'u', 'e', 'o', 'n'].includes(item.romaji));
+                            break;
+                    }
+                }
+                // Ensure no duplicates by converting to Set and back to Array
+                return Array.from(new Set(charactersToUse));
+            }
 
             /**
-             * Selects and displays a new random Hiragana item (character or word) from the appropriate list
-             * based on the current `practiceType`. It ensures the new item is different from the previous one.
-             * Also updates instruction text and toggle button text.
-             * Implements spaced repetition by re-presenting `failedItemsQueue` items.
+             * Selects and displays a new random Hiragana item based on current settings.
              */
             function showNextItem() {
-                let dataList = [];
+                let filteredDataList = []; 
                 let instruction = '';
                 let modeLabel = ''; 
 
-                // Always hide mnemonic button and clear correct answer display at the start of a new item
                 elements.mnemonicToggleButton.style.display = 'none';
-                elements.correctAnswerOnMistake.textContent = ''; // Clear the correct answer text
+                elements.correctAnswerOnMistake.textContent = ''; 
 
-                // Determine which data list to use and update UI text accordingly
                 if (currentState.practiceType === 'characters') {
-                    dataList = hiraganaChart;
                     instruction = 'Type the Romaji for the character below.';
                     modeLabel = 'Character';
                     elements.modeToggleSwitch.checked = false; 
+
+                    filteredDataList = getFilteredCharacters();
+                    
+                    if (filteredDataList.length === 0) {
+                        elements.display.textContent = 'No characters selected for practice!';
+                        elements.input.disabled = true;
+                        elements.form.querySelector('button').disabled = true;
+                        showNotification('No characters to practice based on current settings. Adjust settings or clear mistakes.', 'warning', 5000);
+                        return;
+                    }
+
                 } else { // currentState.practiceType === 'words'
-                    dataList = hiraganaWords;
                     instruction = 'Type the Romaji for the word below.';
                     modeLabel = 'Word';
                     elements.modeToggleSwitch.checked = true; 
+                    filteredDataList = hiraganaWords; 
                 }
+                
                 elements.instructionText.textContent = instruction;
                 elements.modeLabelText.textContent = modeLabel; 
 
                 let itemToDisplay = null;
 
-                // Spaced repetition logic: Prioritize items from currentReviewQueue if active,
-                // then from failedItemsQueue if available and delay met, otherwise random.
                 if (reviewSessionActive && currentReviewQueue.length > 0) {
-                    itemToDisplay = currentReviewQueue.shift(); // Get item from active review session
-                    // If review queue is exhausted, end review session
+                    itemToDisplay = currentReviewQueue.shift(); 
                     if (currentReviewQueue.length === 0) {
                         reviewSessionActive = false;
-                        showBootstrapToast('Review session complete! Returning to regular practice.', 'info');
+                        showNotification('Review session complete! Returning to regular practice.', 'info');
                     }
                 } else if (currentState.failedItemsQueue.length > 0 && currentState.correctAnswersInCurrentLevel >= rePresentDelay) {
-                    itemToDisplay = currentState.failedItemsQueue.shift(); // Get the oldest failed item from main queue
-                    currentState.correctAnswersInCurrentLevel = 0; // Reset counter after re-presenting
+                    const foundFailedItem = currentState.failedItemsQueue.find(failedItem => 
+                        filteredDataList.some(activeItem => 
+                            activeItem.hiragana === failedItem.hiragana && activeItem.romaji === failedItem.romaji
+                        )
+                    );
+
+                    if (foundFailedItem) {
+                        itemToDisplay = foundFailedItem;
+                        currentState.failedItemsQueue = currentState.failedItemsQueue.filter(item => item !== foundFailedItem);
+                        currentState.correctAnswersInCurrentLevel = 0; 
+                    } else {
+                        // If a failed item exists but isn't in the *current* filtered list (e.g., changed settings)
+                        // then just pick a random new item.
+                        let newIndex;
+                        do {
+                            newIndex = Math.floor(Math.random() * filteredDataList.length);
+                        } while (filteredDataList.length > 1 && newIndex === currentState.currentIndex); 
+                        itemToDisplay = filteredDataList[newIndex];
+                    }
+
                 } else {
                     let newIndex;
-                    // Loop to ensure the new random item is not the same as the current one
-                    // Also ensure it's not one of the items currently in the failedItemsQueue to avoid immediate re-repetition
                     do {
-                        newIndex = Math.floor(Math.random() * dataList.length);
-                        // Prevent picking an item if it's currently in the failed queue for regular practice
-                    } while (dataList.length > 1 && newIndex === currentState.currentIndex || 
-                             (dataList[newIndex] && currentState.failedItemsQueue.some(failed => 
-                                failed.hiragana === dataList[newIndex].hiragana && failed.romaji === dataList[newIndex].romaji
-                            ))); 
-                    
-                    if (dataList.length === 0) {
-                        elements.display.textContent = 'No items to practice!';
-                        elements.input.disabled = true;
-                        elements.form.querySelector('button').disabled = true;
-                        return;
-                    }
-                    currentState.currentIndex = newIndex;
-                    itemToDisplay = dataList[newIndex];
+                        newIndex = Math.floor(Math.random() * filteredDataList.length);
+                        // Make sure we don't pick the same item consecutively unless it's the only item
+                    } while (filteredDataList.length > 1 && newIndex === currentState.currentIndex); 
+                    itemToDisplay = filteredDataList[newIndex];
                 }
 
-                currentState.currentItem = itemToDisplay; // Set the item to be displayed
-                
-                // Update the display with the new Hiragana item
+                if (!itemToDisplay) {
+                    elements.display.textContent = 'No items available with current settings.';
+                    elements.input.disabled = true;
+                    elements.form.querySelector('button').disabled = true;
+                    showNotification('No items to practice based on current settings. Adjust settings or clear mistakes.', 'warning', 5000);
+                    return;
+                }
+
+                currentState.currentItem = itemToDisplay; 
+                currentState.currentIndex = filteredDataList.indexOf(itemToDisplay); 
+
                 elements.display.textContent = currentState.currentItem.hiragana;
                 elements.input.value = ''; 
                 elements.input.focus(); 
                 elements.feedback.textContent = ''; 
                 elements.feedback.classList.remove('correct', 'incorrect'); 
 
-                // Adjust font size after setting text content
                 adjustFontSizeToFit();
             }
 
-            /**
-             * Checks the user's input against the correct Romaji for the current item.
-             * Provides visual feedback (correct/incorrect) and updates game state (score, level).
-             */
             function checkAnswer() {
                 const userAnswer = elements.input.value.trim().toLowerCase();
                 
@@ -899,13 +1370,26 @@
                 elements.feedback.classList.remove('correct', 'incorrect');
                 elements.input.classList.remove('shake');
 
+                // Find the actual item in the global data array to update its mastery
+                const currentItemInMasteryData = (currentState.practiceType === 'characters' ? hiraganaChart : hiraganaWords).find(
+                    item => item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
+                );
+
                 if (userAnswer === currentState.currentItem.romaji) {
                     elements.feedback.textContent = 'Correct!';
                     elements.feedback.classList.add('correct');
                     currentState.score++; 
                     currentState.correctAnswersInCurrentLevel++; 
                     
-                    // If the item was previously failed (either in main queue or review queue), remove it
+                    // Update mastery for the specific item
+                    if (currentItemInMasteryData) {
+                        currentItemInMasteryData.correctStreak++;
+                        if (currentItemInMasteryData.correctStreak >= MASTERY_THRESHOLD_PER_LEVEL && currentItemInMasteryData.masteryLevel < MAX_MASTERY_LEVEL) {
+                            currentItemInMasteryData.masteryLevel++;
+                            currentItemInMasteryData.correctStreak = 0; // Reset streak after leveling up mastery
+                        }
+                    }
+                    
                     const failedIndex = currentState.failedItemsQueue.findIndex(item => 
                         item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
                     );
@@ -916,45 +1400,55 @@
                     if (currentState.correctAnswersInCurrentLevel >= currentState.levelUpThreshold) {
                         currentState.level++; 
                         currentState.correctAnswersInCurrentLevel = 0; 
-                        setTimeout(() => { 
-                            showBootstrapToast(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`, 'success');
-                        }, 200);
+                        
+                        // If auto-progress is enabled, update filter based on new level
+                        if (currentState.autoProgressEnabled) {
+                            if (currentState.level > 9 && currentState.practiceType === 'characters') { 
+                                showNotification(`Congratulations! You reached Level ${currentState.level}! All characters mastered. Consider trying Word Practice!`, 'success', 5000);
+                            } else if (currentState.level > 1 && currentState.practiceType === 'characters') {
+                                showNotification(`Congratulations! You reached Level ${currentState.level}! More characters unlocked!`, 'success');
+                            } else {
+                                showNotification(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`, 'success');
+                            }
+                        } else {
+                            showNotification(`Congratulations! You reached Level ${currentState.level}! Keep up the great work!`, 'success');
+                        }
                     }
                     updateStatsDisplay(); 
                     saveState(currentState.practiceType); 
                     
-                    // Hide mnemonic button if the answer was correct
                     elements.mnemonicToggleButton.style.display = 'none';
-                    elements.correctAnswerOnMistake.textContent = ''; // Ensure correct answer text is cleared
+                    elements.correctAnswerOnMistake.textContent = ''; 
 
                     setTimeout(() => {
                         showNextItem();
                     }, 800);
 
                 } else {
-                    elements.feedback.textContent = 'Not quite! Try again!'; // Simplified feedback
+                    elements.feedback.textContent = 'Not quite! Try again!'; 
                     elements.feedback.classList.add('incorrect');
                     elements.input.classList.add('shake'); 
                     
-                    // Add the current item to the failed items queue if it's not already there
+                    // Reset streak on incorrect answer
+                    if (currentItemInMasteryData) {
+                        currentItemInMasteryData.correctStreak = 0;
+                    }
+
                     const isAlreadyFailed = currentState.failedItemsQueue.some(item => 
                         item.hiragana === currentState.currentItem.hiragana && item.romaji === currentState.currentItem.romaji
                     );
                     if (!isAlreadyFailed) {
                         currentState.failedItemsQueue.push(currentState.currentItem);
                     }
-                    // If in a review session and wrong, re-add to currentReviewQueue (e.g., at the end)
                     if (reviewSessionActive) {
                         currentReviewQueue.push(currentState.currentItem);
                     }
-                    currentState.correctAnswersInCurrentLevel = 0; // Reset correct streak if wrong
+                    currentState.correctAnswersInCurrentLevel = 0; 
                     saveState(currentState.practiceType); 
 
-                    // Show mnemonic button if mnemonic data exists for the incorrect item
                     if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
                         elements.mnemonicToggleButton.style.display = 'flex';
                     }
-                    // Set the correct answer text in the mnemonic modal
                     elements.correctAnswerOnMistake.textContent = `Correct: "${currentState.currentItem.romaji}"`;
 
                     setTimeout(() => {
@@ -963,34 +1457,86 @@
                 }
             }
 
+            /**
+             * Renders the progress visualizations in the stats modal.
+             */
+            function renderProgressVisualizations() {
+                // Clear previous lists
+                elements.charMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>';
+                elements.charLearningList.innerHTML = '<h6>Learning (🟡)</h6>';
+                elements.charNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>';
+                elements.wordMasteredList.innerHTML = '<h6>Mastered (⭐)</h6>';
+                elements.wordLearningList.innerHTML = '<h6>Learning (🟡)</h6>';
+                elements.wordNotStartedList.innerHTML = '<h6>Not Started (⚪)</h6>';
+
+                // Helper to add an item to the correct list
+                const addItemToList = (item, listType) => {
+                    const span = document.createElement('span');
+                    span.classList.add('item-tag');
+                    let indicator = '';
+                    let className = '';
+
+                    if (item.masteryLevel === MAX_MASTERY_LEVEL) {
+                        indicator = '⭐';
+                        className = 'mastered';
+                    } else if (item.masteryLevel > 0) {
+                        indicator = '🟡';
+                        className = 'learning';
+                    } else {
+                        indicator = '⚪';
+                        className = 'not-started';
+                    }
+                    
+                    span.innerHTML = `<span class="status-indicator">${indicator}</span> ${item.hiragana} <small>(${item.romaji})</small>`;
+                    span.classList.add(className);
+
+                    if (listType === 'char') {
+                        if (item.masteryLevel === MAX_MASTERY_LEVEL) elements.charMasteredList.appendChild(span);
+                        else if (item.masteryLevel > 0) elements.charLearningList.appendChild(span);
+                        else elements.charNotStartedList.appendChild(span);
+                    } else if (listType === 'word') {
+                        if (item.masteryLevel === MAX_MASTERY_LEVEL) elements.wordMasteredList.appendChild(span);
+                        else if (item.masteryLevel > 0) elements.wordLearningList.appendChild(span);
+                        else elements.wordNotStartedList.appendChild(span);
+                    }
+                };
+
+                // Populate character lists
+                hiraganaChart.forEach(char => addItemToList(char, 'char'));
+
+                // Populate word lists
+                hiraganaWords.forEach(word => addItemToList(word, 'word'));
+            }
+
             // --- EVENT LISTENERS ---
 
-            // Event listener for the form submission
             elements.form.addEventListener('submit', (event) => {
                 event.preventDefault(); 
                 checkAnswer(); 
             });
 
-            // Event listener for the mode toggle switch
             elements.modeToggleSwitch.addEventListener('change', () => {
                 saveState(currentState.practiceType);
 
                 const newPracticeType = elements.modeToggleSwitch.checked ? 'words' : 'characters';
 
                 if (newPracticeType === 'words') {
-                    if (currentState.level >= 3 && hiraganaWords.length > 0) {
+                    // Only allow word mode if level 9+ is reached in character mode.
+                    const charState = loadState('characters'); // Load character state to check its level
+                    if (charState.level >= 9) { // Ensure words are available
                          currentState = loadState('words'); 
+                         showNotification("Switched to Word Practice!", 'info', 2000);
                     } else {
-                            showBootstrapToast("Great job! Reach at least Level 3 in character practice to unlock word practice!", 'info');
-                        elements.modeToggleSwitch.checked = false; 
+                        showNotification("Great job! Reach at least Level 9 in character practice to unlock word practice!", 'info', 4000);
+                        elements.modeToggleSwitch.checked = false; // Revert toggle
                         return; 
                     }
                 } else {
                     currentState = loadState('characters'); 
+                    showNotification("Switched to Character Practice!", 'info', 2000);
                 }
                 
                 currentState.practiceType = newPracticeType;
-                // Reset review session state when changing modes
                 reviewSessionActive = false;
                 currentReviewQueue = [];
 
@@ -998,7 +1544,6 @@
                 showNextItem(); 
             });
 
-            // Event listener for the mnemonic toggle button
             elements.mnemonicToggleButton.addEventListener('click', () => {
                 if (currentState.currentItem) {
                     elements.mnemonicTitle.textContent = `Mnemonic for "${currentState.currentItem.hiragana}"`;
@@ -1017,17 +1562,54 @@
                 }
             });
 
-            // Event listeners for opening modals
             elements.statsBtn.addEventListener('click', () => {
-                updateStatsDisplay(); 
+                updateStatsDisplay(); // Update stats and visualizations before showing modal
                 showModal(elements.statsModal);
             });
 
             elements.settingsBtn.addEventListener('click', () => {
+                populateSettingsModal(); 
                 showModal(elements.settingsModal);
             });
 
-            // Event listeners for closing modals (generic for all custom modals)
+            elements.saveSettingsBtn.addEventListener('click', applySettings);
+
+            // Listener for auto-progress toggle in settings to enable/disable radio buttons
+            elements.autoProgressToggle.addEventListener('change', () => {
+                const radioButtons = elements.characterFilterOptions.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.disabled = elements.autoProgressToggle.checked;
+                });
+                // If auto-progress is enabled, re-check the radio button corresponding to the current level
+                if (elements.autoProgressToggle.checked) {
+                    // Set the checked state for the radio button that *represents* the current auto-progress level
+                    let effectiveSelection = 'vowels'; // Default to level 1
+                    if (currentState.level >= 2) effectiveSelection = 'a';
+                    if (currentState.level >= 3) effectiveSelection = 'i';
+                    if (currentState.level >= 4) effectiveSelection = 'u';
+                    if (currentState.level >= 5) effectiveSelection = 'e';
+                    if (currentState.level >= 6) effectiveSelection = 'o';
+                    if (currentState.level >= 7) effectiveSelection = 'dakuten';
+                    if (currentState.level >= 8) effectiveSelection = 'handakuten';
+                    if (currentState.level >= 9) effectiveSelection = 'all-characters';
+                    
+                    const currentRadio = document.getElementById(`filter-${effectiveSelection}`);
+                    if (currentRadio) {
+                        currentRadio.checked = true;
+                    }
+                } else {
+                    // If disabling auto-progress, ensure the last manual selection is checked
+                    const lastManualRadio = document.getElementById(`filter-${currentState.selectedFilterOption}`);
+                    if (lastManualRadio) {
+                        lastManualRadio.checked = true;
+                    } else {
+                        // Fallback to vowels if for some reason the last selected doesn't exist
+                        document.getElementById('filter-vowels').checked = true;
+                    }
+                }
+            });
+
+
             elements.modalCloseBtns.forEach(button => {
                 button.addEventListener('click', (event) => {
                     const modalId = event.target.dataset.modalId || event.target.closest('.modal-custom-overlay').id;
@@ -1035,7 +1617,6 @@
                 });
             });
 
-            // Close modal if clicking outside the content (for all custom modals)
             document.querySelectorAll('.modal-custom-overlay').forEach(overlay => {
                 overlay.addEventListener('click', (event) => {
                     if (event.target === overlay) {
@@ -1044,117 +1625,55 @@
                 });
             });
 
-            // Event listener for starting review session
             elements.startReviewBtn.addEventListener('click', () => {
                 if (currentState.failedItemsQueue.length > 0) {
-                    // Start a review session with a copy of the failed queue
                     currentReviewQueue = [...currentState.failedItemsQueue];
                     reviewSessionActive = true;
                     hideModal(elements.statsModal); 
                     showNextItem(); 
-                    showBootstrapToast('Starting review session for your missed items!', 'info');
+                    showNotification('Starting review session for your missed items!', 'info');
                 } else {
-                    showBootstrapToast('No mistakes to review!', 'warning');
+                    showNotification('No mistakes to review!', 'info');
                 }
             });
 
-            // Event listener for clearing mistakes
             elements.clearMistakesBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to clear all recorded mistakes? This cannot be undone.')) {
                     currentState.failedItemsQueue = [];
                     saveState(currentState.practiceType);
                     updateStatsDisplay(); 
-                    showBootstrapToast('All mistakes cleared!', 'success');
+                    showNotification('All mistakes cleared!', 'success');
                 }
             });
 
-            // Listen for window resize to re-adjust font size if needed
             window.addEventListener('resize', adjustFontSizeToFit);
 
             // --- INITIALIZATION ---
+            // Ensure all items have mastery properties on first load if not present
+            [hiraganaChart, hiraganaWords].forEach(dataArray => {
+                dataArray.forEach(item => {
+                    if (item.masteryLevel === undefined) item.masteryLevel = 0;
+                    if (item.correctStreak === undefined) item.correctStreak = 0;
+                });
+            });
+
             const initialPracticeType = localStorage.getItem('lastPracticeType') || 'characters';
             currentState = loadState(initialPracticeType);
             
             elements.modeToggleSwitch.checked = (initialPracticeType === 'words');
 
+            // If starting in character mode with auto-progress, ensure filter is correct for current level
+            if (currentState.practiceType === 'characters' && currentState.autoProgressEnabled) {
+                // No need to set selectedFilterOption here, getFilteredCharacters will handle it dynamically
+            }
+
             updateStatsDisplay(); 
             showNextItem(); 
-
-            // --- TOAST FUNCTION ---
-            /**
-             * Shows a Bootstrap toast notification.
-             * @param {string} message - The message to display in the toast.
-             * @param {string} type - The type of toast (e.g., 'success', 'info', 'warning', 'danger').
-             */
-            function showBootstrapToast(message, type = 'info') {
-                let toastContainer = document.getElementById('toast-container-main');
-                if (!toastContainer) {
-                    toastContainer = document.createElement('div');
-                    toastContainer.id = 'toast-container-main';
-                    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-                    document.body.appendChild(toastContainer);
-                }
-
-                const toastId = `toast-${Date.now()}`; // Unique ID for each toast
-                const toastElement = document.createElement('div');
-                toastElement.id = toastId;
-                toastElement.className = 'toast align-items-center text-white border-0';
-                toastElement.setAttribute('role', 'alert');
-                toastElement.setAttribute('aria-live', 'assertive');
-                toastElement.setAttribute('aria-atomic', 'true');
-
-                let bgColorClass = 'bg-secondary'; // Default background
-                switch (type.toLowerCase()) {
-                    case 'success':
-                        bgColorClass = 'bg-success';
-                        break;
-                    case 'info':
-                        bgColorClass = 'bg-info text-dark'; // text-dark for better contrast on bg-info
-                        break;
-                    case 'warning':
-                        bgColorClass = 'bg-warning text-dark'; // text-dark for better contrast on bg-warning
-                        break;
-                    case 'danger':
-                        bgColorClass = 'bg-danger';
-                        break;
-                }
-                toastElement.classList.add(bgColorClass);
-
-                toastElement.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                `;
-
-                toastContainer.appendChild(toastElement);
-
-                const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
-                toast.show();
-
-                // Optional: Remove the toast element from DOM after it's hidden
-                toastElement.addEventListener('hidden.bs.toast', () => {
-                    toastElement.remove();
-                    // If container is empty, it could also be removed, but often it's fine to leave it.
-                });
-            }
-
-            // Service Worker Registration
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                  .then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                  })
-                  .catch(error => {
-                    console.log('ServiceWorker registration failed: ', error);
-                  });
-              });
-            }
         });
+        // Registering Service Worker
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js');
+		}
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
