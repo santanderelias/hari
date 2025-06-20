@@ -407,9 +407,11 @@
             display: none; /* Hidden by default */
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            align-items: center; /* Vertically center content */
+            gap: 10px; /* Space between text and button */
         }
         .toast.show {
-            display: block;
+            display: flex; /* Use flexbox for toast content */
             opacity: 1;
         }
         .toast.toast-warning {
@@ -423,6 +425,22 @@
         .toast.toast-danger { /* NEW: Style for danger toast */
             background-color: #dc3545; /* Red for errors/danger */
             color: white;
+        }
+        /* Style for the update button inside the toast */
+        .toast-update-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+            white-space: nowrap; /* Prevent button text from wrapping */
+            margin-left: auto; /* Push button to the right */
+        }
+        .toast-update-btn:hover {
+            background-color: #0056b3;
         }
 
         /* Settings Modal Specifics */
@@ -699,7 +717,7 @@
 <body>
 
     <!-- Update Button -->
-    <button id="update-button" class="hidden">&#8635;</button> <!-- Up arrow icon -->
+    <button id="update-button" class="hidden">🔄</button> <!-- Changed to emoji icon -->
 
     <!-- Bottom Navigation Bar -->
     <nav class="navbar">
@@ -733,7 +751,7 @@
                     <div class="mb-3">
                         <input type="text" id="romaji-input" class="form-control form-control-lg" placeholder="e.g., 'ka'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Check Answer</button>
+                    <button type="submit" class="btn btn-primary w-100">Check</button> <!-- Changed label to "Check" -->
                 </form>
                 <div id="feedback" class="feedback"></div>
                 <!-- Mnemonic Toggle Button - moved inside card-body -->
