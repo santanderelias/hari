@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-	<link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
+<link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
     <style>
         /* Custom styles for a more pleasant look and feel */
         body {
@@ -398,7 +398,7 @@
             background-color: #28a745; /* Default green for success */
             color: white;
             border: none;
-            border-radius: 8px; /* Fixed: Changed from 鳴 to px */
+            border-radius: 8px; 
             padding: 15px 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             display: none; /* Hidden by default */
@@ -415,6 +415,10 @@
         }
         .toast.toast-info {
             background-color: #17a2b8;
+            color: white;
+        }
+        .toast.toast-danger { /* NEW: Style for danger toast */
+            background-color: #dc3545; /* Red for errors/danger */
             color: white;
         }
 
@@ -473,6 +477,7 @@
             background-color: #d4edda;
             border-color: #28a745;
             color: #155724;
+            opacity: 0.7; /* Mastered items appear slightly less prominent */
         }
         .item-tag.learning {
             background-color: #fff3cd;
@@ -785,7 +790,6 @@
             <h2>Settings</h2>
             <div class="text-left">
                 <div class="setting-section" id="character-settings">
-                    <!-- Removed the "Character Selection" title here -->
                     <div class="form-check form-switch d-flex align-items-center mb-3">
                         <label class="form-check-label" for="auto-progress-toggle">
                             Enable Automatic Level Progression
@@ -1021,7 +1025,9 @@
                 failedItemsQueue: [], 
                 selectedFilterOption: 'vowels', 
                 autoProgressEnabled: true,
-                charMasteryStreakRequired: CHAR_MASTERY_CORRECT_STREAK_REQUIRED_DEFAULT // New setting default
+                charMasteryStreakRequired: CHAR_MASTERY_CORRECT_STREAK_REQUIRED_DEFAULT, // New setting default
+                lastIncorrectItemHiragana: null, // NEW
+                consecutiveIncorrectCount: 0 // NEW
             };
 
             const defaultWordState = {
@@ -1034,7 +1040,9 @@
                 levelUpThreshold: 3, 
                 failedItemsQueue: [], 
                 selectedFilterOption: null, // Not used for words
-                autoProgressEnabled: false 
+                autoProgressEnabled: false,
+                lastIncorrectItemHiragana: null, // NEW
+                consecutiveIncorrectCount: 0 // NEW
             };
 
             // NEW: Default Number State
@@ -1048,7 +1056,9 @@
                 levelUpThreshold: 3, 
                 failedItemsQueue: [], 
                 selectedFilterOption: null, // Not used for numbers
-                autoProgressEnabled: true // Assuming numbers will have auto-progress by default
+                autoProgressEnabled: true, // Assuming numbers will have auto-progress by default
+                lastIncorrectItemHiragana: null, // NEW
+                consecutiveIncorrectCount: 0 // NEW
             };
 
             let currentState = { ...defaultCharacterState }; 
@@ -1128,6 +1138,9 @@
                         parsedState.selectedFilterOption = parsedState.selectedFilterOption || 'vowels'; 
                         parsedState.autoProgressEnabled = typeof parsedState.autoProgressEnabled === 'boolean' ? parsedState.autoProgressEnabled : true; 
                         parsedState.charMasteryStreakRequired = parsedState.charMasteryStreakRequired || CHAR_MASTERY_CORRECT_STREAK_REQUIRED_DEFAULT;
+                        // NEW: Load new state variables, provide defaults if not present
+                        parsedState.lastIncorrectItemHiragana = parsedState.lastIncorrectItemHiragana || null;
+                        parsedState.consecutiveIncorrectCount = parsedState.consecutiveIncorrectCount || 0;
 
                         targetDataArray.forEach(item => {
                             const savedItemData = parsedState.itemMasteryData?.find(saved => saved.hiragana === item.hiragana && saved.romaji === item.romaji);
@@ -1564,21 +1577,12 @@
                         // Remove from failed queue if it was found and is being reviewed
                         currentState.failedItemsQueue = currentState.failedItemsQueue.filter(item => item !== foundFailedItem);
                     } else {
-                        // Fallback to random if a failed item isn't in the current filtered list
-                        let newIndex;
-                        do {
-                            newIndex = Math.floor(Math.random() * filteredDataList.length);
-                        } while (filteredDataList.length > 1 && newIndex === currentState.currentIndex); 
-                        itemToDisplay = filteredDataList[newIndex];
+                        // Fallback to prioritized random if a failed item isn't in the current filtered list
+                        itemToDisplay = getRandomPrioritizedItem(filteredDataList);
                     }
 
                 } else {
-                    let newIndex;
-                    do {
-                        newIndex = Math.floor(Math.random() * filteredDataList.length);
-                        // Make sure we don't pick the same item consecutively unless it's the only item
-                    } while (filteredDataList.length > 1 && newIndex === currentState.currentIndex); 
-                    itemToDisplay = filteredDataList[newIndex];
+                    itemToDisplay = getRandomPrioritizedItem(filteredDataList);
                 }
 
                 if (!itemToDisplay) {
@@ -1600,6 +1604,30 @@
 
                 adjustFontSizeToFit();
             }
+
+            /**
+             * Helper function to get a random item, prioritizing unmastered ones.
+             * @param {Array} dataList - The list of items to choose from (e.g., hiraganaChart, hiraganaWords, japaneseNumbers).
+             * @returns {Object} A randomly selected item, prioritizing unmastered ones.
+             */
+            function getRandomPrioritizedItem(dataList) {
+                let unmasteredItems = dataList.filter(item => {
+                    if (currentState.practiceType === 'characters') {
+                        return item.masteryLevel < CHAR_MAX_MASTERY_LEVEL;
+                    } else { // words or numbers
+                        return item.masteryLevel < (currentState.practiceType === 'words' ? WORD_MAX_MASTERY_LEVEL : NUMBER_MAX_MASTERY_LEVEL);
+                    }
+                });
+
+                if (unmasteredItems.length > 0) {
+                    // If there are unmastered items, pick one randomly from them
+                    return unmasteredItems[Math.floor(Math.random() * unmasteredItems.length)];
+                } else {
+                    // If all items are mastered, pick one randomly from the entire list.
+                    return dataList[Math.floor(Math.random() * dataList.length)];
+                }
+            }
+
 
             function checkAnswer() {
                 const userAnswer = elements.input.value.trim().toLowerCase();
@@ -1674,6 +1702,10 @@
                     elements.mnemonicToggleButton.style.display = 'none';
                     elements.correctAnswerOnMistake.textContent = ''; 
 
+                    // Reset consecutive incorrect counter on correct answer
+                    currentState.consecutiveIncorrectCount = 0;
+                    currentState.lastIncorrectItemHiragana = null;
+
                     setTimeout(() => {
                         showNextItem();
                     }, 800);
@@ -1686,6 +1718,21 @@
                     // Reset streak on incorrect answer
                     if (currentItemInMasteryData) {
                         currentItemInMasteryData.correctStreak = 0;
+                    }
+
+                    // Handle repeated incorrect answers
+                    if (currentState.lastIncorrectItemHiragana === currentState.currentItem.hiragana) {
+                        currentState.consecutiveIncorrectCount++;
+                    } else {
+                        currentState.lastIncorrectItemHiragana = currentState.currentItem.hiragana;
+                        currentState.consecutiveIncorrectCount = 1;
+                    }
+
+                    if (currentState.consecutiveIncorrectCount >= 2) { 
+                        showNotification(`Oops! Correct answer for "${currentState.currentItem.hiragana}" was "${currentState.currentItem.romaji}".`, 'danger', 4000);
+                        // Reset count after showing the specific notification to prevent repeat for every subsequent wrong answer
+                        currentState.consecutiveIncorrectCount = 0;
+                        currentState.lastIncorrectItemHiragana = null;
                     }
 
                     const isAlreadyFailed = currentState.failedItemsQueue.some(item => 
@@ -2037,7 +2084,7 @@
             updateStatsDisplay(); 
             showNextItem(); 
         });
-	    // Registering Service Worker
+	    	    	// Registering Service Worker
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
 	}
