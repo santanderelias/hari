@@ -12,8 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
-
+	<link rel="manifest" href="https://santanderelias.github.io/hari/hari.webmanifest">
     <style>
         /* Custom styles for a more pleasant look and feel */
         body {
@@ -399,7 +398,7 @@
             background-color: #28a745; /* Default green for success */
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 8px; /* Fixed: Changed from 鳴 to px */
             padding: 15px 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             display: none; /* Hidden by default */
@@ -605,6 +604,58 @@
                 padding: 10px;
             }
         }
+
+        /* Custom Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
@@ -735,11 +786,13 @@
             <div class="text-left">
                 <div class="setting-section" id="character-settings">
                     <h4 class="mt-3">Character Selection</h4>
-                    <!-- Removed: <p class="text-muted mb-3">Choose which characters to practice:</p> -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="auto-progress-toggle">
+                    <div class="form-check form-switch d-flex align-items-center mb-3">
                         <label class="form-check-label" for="auto-progress-toggle">
                             Enable Automatic Level Progression
+                        </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-progress-toggle">
+                            <span class="slider"></span>
                         </label>
                     </div>
                     <!-- Moved character-filter-options into its own container for dynamic hiding -->
@@ -752,7 +805,6 @@
                 
                 <!-- NEW SETTING: Mastery Streak Slider -->
                 <div class="setting-section" id="character-mastery-settings">
-                    <!-- Removed: <h4 class="mt-3">Character Mastery Threshold</h4> -->
                     <p class="text-muted mb-3">Correct answers needed to master a character:</p>
                     <div id="mastery-slider-container">
                         <input type="range" class="form-range" id="mastery-streak-slider" min="1" max="10" step="1">
@@ -1274,21 +1326,6 @@
                     { value: 'all-characters', label: 'All Hiragana Characters' } 
                 ];
 
-                let effectiveSelection = currentState.selectedFilterOption;
-                // If auto-progress is enabled, the actual filter shown in settings should reflect the current level's filter
-                if (currentState.autoProgressEnabled && currentState.practiceType === 'characters') {
-                    if (currentState.level === 1) effectiveSelection = 'vowels';
-                    else if (currentState.level === 2) effectiveSelection = 'a';
-                    else if (currentState.level === 3) effectiveSelection = 'i';
-                    else if (currentState.level === 4) effectiveSelection = 'u';
-                    else if (currentState.level === 5) effectiveSelection = 'e';
-                    else if (currentState.level === 6) effectiveSelection = 'o';
-                    else if (currentState.level === 7) effectiveSelection = 'combination'; 
-                    else if (currentState.level === 8) effectiveSelection = 'dakuten';     
-                    else if (currentState.level === 9) effectiveSelection = 'handakuten';  
-                    else if (currentState.level >= 10) effectiveSelection = 'all-characters'; 
-                }
-
                 filterOptions.forEach(option => {
                     const div = document.createElement('div');
                     div.classList.add('form-check', 'mb-2');
@@ -1299,7 +1336,7 @@
                     input.name = 'characterFilter'; 
                     input.id = `filter-${option.value}`;
                     input.value = option.value;
-                    input.checked = (effectiveSelection === option.value);
+                    input.checked = (currentState.selectedFilterOption === option.value); // Use currentState.selectedFilterOption
                     input.disabled = currentState.autoProgressEnabled; 
 
                     const label = document.createElement('label');
@@ -1315,6 +1352,7 @@
                 // Set slider value and display
                 elements.masteryStreakSlider.value = currentState.charMasteryStreakRequired;
                 elements.masteryStreakDisplay.textContent = currentState.charMasteryStreakRequired;
+                
                 // Control visibility of filter options and slider based on auto-progress toggle
                 elements.characterSelectionOptionsContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
                 elements.masterySliderContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
@@ -1768,7 +1806,7 @@
 
             // NEW: Close dropdown if clicked outside
             document.addEventListener('click', (event) => {
-                if (!elements.modeDropdownContainer.contains(event.target)) {
+                if (!event.target.closest('.mode-dropdown-container')) { // Changed condition
                     elements.modeDropdownMenu.classList.remove('active');
                 }
             });
@@ -1840,7 +1878,7 @@
 
             elements.saveSettingsBtn.addEventListener('click', applySettings);
 
-            // Listener for auto-progress toggle in settings to enable/disable radio buttons and mastery slider
+            // Listener for auto-progress toggle in settings to show/hide relevant settings
             elements.autoProgressToggle.addEventListener('change', () => {
                 // If auto-progress is checked, hide the manual filter options and the mastery slider
                 if (elements.autoProgressToggle.checked) {
@@ -1994,7 +2032,7 @@
             updateStatsDisplay(); 
             showNextItem(); 
         });
-	// Registering Service Worker
+	    	// Registering Service Worker
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
 	}
