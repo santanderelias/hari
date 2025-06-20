@@ -2084,10 +2084,51 @@
             updateStatsDisplay(); 
             showNextItem(); 
         });
-	    	    	// Registering Service Worker
+	// Registering Service Worker
 	if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.register('https://santanderelias.github.io/hari/sw.js');
-	}
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => {
+      console.log('Service Worker registered with scope:', reg.scope);
+
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // A new service worker is installed and waiting
+              // You can now show a UI element (e.g., a banner, a toast)
+              // asking the user to refresh the page to get the latest update.
+              console.log('New update available!');
+              showUpdatePrompt(); // Call a function to display your update UI
+            }
+          });
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Service Worker registration failed:', error);
+    });
+}
+
+function showUpdatePrompt() {
+  // Example: Display a simple alert or a custom banner
+  if (confirm('A new version of this app is available. Click OK to update now!')) {
+    // Send a message to the waiting service worker to skip waiting and activate immediately
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
+  }
+}
+
+// Listen for the 'controllerchange' event to reload the page once the new service worker is active
+let refreshing;
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+  if (refreshing) return;
+  window.location.reload();
+  refreshing = true;
+});
     </script>
 </body>
 </html>
