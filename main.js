@@ -382,8 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         masteryStreakSlider: document.getElementById('mastery-streak-slider'), 
         masteryStreakDisplay: document.getElementById('mastery-streak-display'),  
         startOverBtn: document.getElementById('start-over-btn'),
-        collapsibleHeaders: document.querySelectorAll('.collapsible-header'),
-        updateButton: document.getElementById('update-button')
+        collapsibleHeaders: document.querySelectorAll('.collapsible-header')
     };
 
     // --- UI CONTROL FUNCTIONS ---
@@ -407,18 +406,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const toast = document.createElement('div');
         toast.classList.add('toast', `toast-${type}`);
 
-        const messageSpan = document.createElement('span'); // Create a span for the message text
+        const messageSpan = document.createElement('span'); 
         messageSpan.textContent = message;
         toast.appendChild(messageSpan);
 
-        // Add a button if buttonText and buttonAction are provided AND it's a warning toast
-        if (buttonText && buttonAction && type === 'warning') {
+        // Add a button if buttonText and buttonAction are provided
+        if (buttonText && buttonAction) { 
             const button = document.createElement('button');
             button.classList.add('toast-update-btn');
             button.textContent = buttonText;
             button.addEventListener('click', () => {
                 buttonAction(); // Execute the provided action (e.g., skip waiting)
-                // Hide the toast immediately when its button is clicked
                 toast.classList.remove('show');
                 toast.addEventListener('transitionend', () => toast.remove());
             });
@@ -427,29 +425,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         elements.toastContainer.appendChild(toast);
 
-        // A small delay to allow CSS transition to apply
         setTimeout(() => {
             toast.classList.add('show');
         }, 100); 
 
-        // Auto-hide after duration, unless it's a toast with an action button that should not auto-hide
-        if (duration > 0 || !(type === 'warning' && buttonText && buttonAction)) { // Added condition to ensure duration > 0 for auto-hide
+        // Auto-hide unless duration is explicitly 0
+        if (duration > 0) { 
             setTimeout(() => {
                 toast.classList.remove('show');
                 toast.addEventListener('transitionend', () => toast.remove());
             }, duration);
         }
-    }
-
-    // Functions for the fixed update button visibility
-    function showUpdateButton() {
-        elements.updateButton.classList.remove('hidden');
-        elements.updateButton.style.display = 'flex'; // Ensure it's visible
-    }
-
-    function hideUpdateButton() {
-        elements.updateButton.classList.add('hidden');
-        elements.updateButton.style.display = 'none'; // Ensure it's hidden
+        // If duration is 0, the toast stays until clicked (if it has a button) or page changes
     }
 
     function populateMistakeList() {
@@ -1371,12 +1358,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (newWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
                                     console.log('New update available (state: installed)!');
-                                    showUpdateButton(); // Show the fixed update button
                                     // Show the yellow toast with the update button
-                                    showNotification('A new version is available!', 'warning', 0, 'Update', () => {
+                                    showNotification('A new version is available!', 'warning', 0, 'Update Now', () => {
                                         newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                        // Hide the fixed button after user clicks on toast update button
-                                        hideUpdateButton();
                                     });
                                 } else {
                                     console.log('Service Worker installed for the first time or activated on refresh.');
@@ -1399,17 +1383,4 @@ document.addEventListener('DOMContentLoaded', () => {
             refreshing = true;
         });
     }
-
-    // Event listener for the FIXED update button
-    elements.updateButton.addEventListener('click', () => {
-        console.log("Update button clicked. Requesting service worker to skip waiting.");
-        if (newWorker) {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-            hideUpdateButton(); // Hide fixed button after clicking
-            showNotification('Updating app...', 'info', 2000);
-        } else {
-            showNotification('No new update available at the moment.', 'info');
-            hideUpdateButton();
-        }
-    });
 });
