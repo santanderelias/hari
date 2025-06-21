@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hiragana-cache-v1.1.4.2.5';
+const CACHE_NAME = 'hiragana-cache-v1.1.4.2.6';
 
 // List of URLs to cache
 const CACHE_URLS = [
