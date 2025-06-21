@@ -1045,9 +1045,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
 
-    elements.input.addEventListener('input', () => {
+    const forceLowercase = () => {
         elements.input.value = elements.input.value.toLowerCase();
-    });
+    };
+
+    elements.input.addEventListener('input', forceLowercase);
+    elements.input.addEventListener('keyup', forceLowercase); // Additional check
+    elements.input.addEventListener('change', forceLowercase); // Check when focus is lost
 
     elements.form.addEventListener('submit', (event) => {
         event.preventDefault(); 
