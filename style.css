@@ -173,13 +173,6 @@ body {
     font-weight: 600;
 }
 
-.correct-answer-on-mistake {
-    color: var(--incorrect-color);
-    font-weight: bold;
-    font-size: 1.1em;
-    min-height: 1.3em; /* Reserve space */
-}
-
 .mnemonic-btn {
     padding: 10px 20px;
     font-size: 0.95em;
@@ -634,7 +627,7 @@ body {
     white-space: nowrap; /* Prevent text wrapping within buttons */
     overflow: hidden; /* Hide overflowing text */
     text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-    text-align: center;
+    text-align: center; /* Ensure text within button is centered */
     margin: 0; /* Reset margin from general .btn */
     background-color: var(--primary-color); /* Apply primary color to buttons in nav */
     border-color: var(--primary-color);
