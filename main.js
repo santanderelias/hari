@@ -1363,9 +1363,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (newWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
                                     console.log('New update available (state: installed)!');
-                                    // Show the yellow toast with the update button
+                                    // Show the yellow toast with the update button, duration 0 makes it persistent
                                     showNotification('A new version is available!', 'warning', 0, 'Update Now', () => {
-                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        if (newWorker) {
+                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        }
                                     });
                                 } else {
                                     console.log('Service Worker installed for the first time or activated on refresh.');
