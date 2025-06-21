@@ -352,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         mnemonicTitle: document.getElementById('mnemonic-title'),
         mnemonicImage: document.getElementById('mnemonic-image'),
         mnemonicText: document.getElementById('mnemonic-text'),
-        correctAnswerOnMistake: document.getElementById('correct-answer-on-mistake'), 
         statsBtn: document.getElementById('stats-btn'),         
         settingsBtn: document.getElementById('settings-btn'),   
         statsModal: document.getElementById('stats-modal'),     
@@ -907,7 +906,6 @@ document.addEventListener('DOMContentLoaded', () => {
             saveState(currentState.practiceType); 
             
             elements.mnemonicToggleButton.style.display = 'none';
-            elements.correctAnswerOnMistake.textContent = ''; 
 
             // Reset consecutive incorrect counter on correct answer
             currentState.consecutiveIncorrectCount = 0;
@@ -961,7 +959,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentState.currentItem.mnemonicImage || currentState.currentItem.mnemonicText) {
                 elements.mnemonicToggleButton.style.display = 'flex';
             }
-            elements.correctAnswerOnMistake.textContent = `Correct: "${currentState.currentItem.romaji}"`;
 
             setTimeout(() => {
                 elements.input.classList.remove('shake');
@@ -1047,6 +1044,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
+
+    elements.input.addEventListener('input', () => {
+        elements.input.value = elements.input.value.toLowerCase();
+    });
 
     elements.form.addEventListener('submit', (event) => {
         event.preventDefault(); 
