@@ -559,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.masteryStreakDisplay.textContent = currentState.charMasteryStreakRequired;
         
         // Control visibility of filter options and slider based on auto-progress toggle
-        elements.characterSelectionOptionsContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
+		elements.characterSelectionOptionsContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
         elements.masterySliderContainer.style.display = elements.autoProgressToggle.checked ? 'none' : 'block';
     }
 
@@ -1134,23 +1134,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     elements.settingsBtn.addEventListener('click', () => {
-        populateSettingsModal(); 
+        //populateSettingsModal(); 
         showModal(elements.settingsModal);
     });
 
     elements.saveSettingsBtn.addEventListener('click', applySettings);
 
     // Listener for auto-progress toggle in settings to show/hide relevant settings
-    elements.autoProgressToggle.addEventListener('change', () => {
+		elements.autoProgressToggle.addEventListener('change', () => {
         currentState.autoProgressEnabled = elements.autoProgressToggle.checked; // Update state immediately
 
-        // Control visibility
+       //  Control visibility
         if (currentState.autoProgressEnabled) {
-            elements.characterSelectionOptionsContainer.style.display = 'none';
-            elements.masterySliderContainer.style.display = 'none';
+			console.log('enabled')
+			//elements.characterSelectionOptionsContainer.style.display = 'none';
+			//elements.masterySliderContainer.style.display = 'none';
         } else {
-            elements.characterSelectionOptionsContainer.style.display = 'block';
-            elements.masterySliderContainer.style.display = 'block';
+			console.log('disabled')
+			//elements.characterSelectionOptionsContainer.style.display = 'block';
+			//elements.masterySliderContainer.style.display = 'block';
         }
         
         // Update disabled state of radio buttons
@@ -1338,7 +1340,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if the app was just updated (before showing the first item)
     if (sessionStorage.getItem('appUpdated')) {
-        showNotification('App Updated! ✅', 'success', 3000); // Green success notification
+        showNotification('App Updated! ✅', 'success', 4000); // Green success notification
         sessionStorage.removeItem('appUpdated'); // Clear the flag
     }
 
@@ -1346,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showNextItem();
 
     // --- Service Worker and Update System Logic ---
-    let newWorker = null; // Stores the new service worker
+   let newWorker = null; // Stores the new service worker
     let refreshing = false; // Flag to prevent multiple reloads
 
     if ('serviceWorker' in navigator) {
@@ -1388,6 +1390,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.setItem('appUpdated', 'true'); // Set flag before reload
             window.location.reload();
             refreshing = true;
-        });
-    }
+        }); 
+    
 });
