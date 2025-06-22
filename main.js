@@ -1348,7 +1348,8 @@ document.addEventListener('DOMContentLoaded', () => {
     showNextItem();
 
     // --- Service Worker and Update System Logic ---
-   let newWorker = null; // Stores the new service worker
+    // --- Service Worker and Update System Logic ---
+	let newWorker = null; // Stores the new service worker
     let refreshing = false; // Flag to prevent multiple reloads
 
     if ('serviceWorker' in navigator) {
@@ -1388,8 +1389,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (refreshing) return;
             console.log('Service Worker controller changed. Reloading for update.');
             sessionStorage.setItem('appUpdated', 'true'); // Set flag before reload
-            window.location.reload();
+            //window.location.reload();
             refreshing = true;
         }); 
+	}
     
 });
